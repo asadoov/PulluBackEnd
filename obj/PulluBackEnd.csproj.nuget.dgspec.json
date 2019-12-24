@@ -1,23 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Asadz\\source\\repos\\PulluBackEnd\\PulluBackEnd\\PulluBackEnd.csproj": {}
+    "C:\\Users\\test.pts\\AndroidStudioProjects\\PulluAZ\\PulluBackEnd\\PulluBackEnd.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Asadz\\source\\repos\\PulluBackEnd\\PulluBackEnd\\PulluBackEnd.csproj": {
+    "C:\\Users\\test.pts\\AndroidStudioProjects\\PulluAZ\\PulluBackEnd\\PulluBackEnd.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Asadz\\source\\repos\\PulluBackEnd\\PulluBackEnd\\PulluBackEnd.csproj",
+        "projectUniqueName": "C:\\Users\\test.pts\\AndroidStudioProjects\\PulluAZ\\PulluBackEnd\\PulluBackEnd.csproj",
         "projectName": "PulluBackEnd",
-        "projectPath": "C:\\Users\\Asadz\\source\\repos\\PulluBackEnd\\PulluBackEnd\\PulluBackEnd.csproj",
-        "packagesPath": "C:\\Users\\Asadz\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Asadz\\source\\repos\\PulluBackEnd\\PulluBackEnd\\obj\\",
+        "projectPath": "C:\\Users\\test.pts\\AndroidStudioProjects\\PulluAZ\\PulluBackEnd\\PulluBackEnd.csproj",
+        "packagesPath": "C:\\Users\\test.pts\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\test.pts\\AndroidStudioProjects\\PulluAZ\\PulluBackEnd\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Microsoft\\Xamarin\\NuGet\\"
+          "C:\\Microsoft\\Xamarin\\NuGet\\",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\Asadz\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\test.pts\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],

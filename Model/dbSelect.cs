@@ -31,8 +31,11 @@ namespace PulluBackEnd.Model
 
             connection.Open();
 
-            MySqlCommand com = new MySqlCommand("select * from user where username=@login and passwd=@pass", connection);
-       
+            MySqlCommand com = new MySqlCommand("select *,(select name from pulludb.gender where genderId=a.genderId) as gender," +
+                "(select name from pulludb.city where cityId=a.cityId)as city," +
+                "(select name from pulludb.profession where professionId=a.professionId)as profession" +
+                " from user a where username=@login or and passwd=@pass", connection);
+
 
             com.Parameters.AddWithValue("@login", username);
             com.Parameters.AddWithValue("@pass", password);
@@ -46,10 +49,18 @@ namespace PulluBackEnd.Model
                 {
 
                     User usr = new User();
-                    usr.username = reader["username"].ToString();
                     usr.name = reader["name"].ToString();
                     usr.surname = reader["surname"].ToString();
-                   
+                    usr.username = reader["username"].ToString();
+                    usr.mail = reader["email"].ToString();
+                    usr.phone = reader["mobile"].ToString();
+                    usr.birthDate = DateTime.Parse(reader["birthdate"].ToString());
+                    usr.gender = reader["gender"].ToString();
+                    usr.city = reader["city"].ToString();
+                    usr.profession = reader["profession"].ToString();
+                    usr.regDate = DateTime.Parse(reader["cdate"].ToString());
+
+
 
 
                     user.Add(usr);
