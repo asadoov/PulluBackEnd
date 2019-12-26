@@ -47,6 +47,31 @@ namespace PulluBackEnd.Controllers
                 return user;
             }
         }
+
+        [HttpGet]
+        [Route("user/getAds")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<List<User>> getAds(string username, string pass)
+        {
+            List<User> user = new List<User>();
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(pass))
+            {
+
+                return user;
+            }
+            else
+            {
+
+
+
+                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                user = select.log_in(username, pass);
+
+                return user;
+            }
+        }
+
+
         [HttpGet]
         [Route("test")]
         [EnableCors("AllowOrigin")]

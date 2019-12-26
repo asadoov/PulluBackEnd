@@ -34,7 +34,7 @@ namespace PulluBackEnd.Model
             MySqlCommand com = new MySqlCommand("select *,(select name from pulludb.gender where genderId=a.genderId) as gender," +
                 "(select name from pulludb.city where cityId=a.cityId)as city," +
                 "(select name from pulludb.profession where professionId=a.professionId)as profession" +
-                " from user a where username=@login or and passwd=@pass", connection);
+                " from user a where (username=@login or email=@login) and passwd=@pass", connection);
 
 
             com.Parameters.AddWithValue("@login", username);

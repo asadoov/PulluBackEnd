@@ -231,3 +231,4 @@ C:\Users\test.pts\AndroidStudioProjects\PulluAZ\PulluBackEnd\obj\Debug\netcoreap
 C:\Users\test.pts\AndroidStudioProjects\PulluAZ\PulluBackEnd\obj\Debug\netcoreapp3.0\PulluBackEnd.csproj.CopyComplete
 C:\Users\test.pts\AndroidStudioProjects\PulluAZ\PulluBackEnd\obj\Debug\netcoreapp3.0\PulluBackEnd.dll
 C:\Users\test.pts\AndroidStudioProjects\PulluAZ\PulluBackEnd\obj\Debug\netcoreapp3.0\PulluBackEnd.pdb
+C:\Users\test.pts\AndroidStudioProjects\PulluAZ\PulluBackEnd\obj\Debug\netcoreapp3.0\PulluBackEnd.csprojAssemblyReference.cache

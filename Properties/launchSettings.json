@@ -2,8 +2,12 @@
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
+    "iis": {
+      "applicationUrl": "http://localhost/PulluBackEnd",
+      "sslPort": 0
+    },
     "iisExpress": {
-      "applicationUrl": "https://127.0.0.1:44363/",
+      "applicationUrl": "http://127.0.0.1:44301",
       "sslPort": 0
     }
   },
@@ -18,7 +22,7 @@
       }
     },
     "PulluBackEnd": {
-      "commandName": "Project",
+      "commandName": "IISExpress",
       "launchBrowser": true,
       "launchUrl": "weatherforecast",
       "environmentVariables": {
