@@ -42,7 +42,7 @@ namespace PulluBackEnd.Controllers
 
 
                 dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
-                user = select.log_in(username, pass);
+                user = select.Log_in(username, pass);
 
                 return user;
             }
@@ -51,13 +51,13 @@ namespace PulluBackEnd.Controllers
         [HttpGet]
         [Route("user/getAds")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<User>> getAds(string username, string pass)
+        public ActionResult<List<Ads>> getAds(string username, string pass)
         {
-            List<User> user = new List<User>();
+            List<Ads> ads = new List<Ads>();
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(pass))
             {
 
-                return user;
+                return ads;
             }
             else
             {
@@ -65,9 +65,9 @@ namespace PulluBackEnd.Controllers
 
 
                 dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
-                user = select.log_in(username, pass);
+                ads = select.Advertisements(username, pass);
 
-                return user;
+                return ads;
             }
         }
 

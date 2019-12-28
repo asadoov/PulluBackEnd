@@ -26,7 +26,7 @@
       <publishTime>08/14/2019 23:21:32</publishTime>
     </File>
     <File Include="cs/Microsoft.CodeAnalysis.resources.dll">
-      <publishTime>08/14/2019 23:20:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="cs/Microsoft.CodeAnalysis.Workspaces.resources.dll">
       <publishTime>08/14/2019 23:20:54</publishTime>
@@ -38,7 +38,7 @@
       <publishTime>08/14/2019 23:21:32</publishTime>
     </File>
     <File Include="de/Microsoft.CodeAnalysis.resources.dll">
-      <publishTime>08/14/2019 23:20:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="de/Microsoft.CodeAnalysis.Workspaces.resources.dll">
       <publishTime>08/14/2019 23:20:54</publishTime>
@@ -53,7 +53,7 @@
       <publishTime>08/14/2019 23:21:32</publishTime>
     </File>
     <File Include="es/Microsoft.CodeAnalysis.resources.dll">
-      <publishTime>08/14/2019 23:20:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="es/Microsoft.CodeAnalysis.Workspaces.resources.dll">
       <publishTime>08/14/2019 23:20:54</publishTime>
@@ -65,7 +65,7 @@
       <publishTime>08/14/2019 23:21:32</publishTime>
     </File>
     <File Include="fr/Microsoft.CodeAnalysis.resources.dll">
-      <publishTime>08/14/2019 23:20:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="fr/Microsoft.CodeAnalysis.Workspaces.resources.dll">
       <publishTime>08/14/2019 23:20:54</publishTime>
@@ -80,7 +80,7 @@
       <publishTime>08/14/2019 23:21:32</publishTime>
     </File>
     <File Include="it/Microsoft.CodeAnalysis.resources.dll">
-      <publishTime>08/14/2019 23:20:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="it/Microsoft.CodeAnalysis.Workspaces.resources.dll">
       <publishTime>08/14/2019 23:20:54</publishTime>
@@ -92,7 +92,7 @@
       <publishTime>08/14/2019 23:21:32</publishTime>
     </File>
     <File Include="ja/Microsoft.CodeAnalysis.resources.dll">
-      <publishTime>08/14/2019 23:20:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="ja/Microsoft.CodeAnalysis.Workspaces.resources.dll">
       <publishTime>08/14/2019 23:20:54</publishTime>
@@ -104,7 +104,7 @@
       <publishTime>08/14/2019 23:21:32</publishTime>
     </File>
     <File Include="ko/Microsoft.CodeAnalysis.resources.dll">
-      <publishTime>08/14/2019 23:20:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="ko/Microsoft.CodeAnalysis.Workspaces.resources.dll">
       <publishTime>08/14/2019 23:20:54</publishTime>
@@ -119,7 +119,7 @@
       <publishTime>08/14/2019 23:21:30</publishTime>
     </File>
     <File Include="Microsoft.CodeAnalysis.dll">
-      <publishTime>08/14/2019 23:20:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="Microsoft.CodeAnalysis.Razor.dll">
       <publishTime>09/14/2019 21:03:02</publishTime>
@@ -182,7 +182,7 @@
       <publishTime>08/14/2019 23:21:32</publishTime>
     </File>
     <File Include="pl/Microsoft.CodeAnalysis.resources.dll">
-      <publishTime>08/14/2019 23:20:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="pl/Microsoft.CodeAnalysis.Workspaces.resources.dll">
       <publishTime>08/14/2019 23:20:54</publishTime>
@@ -194,22 +194,22 @@
       <publishTime>08/14/2019 23:21:32</publishTime>
     </File>
     <File Include="pt-BR/Microsoft.CodeAnalysis.resources.dll">
-      <publishTime>08/14/2019 23:20:00</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="pt-BR/Microsoft.CodeAnalysis.Workspaces.resources.dll">
       <publishTime>08/14/2019 23:20:54</publishTime>
     </File>
     <File Include="PulluBackEnd.deps.json">
-      <publishTime>12/26/2019 09:14:14</publishTime>
+      <publishTime>12/27/2019 13:44:44</publishTime>
     </File>
     <File Include="PulluBackEnd.dll">
-      <publishTime>12/26/2019 09:14:06</publishTime>
+      <publishTime>12/27/2019 13:44:43</publishTime>
     </File>
     <File Include="PulluBackEnd.exe">
-      <publishTime>12/26/2019 09:14:06</publishTime>
+      <publishTime>12/27/2019 13:44:43</publishTime>
     </File>
     <File Include="PulluBackEnd.pdb">
-      <publishTime>12/26/2019 09:14:06</publishTime>
+      <publishTime>12/27/2019 13:44:43</publishTime>
     </File>
     <File Include="PulluBackEnd.runtimeconfig.json">
       <publishTime>12/24/2019 15:48:17</publishTime>
@@ -299,7 +299,7 @@
       <publishTime>08/14/2019 23:20:54</publishTime>
     </File>
     <File Include="web.config">
-      <publishTime>12/26/2019 09:14:14</publishTime>
+      <publishTime>12/27/2019 13:44:44</publishTime>
     </File>
     <File Include="zh-Hans/Microsoft.CodeAnalysis.CSharp.resources.dll">
       <publishTime>08/14/2019 23:21:24</publishTime>

@@ -21,7 +21,7 @@ namespace PulluBackEnd.Model
             _hostingEnvironment = hostingEnvironment;
 
         }
-        public List<User> log_in(string username, string password)
+        public List<User> Log_in(string username, string password)
         {
 
 
@@ -75,6 +75,69 @@ namespace PulluBackEnd.Model
             {
                 return user;
             }
+
+        }
+        public List<Ads> Advertisements(string username, string password)
+
+        {
+            List<Ads> adsList = new List<Ads>();
+            if (Log_in(username, password).Count > 0)
+            {
+
+
+
+
+                MySqlConnection connection = new MySqlConnection(ConnectionString);
+
+
+                connection.Open();
+
+                MySqlCommand com = new MySqlCommand("select *,(select name from category where categoryId=a.categoryId ) as categoryName," +
+                    "(select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName" +
+                    " from announcement a where isActive=1", connection);
+
+
+                com.Parameters.AddWithValue("@login", username);
+                com.Parameters.AddWithValue("@pass", password);
+
+                MySqlDataReader reader = com.ExecuteReader();
+                if (reader.HasRows)
+                {
+
+
+                    while (reader.Read())
+                    {
+
+                        Ads ads = new Ads();
+                        ads.id = Convert.ToInt32(reader["announcementId"]);
+                        ads.name = reader["name"].ToString();
+                        ads.description = reader["description"].ToString();
+                        ads.price = reader["price"].ToString();
+                        ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
+                        ads.aTypeName = reader["aTypeName"].ToString();
+                        ads.isPaid = Convert.ToInt32(reader["isPaid"]);
+                        ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
+                        ads.catId = Convert.ToInt32(reader["categoryId"]);
+                        ads.catName = reader["categoryName"].ToString();
+                        ads.cDate = DateTime.Parse(reader["cdate"].ToString());
+
+
+
+
+                        adsList.Add(ads);
+
+
+                    }
+                    connection.Close();
+                    return adsList;
+
+                }
+                else
+                {
+                    return adsList;
+                }
+            }
+            return adsList;
 
         }
     }
