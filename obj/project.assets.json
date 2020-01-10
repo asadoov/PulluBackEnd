@@ -8653,11 +8653,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\test.pts\\AndroidStudioProjects\\PulluAZ\\PulluBackEnd\\PulluBackEnd.csproj",
+      "projectUniqueName": "C:\\Users\\test.pts\\Desktop\\PulluBackEnd\\PulluBackEnd.csproj",
       "projectName": "PulluBackEnd",
-      "projectPath": "C:\\Users\\test.pts\\AndroidStudioProjects\\PulluAZ\\PulluBackEnd\\PulluBackEnd.csproj",
+      "projectPath": "C:\\Users\\test.pts\\Desktop\\PulluBackEnd\\PulluBackEnd.csproj",
       "packagesPath": "C:\\Users\\test.pts\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\test.pts\\AndroidStudioProjects\\PulluAZ\\PulluBackEnd\\obj\\",
+      "outputPath": "C:\\Users\\test.pts\\Desktop\\PulluBackEnd\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Microsoft\\Xamarin\\NuGet\\",

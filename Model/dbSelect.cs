@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -92,7 +93,7 @@ namespace PulluBackEnd.Model
 
                 connection.Open();
 
-                MySqlCommand com = new MySqlCommand("select *,(select name from category where categoryId=a.categoryId ) as categoryName," +
+                MySqlCommand com = new MySqlCommand("select *,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,(select name from category where categoryId=a.categoryId ) as categoryName," +
                     "(select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName" +
                     " from announcement a where isActive=1", connection);
 
@@ -121,7 +122,7 @@ namespace PulluBackEnd.Model
                         ads.catName = reader["categoryName"].ToString();
                         ads.cDate = DateTime.Parse(reader["cdate"].ToString());
 
-
+                        ads.photoUrl = reader["photoUrl"].ToString();
 
 
                         adsList.Add(ads);
