@@ -32,7 +32,7 @@
       <publishTime>08/14/2019 23:20:54</publishTime>
     </File>
     <File Include="de/Microsoft.CodeAnalysis.CSharp.resources.dll">
-      <publishTime>08/14/2019 23:21:24</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="de/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll">
       <publishTime>08/14/2019 23:21:32</publishTime>
@@ -146,7 +146,7 @@
       <publishTime>04/29/2019 22:04:14</publishTime>
     </File>
     <File Include="Microsoft.VisualStudio.Web.CodeGeneration.Contracts.dll">
-      <publishTime>09/20/2019 22:25:44</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="Microsoft.VisualStudio.Web.CodeGeneration.Core.dll">
       <publishTime>09/20/2019 22:25:48</publishTime>
@@ -164,7 +164,7 @@
       <publishTime>09/20/2019 22:25:46</publishTime>
     </File>
     <File Include="Microsoft.VisualStudio.Web.CodeGenerators.Mvc.dll">
-      <publishTime>09/20/2019 22:25:54</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="MySql.Data.dll">
       <publishTime>01/01/1980 00:00:00</publishTime>
@@ -200,16 +200,16 @@
       <publishTime>08/14/2019 23:20:54</publishTime>
     </File>
     <File Include="PulluBackEnd.deps.json">
-      <publishTime>01/07/2020 12:30:31</publishTime>
+      <publishTime>01/29/2020 15:10:10</publishTime>
     </File>
     <File Include="PulluBackEnd.dll">
-      <publishTime>01/07/2020 12:23:02</publishTime>
+      <publishTime>01/29/2020 15:10:04</publishTime>
     </File>
     <File Include="PulluBackEnd.exe">
-      <publishTime>01/07/2020 12:23:02</publishTime>
+      <publishTime>01/29/2020 15:10:04</publishTime>
     </File>
     <File Include="PulluBackEnd.pdb">
-      <publishTime>01/07/2020 12:23:02</publishTime>
+      <publishTime>01/29/2020 15:10:04</publishTime>
     </File>
     <File Include="PulluBackEnd.runtimeconfig.json">
       <publishTime>01/07/2020 12:23:03</publishTime>
@@ -221,7 +221,7 @@
       <publishTime>08/14/2019 23:21:24</publishTime>
     </File>
     <File Include="ru/Microsoft.CodeAnalysis.CSharp.Workspaces.resources.dll">
-      <publishTime>08/14/2019 23:21:32</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="ru/Microsoft.CodeAnalysis.resources.dll">
       <publishTime>08/14/2019 23:20:02</publishTime>
@@ -269,7 +269,7 @@
       <publishTime>01/18/2019 16:50:02</publishTime>
     </File>
     <File Include="System.Composition.TypedParts.dll">
-      <publishTime>01/18/2019 16:50:02</publishTime>
+      <publishTime>01/01/0001 00:00:00</publishTime>
     </File>
     <File Include="System.Configuration.ConfigurationManager.dll">
       <publishTime>05/15/2018 13:29:38</publishTime>
@@ -299,7 +299,7 @@
       <publishTime>08/14/2019 23:20:54</publishTime>
     </File>
     <File Include="web.config">
-      <publishTime>01/07/2020 12:30:31</publishTime>
+      <publishTime>01/29/2020 15:10:10</publishTime>
     </File>
     <File Include="wwwroot/media/02082019190242-105855160.octet-stream">
       <publishTime>08/02/2019 19:02:45</publishTime>

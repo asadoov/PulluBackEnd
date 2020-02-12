@@ -16,7 +16,7 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/androidmobileapp/user/login?username=kamal.abdullayev&pass=123",
+      "launchUrl": "api/androidmobileapp/user/login?username=kamal.abdullasoy@gmail.com&pass=1",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
