@@ -23,7 +23,7 @@ namespace PulluBackEnd.Model
             _hostingEnvironment = hostingEnvironment;
 
         }
-        public List<User> Log_in(string username, string password)
+        public List<User> Log_in(string mail, string password)
         {
 
 
@@ -33,15 +33,15 @@ namespace PulluBackEnd.Model
 
             connection.Open();
 
-            MySqlCommand com = new MySqlCommand("select *,(select name from pulludb.gender where genderId=a.genderId) as gender," +
+            MySqlCommand com = new MySqlCommand("select *,(select name from pullu_db.gender where genderId=a.genderId) as gender," +
                 "(select balanceValue from users_balance where userId=a.userId) as balance," +
                 "(select earningValue from users_balance where userId=a.userId) as earning," +
-                "(select name from pulludb.city where cityId=a.cityId)as city," +
-                "(select name from pulludb.profession where professionId=a.professionId)as profession" +
+                "(select name from pullu_db.city where cityId=a.cityId)as city," +
+                "(select name from pullu_db.profession where professionId=a.professionId)as profession" +
                 " from user a where  email=@login and passwd=SHA2(@pass,512) and isActive=1", connection);
 
 
-            com.Parameters.AddWithValue("@login", username);
+            com.Parameters.AddWithValue("@login", mail);
             com.Parameters.AddWithValue("@pass", password);
 
             MySqlDataReader reader = com.ExecuteReader();
@@ -53,9 +53,10 @@ namespace PulluBackEnd.Model
                 {
 
                     User usr = new User();
+
+                    usr.ID = Convert.ToInt32(reader["userID"]);
                     usr.name = reader["name"].ToString();
                     usr.surname = reader["surname"].ToString();
-
                     usr.mail = reader["email"].ToString();
                     usr.phone = reader["mobile"].ToString();
                     usr.birthDate = DateTime.Parse(reader["birthdate"].ToString());
@@ -65,10 +66,6 @@ namespace PulluBackEnd.Model
                     usr.regDate = DateTime.Parse(reader["cdate"].ToString());
                     usr.balance = Convert.ToDecimal(reader["balance"]).ToString("0.00");
                     usr.earning = Convert.ToDecimal(reader["earning"]).ToString("0.00");
-
-
-
-
                     user.Add(usr);
 
 
@@ -378,7 +375,7 @@ namespace PulluBackEnd.Model
                 connection.Open();
 
                 MySqlCommand com = new MySqlCommand("select isPaid from announcement  where announcementID = @advertID", connection);
-                                
+
 
                 com.Parameters.AddWithValue("@advertID", advertID);
 
@@ -389,12 +386,12 @@ namespace PulluBackEnd.Model
 
                     while (reader.Read())
                     {
-                        if (Convert.ToInt32(reader["isPaid"])==0)
+                        if (Convert.ToInt32(reader["isPaid"]) == 0)
                         {
                             return false;
 
                         }
-                  
+
                     }
                 }
 
@@ -408,11 +405,11 @@ namespace PulluBackEnd.Model
 
             }
         }
-        public bool viewExist(long userID,int advertID)
+        public bool viewExist(long userID, int advertID)
         {
             try
             {
-                
+
 
                 MySqlConnection connection = new MySqlConnection(ConnectionString);
 
@@ -433,7 +430,7 @@ namespace PulluBackEnd.Model
                     {
                         if (Convert.ToInt32(reader["count"]) > 0)
                         {
-                           
+
                             return true;
 
                         }
@@ -456,18 +453,18 @@ namespace PulluBackEnd.Model
 
         {
 
-            if(!getAdvertPaidType(advertID))
+            if (!getAdvertPaidType(advertID))
             {
-               long userID = getUserID(mail, pass);
+                long userID = getUserID(mail, pass);
                 if (userID > 0)
                 {
-                    if (!viewExist(userID,advertID))
+                    if (!viewExist(userID, advertID))
                     {
                         DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
                         insert.addView(advertID, userID);
                     }
                 }
-            
+
             }
 
 
@@ -576,7 +573,7 @@ namespace PulluBackEnd.Model
                 long userID = getUserID(mail, pass);
 
 
-               
+
 
 
 
@@ -609,7 +606,7 @@ namespace PulluBackEnd.Model
                     while (reader.Read())
                     {
 
-                  
+
                         statistics.allUsers = Convert.ToInt32(reader["allUsers"]);
                         statistics.allUsersToday = Convert.ToInt32(reader["allUsersToday"]);
                         statistics.allAds = Convert.ToInt32(reader["allAds"]);
@@ -622,7 +619,7 @@ namespace PulluBackEnd.Model
                         statistics.myNotPaidAds = Convert.ToInt32(reader["myNotPaidAds"]);
                         statistics.myPaidAds = Convert.ToInt32(reader["myPaidAds"]);
 
-              
+
 
 
                     }
@@ -640,6 +637,190 @@ namespace PulluBackEnd.Model
             return statistics;
 
         }
+        public ProfileStruct profile(string mail, string pass)
+
+        {
+            ProfileStruct profile = new ProfileStruct();
+
+
+            long userID = getUserID(mail, pass);
+
+
+            if (userID > 0)
+            {
+
+
+
+                MySqlConnection connection = new MySqlConnection(ConnectionString);
+
+
+                connection.Open();
+
+                MySqlCommand com = new MySqlCommand("select *,(select name from profession where professionID=a.professionid)as profession," +
+                    "(select name from city where cityID=a.cityID )as city," +
+                    "(select name from gender where genderID=a.genderID )as gender from user a where userID=@userID and isActive=1", connection);
+
+
+                com.Parameters.AddWithValue("@userId", userID);
+
+
+                MySqlDataReader reader = com.ExecuteReader();
+                if (reader.HasRows)
+                {
+
+
+                    while (reader.Read())
+                    {
+
+                        profile.name = reader["name"].ToString();
+                        profile.surname = reader["surname"].ToString();
+                        profile.bDate = Convert.ToDateTime(reader["birthdate"]);
+                        profile.mail = reader["email"].ToString();
+                        profile.phone = reader["mobile"].ToString();
+                        profile.profession = reader["profession"].ToString();
+                        profile.city = reader["city"].ToString();
+                        profile.gender = reader["gender"].ToString();
+                        profile.cDate = Convert.ToDateTime(reader["cdate"]);
+                    }
+                }
+                else
+                {
+                    return profile;
+                }
+
+                connection.Close();
+                profile.response = 0;
+                return profile;
+            }
+            profile.response = 2;//user not found
+            return profile;
+
+
+
+        }
+        public List<TypeStruct> aType()
+
+        {
+
+
+
+
+            List<TypeStruct> aTypeList = new List<TypeStruct>();
+
+
+
+            MySqlConnection connection = new MySqlConnection(ConnectionString);
+
+
+            connection.Open();
+
+            MySqlCommand com = new MySqlCommand("select  * from announcement_type", connection);
+            MySqlDataReader reader = com.ExecuteReader();
+            if (reader.HasRows)
+            {
+
+
+                while (reader.Read())
+                {
+                    TypeStruct aType = new TypeStruct();
+                    aType.ID = Convert.ToInt32(reader["aTypeId"]);
+                    aType.name = reader["name"].ToString();
+                    aTypeList.Add(aType);
+                }
+            }
+            else
+            {
+                return aTypeList;
+            }
+
+            connection.Close();
+
+            return aTypeList;
+        }
+
+        public List<CategoryStruct> aCategory()
+
+        {
+
+
+
+
+            List<CategoryStruct> aCatList = new List<CategoryStruct>();
+
+
+
+            MySqlConnection connection = new MySqlConnection(ConnectionString);
+
+
+            connection.Open();
+
+            MySqlCommand com = new MySqlCommand("select  * from category", connection);
+            MySqlDataReader reader = com.ExecuteReader();
+            if (reader.HasRows)
+            {
+
+
+                while (reader.Read())
+                {
+                    CategoryStruct aCat = new CategoryStruct();
+                    aCat.ID = Convert.ToInt32(reader["categoryId"]);
+                    aCat.name = reader["name"].ToString();
+                    aCat.catImage = reader["categoryImgUrl"].ToString();
+                    aCatList.Add(aCat);
+                }
+            }
+            else
+            {
+                return aCatList;
+            }
+
+            connection.Close();
+
+            return aCatList;
+        }
+
+        public List<TariffStruct> aTariff()
+
+        {
+
+
+
+
+            List<TariffStruct> aTariffList = new List<TariffStruct>();
+
+
+
+            MySqlConnection connection = new MySqlConnection(ConnectionString);
+
+
+            connection.Open();
+
+            MySqlCommand com = new MySqlCommand("select * from announcement_tariff", connection);
+            MySqlDataReader reader = com.ExecuteReader();
+            if (reader.HasRows)
+            {
+
+
+                while (reader.Read())
+                {
+                    TariffStruct aTariff = new TariffStruct();
+                    aTariff.ID = Convert.ToInt32(reader["trfId"]);
+                    aTariff.measure = reader["measure"].ToString();
+                    aTariff.price = Convert.ToDouble(reader["price"]);
+                    aTariff.viewCount = Convert.ToInt32(reader["count"]);
+                    aTariffList.Add(aTariff);
+                }
+            }
+            else
+            {
+                return aTariffList;
+            }
+
+            connection.Close();
+
+            return aTariffList;
+        }
+
 
     }
 }

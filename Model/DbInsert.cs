@@ -81,15 +81,15 @@ namespace PulluBackEnd.Model
         {
             Status statusCode = new Status();
 
-            if (IsValid(mail))
+            if (IsValid(mail)) // Проверка существования юзера
             {
 
 
-                //try
-                //{
+                try
+                {
 
 
-                DateTime now = DateTime.Now;
+                    DateTime now = DateTime.Now;
 
                 MySqlConnection connection = new MySqlConnection(ConnectionString);
 
@@ -101,7 +101,7 @@ namespace PulluBackEnd.Model
                     ",0,0,0,@dateTimeNow,(SELECT countryId FROM country WHERE name = @countryName)," +
                     "(SELECT cityId FROM city WHERE name = @cityName),(SELECT professionId FROM profession WHERE name = @professionName))", connection);
 
-
+                
                 com.Parameters.AddWithValue("@name", name);
                 com.Parameters.AddWithValue("@surname", surname);
 
@@ -129,22 +129,21 @@ namespace PulluBackEnd.Model
 
 
 
-                try
-                {
+               
                     MailMessage mailMsg = new MailMessage();
                     SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
                     mailMsg.IsBodyHtml = true;
                     mailMsg.From = new MailAddress("asadzade99@gmail.com");
                     mailMsg.To.Add($"{mail}");
                     mailMsg.Subject = "Pullu (Dəstək)";
-                    mailMsg.Body = $"Qeydiyyatı tamamlamaq üçün, zəhmət olmasa <a href=\'http://13.92.237.16/api/androidmobileapp/verify?code={lastId}'>linkə</a> daxil olun";
+                    mailMsg.Body = $"Qeydiyyatı tamamlamaq üçün, zəhmət olmasa <a href=\'https://pullu.az/api/androidmobileapp/verify?code={lastId}'>linkə</a> daxil olun";
 
                     SmtpServer.Port = 587;
                     SmtpServer.Credentials = new System.Net.NetworkCredential("asadzade99@gmail.com", "odqnmjiogipltmwi");
                     SmtpServer.EnableSsl = true;
 
                     SmtpServer.Send(mailMsg);
-                    statusCode.ok = 1;
+                    
 
 
                     string json = "{ \"email\" : \""+mail+ "\", \"password\" : \""+pass+"\", \" returnSecureToken\" : true }";
@@ -155,28 +154,26 @@ namespace PulluBackEnd.Model
                     var rslt = client.PostAsync(url, content);
                     var resp = rslt.Result.RequestMessage;
 
-
+                    statusCode.response = 0; // Все ок
                     return statusCode;
+              
+
                 }
                 catch
                 {
-                    statusCode.ok = 0;
+                    statusCode.response = 1;//Ошибка сервера
                     return statusCode;
                 }
-
-
-                //}
-                //catch
-                //{
-
-                //    return userList;
-                //}
 
                 //http://127.0.0.1:44301/api/androidmobileapp/user/signUp?mail=asadzade99@gmail.com&username=asa&name=asa&surname=asa&pass=1&phone=1&bdate=1987-08-23&gender=Ki%C5%9Fi&country=Az%C9%99rbaycan&city=Bak%C4%B1&profession=Texnologiya%20sektoru
 
             }
-            statusCode.ok = 0;
-            return statusCode;
+            else {
+
+                statusCode.response = 2;//Юзер существует
+                return statusCode;
+            }
+           
 
         }
 
@@ -294,7 +291,7 @@ namespace PulluBackEnd.Model
 
                     connection.Open();
 
-                    MySqlCommand com = new MySqlCommand("update users_balance set earningValue = earningValue + (select  price from earnings_tariff where earningstpid = (select atypeID from announcement where announcementId=@advertID) ), udate=now()", connection);
+                    MySqlCommand com = new MySqlCommand("update users_balance set earningValue = earningValue + (select  price from earnings_tariff where earningstpid = (select atypeID from announcement where announcementId=@advertID) ), udate=now() where userID=@userID", connection);
                     com.Parameters.AddWithValue("@advertID", adverID);
                     com.Parameters.AddWithValue("@userID", userID);
                     com.Parameters.AddWithValue("@dateTimeNow", now);
@@ -368,5 +365,67 @@ namespace PulluBackEnd.Model
             }
 
         }
+
+
+
+
+        //public NewAdvertisementStatus newAdvertisement(NewAdvertisementStruct obj)
+
+        //{
+        //    dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+        //    long userID = select.getUserID(obj.mail, obj.pass);
+
+        //    EarnMoney status = new EarnMoney();
+
+
+        //    try
+        //    {
+        //        if (userID>0)
+        //        {
+
+
+        //            DateTime now = DateTime.Now;
+
+        //            MySqlConnection connection = new MySqlConnection(ConnectionString);
+
+
+
+
+
+        //            connection.Open();
+
+        //            MySqlCommand com = new MySqlCommand("update users_balance set earningValue = earningValue + (select  price from earnings_tariff where earningstpid = (select atypeID from announcement where announcementId=@advertID) ), udate=now() where userID=@userID", connection);
+        //            com.Parameters.AddWithValue("@advertID", adverID);
+        //            com.Parameters.AddWithValue("@userID", userID);
+        //            com.Parameters.AddWithValue("@dateTimeNow", now);
+        //            //com.ExecuteNonQuery();
+
+        //            int updated = com.ExecuteNonQuery();
+        //            //update users_balance set earningValue = earningValue + (select  price from earnings_tariff where earningstpid = (select atypeID from announcement where announcementId=@advertID) ), udate=now() where userId=@userID and udate<DATE_FORMAT(now(), '%Y-%m-%d')
+
+
+        //            status.statusCode = 1;
+        //            return status;
+
+
+        //        }
+        //        else
+        //        {
+        //            status.statusCode = 2;
+        //            return status;
+        //        }
+        //    }
+        //    catch
+        //    {
+        //        status.statusCode = 3;
+        //        return status;
+        //    }
+
+
+
+
+        //}
+
+
     }
 }

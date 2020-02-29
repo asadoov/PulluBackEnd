@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace PulluBackEnd.Model
 {
-    public class Status
+    public class NewAdvertisementStatus
     {
         public int response { get; set; }
     }

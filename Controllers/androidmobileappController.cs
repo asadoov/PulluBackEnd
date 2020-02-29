@@ -11,6 +11,8 @@ using PulluBackEnd.Model;
 
 namespace PulluBackEnd.Controllers
 {
+   
+
     [Route("api/[controller]")]
     [ApiController]
     [EnableCors("AllowOrigin")]
@@ -28,10 +30,10 @@ namespace PulluBackEnd.Controllers
         [HttpGet]
         [Route("user/login")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<User>> log_in(string username, string pass)
+        public ActionResult<List<User>> log_in(string mail, string pass)
         {
             List<User> user = new List<User>();
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(pass))
+            if (string.IsNullOrEmpty(mail) || string.IsNullOrEmpty(pass))
             {
 
                 return user;
@@ -42,7 +44,7 @@ namespace PulluBackEnd.Controllers
 
 
                 dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
-                user = select.Log_in(username, pass);
+                user = select.Log_in(mail, pass);
 
                 return user;
             }
@@ -150,7 +152,7 @@ namespace PulluBackEnd.Controllers
 
                 return statusCode;
             }
-
+            statusCode.response = 3;//Ошибка параметров
             return statusCode;
 
         }
@@ -238,7 +240,7 @@ namespace PulluBackEnd.Controllers
             Statistics statistics = new Statistics();
             try
             {
-              
+
                 if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
                 {
                     dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
@@ -247,7 +249,7 @@ namespace PulluBackEnd.Controllers
                 }
 
                 return statistics;
-                
+
 
             }
             catch
@@ -258,16 +260,150 @@ namespace PulluBackEnd.Controllers
 
 
         }
+
+
+        [HttpGet]
+        [Route("user/profile")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<ProfileStruct> profile(string mail, string pass)
+        {
+            ProfileStruct profile = new ProfileStruct();
+            try
+            {
+
+                if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
+                {
+                    dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                    profile = select.profile(mail, pass);
+                    return profile;
+                }
+
+                return profile;
+
+
+            }
+            catch
+            {
+                profile.response = 1;//server error
+
+                return profile;
+
+            }
+
+
+        }
+
+
+        [HttpGet]
+        [Route("aType")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<List<TypeStruct>> aType()
+        {
+            List<TypeStruct> aTypeList = new List<TypeStruct>();
+            try
+            {
+
+
+                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                aTypeList = select.aType();
+                return aTypeList;
+
+
+
+            }
+            catch
+            {
+
+
+                return aTypeList;
+
+            }
+
+
+        }
+
+        [HttpGet]
+        [Route("aCategory")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<List<CategoryStruct>> aCategory()
+        {
+            List<CategoryStruct> aCatList = new List<CategoryStruct>();
+            try
+            {
+
+
+                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                aCatList = select.aCategory();
+                return aCatList;
+
+
+
+            }
+            catch
+            {
+
+
+                return aCatList;
+
+            }
+
+
+        }
+
+        [HttpGet]
+        [Route("aTariff")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<List<TariffStruct>> aTariff()
+        {
+            List<TariffStruct> aTariffList = new List<TariffStruct>();
+            try
+            {
+
+
+                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                aTariffList = select.aTariff();
+                return aTariffList;
+
+
+
+            }
+            catch
+            {
+
+
+                return aTariffList;
+
+            }
+
+
+        }
+        [HttpPost]
+        [Route("newAdvertisement")]
+        [EnableCors("AllowOrigin")]
+        public NewAdvertisementStatus newAdvertisement([FromBody] NewAdvertisementStruct obj)
+        {
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+            // return 
+            NewAdvertisementStatus status=new NewAdvertisementStatus();
+            // status = insert.newAdvertisement(obj);
+            status.response = 0;
+            return status;
+
+        }
+
+
+
         [HttpGet]
         [Route("user/Firebase")]
         [EnableCors("AllowOrigin")]
-        public bool firebase(string mail,string pass)
+        public bool firebase(string mail, string pass)
         {
-           
+
             try
             {
                 DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-                if (insert.sendNotification(mail,pass))
+                if (insert.sendNotification(mail, pass))
                 {
                     return true;
                 }

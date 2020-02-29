@@ -34,10 +34,18 @@ namespace PulluBackEnd
             {
                 c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
             });
-            services.AddCors(c =>
-            {
-                c.AddPolicy("AllowOrigin", options => options.WithOrigins("*"));
-            });
+            //services.AddCors(c =>
+            //{
+            //    c.AddPolicy("AllowOrigin", options => options.WithOrigins("*"));
+            //});
+            //services.AddCors(c =>
+            //{
+            //    c.AddPolicy("AllowOrigin", options => options.WithOrigins("*", "https://pullu.az"));
+            //});         
+            //services.AddCors(c =>
+            //{
+            //    c.AddPolicy("AllowOrigin", options => options.WithOrigins("*", "https://pullu.az"));
+            //});
             services.AddSingleton<IConfiguration>(Configuration);
 
         }
@@ -48,20 +56,22 @@ namespace PulluBackEnd
 
             app.UseDefaultFiles();
             app.UseStaticFiles();
+           
+            //app.UseCors("AllowOrigin");
 
-            app.UseCors(options => options.AllowAnyOrigin());
-            app.UseCors(options => options.WithOrigins("*"));
+            //app.UseCors(options => options.AllowAnyOrigin());
+            //app.UseCors(options => options.WithOrigins("*"));
 
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-
-            app.UseHttpsRedirection();
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+            app.UseDeveloperExceptionPage();
+            //app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.UseAuthorization();
+            app.UseCors(options => options.AllowAnyOrigin());
+            //app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
