@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PulluBackEnd.Model
+namespace PulluBackEnd.Model.App
 {
-    public class Profession
+    public class AgeRangeStruct
     {
         public int ID { get; set; }
-        public string name { get; set; }
+        public string range { get; set; }
+        public string values { get; set; }
     }
 }

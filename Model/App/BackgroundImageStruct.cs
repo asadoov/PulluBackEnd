@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PulluBackEnd.Model
+namespace PulluBackEnd.Model.App
 {
-    public class CategoryStruct
+    public class BackgroundImageStruct
     {
         public int ID { get; set; }
-        public string name { get; set; }
-        public string catImage { get; set; }
+        public string imgUrl { get; set; }
     }
 }

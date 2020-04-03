@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PulluBackEnd.Model
+namespace PulluBackEnd.Model.App
 {
-    public class NewAdvertisementStatus
+    public class Status
     {
         public int response { get; set; }
+        public string responseString { get; set; }
     }
 }

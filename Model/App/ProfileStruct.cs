@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PulluBackEnd.Model
+namespace PulluBackEnd.Model.App
 {
     public class ProfileStruct
     {
@@ -16,6 +16,6 @@ namespace PulluBackEnd.Model
         public string city { get; set; }
         public string profession { get; set; }
         public DateTime cDate { get; set; }
-        public int response { get; set; }
+        
     }
 }

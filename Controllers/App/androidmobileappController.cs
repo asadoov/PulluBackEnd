@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Cors;
@@ -7,11 +8,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using PulluBackEnd.Model;
+using PulluBackEnd.Model.App;
+using PulluBackEnd.Model.Database.App;
 
 namespace PulluBackEnd.Controllers
 {
-   
+
 
     [Route("api/[controller]")]
     [ApiController]
@@ -51,12 +53,12 @@ namespace PulluBackEnd.Controllers
         }
 
         [HttpGet]
-        [Route("user/getAds")]
+        [Route("user/get/ads")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<Advertisement>> getAds(string username, string pass)
+        public ActionResult<List<Advertisement>> getAds(string mail, string pass,int catID)
         {
             List<Advertisement> ads = new List<Advertisement>();
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(pass))
+            if (string.IsNullOrEmpty(mail) || string.IsNullOrEmpty(pass))
             {
 
                 return ads;
@@ -67,24 +69,24 @@ namespace PulluBackEnd.Controllers
 
 
                 dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
-                ads = select.Advertisements(username, pass);
+                ads = select.Advertisements(mail, pass,catID);
 
                 return ads;
             }
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [Route("test")]
         [EnableCors("AllowOrigin")]
-        public ActionResult test()
+        public ActionResult<string> test(IFormFile file)
         {
+           
+            //DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+            //string a = insert.SaveImage(data.name, data.ID.ToString());
+           return file.ContentType;
 
-            return Ok(new
-            {
-                id = "sa"
 
-            });
         }
 
         [HttpGet]
@@ -96,7 +98,7 @@ namespace PulluBackEnd.Controllers
             return Ok();
         }
         [HttpGet]
-        [Route("getCountries")]
+        [Route("get/countries")]
         [EnableCors("AllowOrigin")]
         public ActionResult<List<Country>> getCountries()
         {
@@ -107,7 +109,7 @@ namespace PulluBackEnd.Controllers
             return countries;
         }
         [HttpGet]
-        [Route("getCities")]
+        [Route("get/cities")]
         [EnableCors("AllowOrigin")]
         public ActionResult<List<City>> getCities(int countryId)
         {
@@ -117,7 +119,7 @@ namespace PulluBackEnd.Controllers
 
             return cities;
         }
-        [Route("getProfessions")]
+        [Route("get/professions")]
         [EnableCors("AllowOrigin")]
         public ActionResult<List<Profession>> getProfessions()
         {
@@ -156,6 +158,26 @@ namespace PulluBackEnd.Controllers
             return statusCode;
 
         }
+
+        //[HttpPost]
+        //[Route("user/update/profile")]
+        //[EnableCors("AllowOrigin")]
+        //public ActionResult<Status> uProfile(User user) { 
+        //    Status statusCode = new Status();
+    
+
+
+        //        DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+        //        statusCode = insert.SignUp(user);
+
+        //        return statusCode;
+           
+        //    statusCode.response = 3;//Ошибка параметров
+        //    return statusCode;
+
+        //}
+
+
         [HttpGet]
         [Route("user/about")]
         [EnableCors("AllowOrigin")]
@@ -233,7 +255,7 @@ namespace PulluBackEnd.Controllers
 
         }
         [HttpGet]
-        [Route("user/getStatistics")]
+        [Route("user/get/statistics")]
         [EnableCors("AllowOrigin")]
         public ActionResult<Statistics> getStatistics(string mail, string pass)
         {
@@ -263,13 +285,12 @@ namespace PulluBackEnd.Controllers
 
 
         [HttpGet]
-        [Route("user/profile")]
+        [Route("user/get/profile")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<ProfileStruct> profile(string mail, string pass)
+        public ActionResult<List<ProfileStruct>> profile(string mail, string pass)
         {
-            ProfileStruct profile = new ProfileStruct();
-            try
-            {
+            List<ProfileStruct> profile = new List<ProfileStruct>();
+ 
 
                 if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
                 {
@@ -281,21 +302,41 @@ namespace PulluBackEnd.Controllers
                 return profile;
 
 
+          
+
+
+        }
+
+        [HttpGet]
+        [Route("get/age/range")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<List<AgeRangeStruct>> ageRange()
+        {
+            List<AgeRangeStruct> ageRangeList = new List<AgeRangeStruct>();
+            try
+            {
+
+
+                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                ageRangeList = select.ageRange();
+                return ageRangeList;
+
+
+
             }
             catch
             {
-                profile.response = 1;//server error
 
-                return profile;
+
+                return ageRangeList;
 
             }
 
 
         }
 
-
         [HttpGet]
-        [Route("aType")]
+        [Route("get/aType")]
         [EnableCors("AllowOrigin")]
         public ActionResult<List<TypeStruct>> aType()
         {
@@ -323,7 +364,7 @@ namespace PulluBackEnd.Controllers
         }
 
         [HttpGet]
-        [Route("aCategory")]
+        [Route("get/aCategory")]
         [EnableCors("AllowOrigin")]
         public ActionResult<List<CategoryStruct>> aCategory()
         {
@@ -351,7 +392,7 @@ namespace PulluBackEnd.Controllers
         }
 
         [HttpGet]
-        [Route("aTariff")]
+        [Route("get/aTariff")]
         [EnableCors("AllowOrigin")]
         public ActionResult<List<TariffStruct>> aTariff()
         {
@@ -378,20 +419,129 @@ namespace PulluBackEnd.Controllers
 
         }
         [HttpPost]
-        [Route("newAdvertisement")]
+        [Route("user/advertisements/add")]
         [EnableCors("AllowOrigin")]
-        public NewAdvertisementStatus newAdvertisement([FromBody] NewAdvertisementStruct obj)
+        public Status newAdvertisement([FromForm] NewAdvertisementStruct obj)
         {
 
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
             // return 
-            NewAdvertisementStatus status=new NewAdvertisementStatus();
-            // status = insert.newAdvertisement(obj);
-            status.response = 0;
+            Status status = new Status();
+             status = insert.addNewAdvert(obj);
+            
             return status;
 
         }
+        [HttpGet]
+        [Route("accounts/password/reset/send/mail")]
+        [EnableCors("AllowOrigin")]
+        public Status sendMail(String mail)
+        {
+            Status status = new Status();
+            if (!string.IsNullOrEmpty(mail))
+            {
 
+
+                DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+                status = insert.sendResetMail(mail);
+                // return 
+
+                // status = insert.newAdvertisement(obj);
+
+                return status;
+            }
+
+            status.response = 3; // пусто
+            return status;
+
+        }
+        [HttpGet]
+        [Route("accounts/password/reset/confirm")]
+        [EnableCors("AllowOrigin")]
+        public Status confirmCode(string code, string mail)
+        {
+            Status status;
+
+
+
+            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            status = select.checkUserToken(code,mail);
+
+            return status;
+
+
+
+
+        }
+       
+
+        [HttpGet]
+        [Route("accounts/password/reset/newpass")]
+        [EnableCors("AllowOrigin")]
+        public Status changePass(string newPass, string mail, string code)
+        {
+            Status status;
+
+
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+            status = insert.resetPassword(newPass, mail, code);
+
+            return status;
+
+
+
+
+        }
+
+        [HttpGet]
+        [Route("get/backgrounds")]
+        [EnableCors("AllowOrigin")]
+        public List<BackgroundImageStruct> getBackgrounds(string code, string mail)
+        {
+            List<BackgroundImageStruct> backgroundList;
+
+
+
+            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            backgroundList = select.getBackgrounds();
+
+            return backgroundList;
+
+
+
+
+        }
+
+
+        [HttpGet]
+        [Route("user/get/views")]
+        [EnableCors("AllowOrigin")]
+        public List<Advertisement> getViews(string mail,string pass)
+        {
+            List<Advertisement> advertisement;
+            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            advertisement = select.getViews(mail,pass);
+            return advertisement;
+        }
+        [HttpGet]
+        [Route("user/get/my/ads")]
+        [EnableCors("AllowOrigin")]
+        public List<Advertisement> getMyAds(string mail, string pass)
+        {
+            List<Advertisement> advertisement;
+
+
+
+            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            advertisement = select.getMyAds(mail, pass);
+
+            return advertisement;
+
+
+
+
+        }
 
 
         [HttpGet]
