@@ -418,6 +418,12 @@ namespace PulluBackEnd.Controllers
 
 
         }
+        // MultipartBodyLengthLimit  was needed for zip files with form data.
+        // [DisableRequestSizeLimit] works for the KESTREL server, but not IIS server 
+        // for IIS: webconfig... <requestLimits maxAllowedContentLength="102428800" />
+        [RequestFormLimits(ValueLengthLimit = int.MaxValue, MultipartBodyLengthLimit = int.MaxValue)]
+        [DisableRequestSizeLimit]
+        [Consumes("multipart/form-data")] // for Zip files with form data
         [HttpPost]
         [Route("user/advertisements/add")]
         [EnableCors("AllowOrigin")]

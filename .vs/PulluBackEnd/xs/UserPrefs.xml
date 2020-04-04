@@ -1,0 +1,42 @@
+﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|Default">
+  <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Program.cs">
+    <Files>
+      <File FileName="appsettings.json" Line="15" Column="1" />
+      <File FileName="Startup.cs" />
+      <File FileName="Program.cs" Line="16" Column="1" />
+      <File FileName="Controllers/App/androidmobileappController.cs" />
+      <File FileName=".gitattributes" />
+      <File FileName="appsettings.Development.json" />
+      <File FileName="Model/Database/App/DbInsert.cs" />
+      <File FileName="PulluBackEnd.csproj" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="PulluBackEnd" expanded="True">
+            <Node name="PulluBackEnd" expanded="True">
+              <Node name="Dependencies" expanded="True" />
+              <Node name="Controllers" expanded="True">
+                <Node name="App" expanded="True" />
+              </Node>
+              <Node name="Model" expanded="True">
+                <Node name="Database" expanded="True">
+                  <Node name="App" expanded="True" />
+                </Node>
+              </Node>
+              <Node name="appsettings.json" expanded="True" />
+              <Node name="Program.cs" selected="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

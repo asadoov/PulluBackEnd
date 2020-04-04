@@ -21,6 +21,8 @@ namespace PulluBackEnd
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    
                 });
+
     }
 }

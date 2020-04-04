@@ -498,7 +498,7 @@ namespace PulluBackEnd.Model.App
 
                 //set the image path
                 //string imgPath = Path.Combine(path, );
-                using (Stream fileStream = File.Create($"{path}{ImgName}.{Path.GetExtension(ImgStr.FileName)}"))
+                using (Stream fileStream = File.Create($"{path}{ImgName}{Path.GetExtension(ImgStr.FileName)}"))
                 {
                     ImgStr.CopyTo(fileStream);
                 }
@@ -561,7 +561,7 @@ namespace PulluBackEnd.Model.App
             string mediaPathUrl = "https://pullu.az/media/";
             long userID = select.getUserID(obj.mail, obj.pass);
             long lastId;
-            if (!string.IsNullOrEmpty(obj.aDescription) && !string.IsNullOrEmpty(obj.aTitle) && !string.IsNullOrEmpty(obj.aPrice))
+            if (!string.IsNullOrEmpty(obj.aDescription) && !string.IsNullOrEmpty(obj.aTitle) && !string.IsNullOrEmpty(obj.aPrice)&&(!string.IsNullOrEmpty(obj.aBackgroundUrl)||obj.files.Count > 0))
             {
                 if (userID > 0) // Проверка существования юзера
                 {
@@ -602,16 +602,20 @@ namespace PulluBackEnd.Model.App
                             }
                            // string photoName = SaveImage(obj.files[0], sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
 
-                            if (obj.files != null)
-                            {
+                            
                                 switch (obj.aMediaTypeID)
                                 {
                                     case 1:
-                                        // mediaList.Add(obj.mediaBase64[0]);
+                                    // mediaList.Add(obj.mediaBase64[0]);
+                                  
                                         mediaInsertQuery = $"({obj.aMediaTypeID},'{obj.aBackgroundUrl}',{lastId},@cDate)";
+                                
+                                        
 
                                         break;
                                     case 2:
+                                    if (obj.files != null)
+                                    {
                                         int lastrow = 1;
                                         foreach (var item in obj.files)
                                         {
@@ -632,12 +636,13 @@ namespace PulluBackEnd.Model.App
                                             lastrow++;
 
                                         }
+                                    }
                                         break;
 
 
                                 }
 
-                            }
+                            
 
                             //if (obj.mediaBase64 != null)
                             //{
