@@ -600,9 +600,11 @@ namespace PulluBackEnd.Model.App
                                 lastId = com.LastInsertedId;
                                 com.Dispose();
                             }
-                           // string photoName = SaveImage(obj.files[0], sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                            // string photoName = SaveImage(obj.files[0], sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
 
-                            
+                            if (lastId > 0)
+                            {
+
                                 switch (obj.aMediaTypeID)
                                 {
                                     case 1:
@@ -701,22 +703,31 @@ namespace PulluBackEnd.Model.App
                             //    }
                             //}
 
-                            using (MySqlCommand com = new MySqlCommand($"insert into media (mediaTpId,httpUrl,announcementId,cdate) values {mediaInsertQuery}", connection))
-                            {
-                                com.Parameters.AddWithValue("@cDate", now);
-                                com.ExecuteNonQuery();
-                                com.Dispose();
+                           
+                                using (MySqlCommand com = new MySqlCommand($"insert into media (mediaTpId,httpUrl,announcementId,cdate) values {mediaInsertQuery}", connection))
+                                {
+                                    com.Parameters.AddWithValue("@cDate", now);
+                                    com.ExecuteNonQuery();
+                                    com.Dispose();
 
-                            }
-
-
-                            // connection.Close();
-
-
-
-
-                            if (lastId > 0)
-                            {
+                                }
+                                //ishlemelidi indi indi 2 ci inserti elemiyecey. onunniye oldugunu arashdirmalisan. yoxsa acib buraxmisanki error verir axi. ele shey olmur error verirse arashdir aradan qald;r
+                               // vermir eerror
+                               //vermirse ishleda))
+                               //inesrteli elemir
+                               //bax gor niye elemir. serverde error verir lokalda yox?
+                               //serverde insert elemir
+                               //localda eliir
+                               //serverde umumiyyetce mysqle insert elemir ya konkret dbye?
+                               //pnu bilmirem amma bu db ya
+                               //ona gore ola biler ki serverin qiraga cixishi baglidi. administratora demek lazimdi
+                               //acixdi qiraga cixishi
+                               //yoxlamisan?
+                               //remote qoshula bilirsen servere?
+                               //elbette
+                               //qoshul
+                               //bax
+                        
                                 sendMail($"Reklamınız moderatora yoxlama üçün göndərildi", obj.mail);
 
                                 statusCode.response = 0; // Все ок

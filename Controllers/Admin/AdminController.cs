@@ -38,7 +38,18 @@ namespace PulluBackEnd.Controllers
 
             return user;
         }
+        [HttpPost]
+        [Route("user/get/ads")]
+        [EnableCors("AllowOrigin")]
+        public List<Advertisement> getAds(string username, string pass)
+        {
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+            List<Advertisement> adsList = new List<Advertisement>();
+            adsList = select.getAds(username, pass);
 
-        
+            return adsList;
+        }
+
+
     }
 }
