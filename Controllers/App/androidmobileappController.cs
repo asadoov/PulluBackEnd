@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using PulluBackEnd.Model.App;
+using PulluBackEnd.Model.CommonScripts;
 using PulluBackEnd.Model.Database.App;
 
 namespace PulluBackEnd.Controllers
@@ -20,6 +21,8 @@ namespace PulluBackEnd.Controllers
     [EnableCors("AllowOrigin")]
     public class androidmobileappController : Controller
     {
+
+        Communication communication = new Communication();
         private readonly IWebHostEnvironment _hostingEnvironment;
         public IConfiguration Configuration;
         public androidmobileappController(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
@@ -46,7 +49,7 @@ namespace PulluBackEnd.Controllers
 
 
                 dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
-                user = select.Log_in(mail, pass);
+                user = select.LogIn(mail, pass);
 
                 return user;
             }
@@ -55,7 +58,7 @@ namespace PulluBackEnd.Controllers
         [HttpGet]
         [Route("user/get/ads")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<Advertisement>> getAds(string mail, string pass,int catID)
+        public ActionResult<List<Advertisement>> getAds(string mail, string pass, int catID)
         {
             List<Advertisement> ads = new List<Advertisement>();
             if (string.IsNullOrEmpty(mail) || string.IsNullOrEmpty(pass))
@@ -69,7 +72,7 @@ namespace PulluBackEnd.Controllers
 
 
                 dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
-                ads = select.Advertisements(mail, pass,catID);
+                ads = select.Advertisements(mail, pass, catID);
 
                 return ads;
             }
@@ -81,10 +84,10 @@ namespace PulluBackEnd.Controllers
         [EnableCors("AllowOrigin")]
         public ActionResult<string> test(IFormFile file)
         {
-           
+
             //DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
             //string a = insert.SaveImage(data.name, data.ID.ToString());
-           return file.ContentType;
+            return file.ContentType;
 
 
         }
@@ -159,23 +162,21 @@ namespace PulluBackEnd.Controllers
 
         }
 
-        //[HttpPost]
-        //[Route("user/update/profile")]
-        //[EnableCors("AllowOrigin")]
-        //public ActionResult<Status> uProfile(User user) { 
-        //    Status statusCode = new Status();
-    
+        [HttpPost]
+        [Route("user/update/profile")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<Status> uProfile(User user)
+        {
 
 
-        //        DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-        //        statusCode = insert.SignUp(user);
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
 
-        //        return statusCode;
-           
-        //    statusCode.response = 3;//Ошибка параметров
-        //    return statusCode;
 
-        //}
+            return insert.uProfile(user);
+
+
+
+        }
 
 
         [HttpGet]
@@ -290,19 +291,19 @@ namespace PulluBackEnd.Controllers
         public ActionResult<List<ProfileStruct>> profile(string mail, string pass)
         {
             List<ProfileStruct> profile = new List<ProfileStruct>();
- 
 
-                if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
-                {
-                    dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
-                    profile = select.profile(mail, pass);
-                    return profile;
-                }
 
+            if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
+            {
+                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                profile = select.profile(mail, pass);
                 return profile;
+            }
+
+            return profile;
 
 
-          
+
 
 
         }
@@ -433,8 +434,8 @@ namespace PulluBackEnd.Controllers
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
             // return 
             Status status = new Status();
-             status = insert.addNewAdvert(obj);
-            
+            status = insert.addNewAdvert(obj);
+
             return status;
 
         }
@@ -471,7 +472,7 @@ namespace PulluBackEnd.Controllers
 
 
             dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
-            status = select.checkUserToken(code,mail);
+            status = select.checkUserToken(code, mail);
 
             return status;
 
@@ -479,7 +480,7 @@ namespace PulluBackEnd.Controllers
 
 
         }
-       
+
 
         [HttpGet]
         [Route("accounts/password/reset/newpass")]
@@ -523,11 +524,11 @@ namespace PulluBackEnd.Controllers
         [HttpGet]
         [Route("user/get/views")]
         [EnableCors("AllowOrigin")]
-        public List<Advertisement> getViews(string mail,string pass)
+        public List<Advertisement> getViews(string mail, string pass)
         {
             List<Advertisement> advertisement;
             dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
-            advertisement = select.getViews(mail,pass);
+            advertisement = select.getViews(mail, pass);
             return advertisement;
         }
         [HttpGet]
@@ -553,17 +554,16 @@ namespace PulluBackEnd.Controllers
         [HttpGet]
         [Route("user/Firebase")]
         [EnableCors("AllowOrigin")]
-        public bool firebase(string mail, string pass)
+        public bool firebase(string text, long userID)
         {
+
 
             try
             {
-                DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-                if (insert.sendNotification(mail, pass))
-                {
-                    return true;
-                }
-                return false;
+
+                communication.sendNotification(text, userID);
+                return true;
+
 
 
             }

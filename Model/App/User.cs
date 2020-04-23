@@ -12,14 +12,15 @@ namespace PulluBackEnd.Model.App
         public string surname { get; set; }
         public string mail { get; set; }
         public string phone { get; set; }
-        public DateTime birthDate { get; set; }
-
-        public string gender { get; set; }
-        public string city { get; set; }
-        public string profession { get; set; }
+        public string birthDate { get; set; }
+        public int genderID { get; set; }
+        public int cityID { get; set; }
+        public int countryID { get; set; }
+        public int professionID { get; set; }
         public string balance { get; set; }
         public string earning { get; set; }
-
+        public string pass { get; set; }
+        public string newPass { get; set; }
         public DateTime regDate { get; set; }
         
       

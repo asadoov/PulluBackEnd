@@ -13,11 +13,13 @@ using System.Text;
 using System.Threading.Tasks;
 using PulluBackEnd.Model.Database.App;
 using Microsoft.AspNetCore.Http;
+using PulluBackEnd.Model.CommonScripts;
 
 namespace PulluBackEnd.Model.App
 {
     public class DbInsert
     {
+        Communication communication = new Communication();
         private readonly string ConnectionString;
         public IConfiguration Configuration;
         private readonly IWebHostEnvironment _hostingEnvironment;
@@ -53,26 +55,7 @@ namespace PulluBackEnd.Model.App
             return res.ToString();
         }
 
-        public void sendMail(string body, string to)
-        {
-            MailMessage mailMsg = new MailMessage();
-            using (SmtpClient SmtpServer = new SmtpClient("mail.pesekar.az"))
-            {
-                mailMsg.IsBodyHtml = true;
-                mailMsg.From = new MailAddress("pullu@pesekar.az");
-                mailMsg.To.Add($"{to}");
-                mailMsg.Subject = "Pullu (Dəstək)";
-                mailMsg.Body = body;
-
-                SmtpServer.Port = 587;
-                SmtpServer.Credentials = new System.Net.NetworkCredential("pullu@pesekar.az", "pesekarpullu123");
-                // SmtpServer.EnableSsl = true;
-
-                SmtpServer.Send(mailMsg);
-                SmtpServer.Dispose();
-            }
-
-        }
+       
 
         public bool IsValid(string emailaddress)
         {
@@ -139,7 +122,7 @@ namespace PulluBackEnd.Model.App
                     if (affectedRows > 0)
                     {
 
-                        sendMail($"Bizə şifrənizin bərpası barədə müraciət daxil olub, əgər bu doğrunu əks etdirirsə aşağıdakı 4 rəqəmli şifrəni programa daxil edin<br><h2>ŞİFRƏ: {randomCode}</h2>", mail);
+                      communication.sendMail($"Bizə şifrənizin bərpası barədə müraciət daxil olub, əgər bu doğrunu əks etdirirsə aşağıdakı 4 rəqəmli şifrəni programa daxil edin<br><h2>ŞİFRƏ: {randomCode}</h2>", mail);
                         //string json = "{ \"email\" : \"" + mail + "\", \"password\" : \"" + randomPass + "\", \" returnSecureToken\" : true }";
 
                         //var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -287,7 +270,7 @@ namespace PulluBackEnd.Model.App
                     connection.Close();
 
 
-                    sendMail($"Qeydiyyatı tamamlamaq üçün, zəhmət olmasa <a href=\'https://pullu.az/api/androidmobileapp/verify?code={userToken}'>linkə</a> daxil olun", mail);
+                 communication.sendMail($"Qeydiyyatı tamamlamaq üçün, zəhmət olmasa <a href=\'https://pullu.az/api/androidmobileapp/verify?code={userToken}'>linkə</a> daxil olun", mail);
 
                     //MailMessage mailMsg = new MailMessage();
                     //SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
@@ -339,110 +322,235 @@ namespace PulluBackEnd.Model.App
 
 
 
-        //public Status uProfile(User user)
+        public Status uProfile(User user)
 
-        //{
-        //    Status statusCode = new Status();
-
-        //    if (!IsValid(user.mail)) // Проверка существования юзера
-        //    {
-
-
-        //        try
-        //        {
-        //            string userToken = createCode(8);
+        {
+            Status statusCode = new Status();
+            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            List<User> userList = new List<User>();
+            string uQuery = "";
+            userList = select.LogIn(user.mail, user.pass);
+            if (userList.Count > 0) // Проверка существования юзера
+            {
 
 
-        //            DateTime now = DateTime.Now;
-
-        //            MySqlConnection connection = new MySqlConnection(ConnectionString);
-
-
-        //            connection.Open();
-
-        //            MySqlCommand com = new MySqlCommand("update user set name=@name, surname = @surname,email = @mail ,mobile = @mobile,passwd = SHA2(@pass,512),birthdate = ,genderId,isactive,isblocked,resetrequested,cdate, countryId,cityId,professionId,userToken)" +
-        //                " Values (,,,,@birthDate,(SELECT genderid FROM gender WHERE name = @gendername)" +
-        //                ",0,0,0,@dateTimeNow,(SELECT countryId FROM country WHERE name = @countryName)," +
-        //                "(SELECT cityId FROM city WHERE name = @cityName),(SELECT professionId FROM profession WHERE name = @professionName),SHA2(@userToken,512))", connection);
+                try
+                {
 
 
-        //            com.Parameters.AddWithValue("@name", name);
-        //            com.Parameters.AddWithValue("@surname", surname);
+                    if (!string.IsNullOrEmpty(user.name))
+                    {
+                        if (string.IsNullOrEmpty(uQuery))
+                        {
+                            uQuery += "name=@name";
+                        }
+                        else
+                        {
+                            uQuery += " ,name=@name";
+                        }
 
-        //            com.Parameters.AddWithValue("@mail", mail);
-        //            com.Parameters.AddWithValue("@mobile", phone);
-        //            com.Parameters.AddWithValue("@pass", pass);
-        //            com.Parameters.AddWithValue("@birthDate", DateTime.Parse(bDate));
-        //            com.Parameters.AddWithValue("@genderName", gender);
-        //            com.Parameters.AddWithValue("@dateTimeNow", now);
-        //            com.Parameters.AddWithValue("@countryName", country);
-        //            com.Parameters.AddWithValue("@cityName", city);
-        //            com.Parameters.AddWithValue("@professionName", profession);
-        //            com.Parameters.AddWithValue("@userToken", userToken);
-        //            com.ExecuteNonQuery();
+                    }
+                    if (!string.IsNullOrEmpty(user.surname))
+                    {
+                        if (string.IsNullOrEmpty(uQuery))
+                        {
+                            uQuery += "surname = @surname";
+                        }
+                        else
+                        {
+                            uQuery += " ,surname = @surname";
+                        }
 
-        //            long lastId = com.LastInsertedId;
-        //            connection.Close();
+                    }
+                    if (!string.IsNullOrEmpty(user.mail))
+                    {
+                        if (string.IsNullOrEmpty(uQuery))
+                        {
+                            uQuery += "email = @mail";
+                        }
+                        else
+                        {
+                            uQuery += " ,email = @mail";
+                        }
 
-        //            connection.Open();
-        //            com.CommandText = "insert into users_balance (userId,cdate) values (@userId,@cDate)";
-        //            com.Parameters.AddWithValue("@userId", lastId);
-        //            com.Parameters.AddWithValue("@cDate", now);
+                    }
+                    if (!string.IsNullOrEmpty(user.phone))
+                    {
+                        if (string.IsNullOrEmpty(uQuery))
+                        {
+                            uQuery += "mobile = @mobile";
+                        }
+                        else
+                        {
+                            uQuery += " ,mobile = @mobile";
+                        }
+
+                    }
+                    if (!string.IsNullOrEmpty(user.newPass))
+                    {
+                        if (string.IsNullOrEmpty(uQuery))
+                        {
+                            uQuery += "passwd = SHA2(@newPass,512)";
+                        }
+                        else
+                        {
+                            uQuery += " ,passwd = SHA2(@newPass,512)";
+                        }
+
+                    }
+                    if (!string.IsNullOrEmpty(user.newPass))
+                    {
+                        if (string.IsNullOrEmpty(uQuery))
+                        {
+                            uQuery += "passwd = SHA2(@newPass,512)";
+                        }
+                        else
+                        {
+                            uQuery += " ,passwd = SHA2(@newPass,512)";
+                        }
+
+                    }
+                    if (!string.IsNullOrEmpty(user.birthDate))
+                    {
+                        if (string.IsNullOrEmpty(uQuery))
+                        {
+                            uQuery += "birthDate = @birthDate";
+                        }
+                        else
+                        {
+                            uQuery += " ,birthDate = @birthDate";
+                        }
+
+                    }
+                    if (user.genderID > 0)
+                    {
+                        if (string.IsNullOrEmpty(uQuery))
+                        {
+                            uQuery += "genderId=@genderID";
+                        }
+                        else
+                        {
+                            uQuery += " ,genderId=@genderID";
+                        }
+
+                    }
+                    if (user.countryID > 0)
+                    {
+                        if (string.IsNullOrEmpty(uQuery))
+                        {
+                            uQuery += "countryId=@countryID";
+                        }
+                        else
+                        {
+                            uQuery += " ,countryId=@countryID";
+                        }
+
+                    }
+                    if (user.cityID > 0)
+                    {
+                        if (string.IsNullOrEmpty(uQuery))
+                        {
+                            uQuery += "cityId=@cityID";
+                        }
+                        else
+                        {
+                            uQuery += " ,cityId=@cityID";
+                        }
+
+                    }
+                    if (user.professionID > 0)
+                    {
+                        if (string.IsNullOrEmpty(uQuery))
+                        {
+                            uQuery += "professionId=@professionID";
+                        }
+                        else
+                        {
+                            uQuery += " ,professionId=@professionID";
+                        }
+
+                    }
+
+                    if (!string.IsNullOrEmpty(uQuery))
+                    {
+                        DateTime now = DateTime.Now;
+
+                        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                        {
 
 
-        //            com.ExecuteNonQuery();
-        //            connection.Close();
+                            connection.Open();
+
+                            using (MySqlCommand com = new MySqlCommand(@$"update user set {uQuery} ,udate=@dateTimeNow
+     WHERE userID=@uID", connection))
+                            {
+                                com.Parameters.AddWithValue("@name", user.name);
+                                com.Parameters.AddWithValue("@surname", user.surname);
+                                com.Parameters.AddWithValue("@mail", user.mail);
+                                com.Parameters.AddWithValue("@mobile", user.phone);
+                                com.Parameters.AddWithValue("@uID", user.ID);
+                                com.Parameters.AddWithValue("@birthDate", DateTime.Parse(user.birthDate));
+                                com.Parameters.AddWithValue("@genderID", user.genderID);
+                                com.Parameters.AddWithValue("@dateTimeNow", now);
+                                com.Parameters.AddWithValue("@countryID", user.countryID);
+                                com.Parameters.AddWithValue("@cityID", user.cityID);
+                                com.Parameters.AddWithValue("@newPass", user.newPass);
+                                com.Parameters.AddWithValue("@professionID", user.professionID);
+
+                                com.ExecuteNonQuery();
+
+                                long lastId = com.LastInsertedId;
 
 
-        //            sendMail($"Qeydiyyatı tamamlamaq üçün, zəhmət olmasa <a href=\'https://pullu.az/api/androidmobileapp/verify?code={userToken}'>linkə</a> daxil olun", mail);
-
-        //            //MailMessage mailMsg = new MailMessage();
-        //            //SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
-        //            //mailMsg.IsBodyHtml = true;
-        //            //mailMsg.From = new MailAddress("asadzade99@gmail.com");
-        //            //mailMsg.To.Add($"{mail}");
-        //            //mailMsg.Subject = "Pullu (Dəstək)";
-        //            //mailMsg.Body = $"Qeydiyyatı tamamlamaq üçün, zəhmət olmasa <a href=\'https://pullu.az/api/androidmobileapp/verify?code={userToken}'>linkə</a> daxil olun";
-
-        //            //SmtpServer.Port = 587;
-        //            //SmtpServer.Credentials = new System.Net.NetworkCredential("asadzade99@gmail.com", "odqnmjiogipltmwi");
-        //            //SmtpServer.EnableSsl = true;
-
-        //            //SmtpServer.Send(mailMsg);
 
 
 
-        //            string json = "{ \"email\" : \"" + mail + "\", \"password\" : \"" + pass + "\", \" returnSecureToken\" : true }";
+                             communication.sendMail($"Profiliniz redaktə olundu əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", user.mail);
+                               communication.sendNotification("Profiliniz redaktə olundu əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", user.ID);
+                                // string json = "{ \"email\" : \"" + user.mail + "\", \"password\" : \"" + user.pass + "\", \" returnSecureToken\" : true }";
 
-        //            var content = new StringContent(json, Encoding.UTF8, "application/json");
-        //            string url = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCwEuju_UmuNNPrYtxEhsuddOfCzqZQ8nI";
-        //            HttpClient client = new HttpClient();
-        //            var rslt = client.PostAsync(url, content);
-        //            var resp = rslt.Result.RequestMessage;
+                                // var content = new StringContent(json, Encoding.UTF8, "application/json");
+                                //string url = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCwEuju_UmuNNPrYtxEhsuddOfCzqZQ8nI";
+                                //HttpClient client = new HttpClient();
+                                //var rslt = client.PostAsync(url, content);
+                                //var resp = rslt.Result.RequestMessage;
 
-        //            statusCode.response = 0; // Все ок
-        //            return statusCode;
+                                statusCode.response = 0; // Все ок
 
-
-        //        }
-        //        catch
-        //        {
-        //            statusCode.response = 1;//Ошибка сервера
-        //            return statusCode;
-        //        }
-
-        //        //http://127.0.0.1:44301/api/androidmobileapp/user/signUp?mail=asadzade99@gmail.com&username=asa&name=asa&surname=asa&pass=1&phone=1&bdate=1987-08-23&gender=Ki%C5%9Fi&country=Az%C9%99rbaycan&city=Bak%C4%B1&profession=Texnologiya%20sektoru
-
-        //    }
-        //    else
-        //    {
-
-        //        statusCode.response = 2;//Юзер существует
-        //        return statusCode;
-        //    }
+                                com.Dispose();
+                                
+                            }
 
 
-        //}
+                            connection.Close();
+                        }
+
+                    }
+
+
+
+
+
+
+                }
+                catch
+                {
+                    statusCode.response = 1;//Ошибка сервера
+                    return statusCode;
+                }
+
+                //http://127.0.0.1:44301/api/androidmobileapp/user/signUp?mail=asadzade99@gmail.com&username=asa&name=asa&surname=asa&pass=1&phone=1&bdate=1987-08-23&gender=Ki%C5%9Fi&country=Az%C9%99rbaycan&city=Bak%C4%B1&profession=Texnologiya%20sektoru
+
+            }
+            else
+            {
+
+                statusCode.response = 2;//Юзер существует
+                return statusCode;
+            }
+
+            return statusCode;
+        }
 
 
         public void AdsDeactivator()
@@ -484,7 +592,7 @@ namespace PulluBackEnd.Model.App
         {
             try
             {
-                
+
                 String path = $"{_hostingEnvironment.ContentRootPath}/wwwroot/media/";
 
 
@@ -561,7 +669,7 @@ namespace PulluBackEnd.Model.App
             string mediaPathUrl = "https://pullu.az/media/";
             long userID = select.getUserID(obj.mail, obj.pass);
             long lastId;
-            if (!string.IsNullOrEmpty(obj.aDescription) && !string.IsNullOrEmpty(obj.aTitle) && !string.IsNullOrEmpty(obj.aPrice)&&(!string.IsNullOrEmpty(obj.aBackgroundUrl)||obj.files.Count > 0))
+            if (!string.IsNullOrEmpty(obj.aDescription) && !string.IsNullOrEmpty(obj.aTitle) && !string.IsNullOrEmpty(obj.aPrice) && (!string.IsNullOrEmpty(obj.aBackgroundUrl) || obj.files.Count > 0))
             {
                 if (userID > 0) // Проверка существования юзера
                 {
@@ -608,102 +716,102 @@ namespace PulluBackEnd.Model.App
                                 switch (obj.aMediaTypeID)
                                 {
                                     case 1:
-                                    // mediaList.Add(obj.mediaBase64[0]);
-                                  
+                                        // mediaList.Add(obj.mediaBase64[0]);
+
                                         mediaInsertQuery = $"({obj.aMediaTypeID},'{obj.aBackgroundUrl}',{lastId},@cDate)";
-                                
-                                        
+
+
 
                                         break;
                                     case 2:
-                                    if (obj.files != null)
-                                    {
-                                        int lastrow = 1;
-                                        foreach (var item in obj.files)
+                                        if (obj.files != null)
                                         {
-                                            string photoName = SaveImage(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-                                            if (photoName != "")
+                                            int lastrow = 1;
+                                            foreach (var item in obj.files)
                                             {
+                                                string photoName = SaveImage(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                                                if (photoName != "")
+                                                {
 
-                                                // mediaList.Add(@$"https://pullu.az/media/{photoName}");
-                                                if (lastrow == obj.files.Count())
-                                                {
-                                                    mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate)";
+                                                    // mediaList.Add(@$"https://pullu.az/media/{photoName}");
+                                                    if (lastrow == obj.files.Count())
+                                                    {
+                                                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate)";
+                                                    }
+                                                    else
+                                                    {
+                                                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate),";
+                                                    }
                                                 }
-                                                else
-                                                {
-                                                    mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate),";
-                                                }
+                                                lastrow++;
+
                                             }
-                                            lastrow++;
-
                                         }
-                                    }
                                         break;
 
 
                                 }
 
-                            
-
-                            //if (obj.mediaBase64 != null)
-                            //{
-                            //    switch (obj.aMediaTypeID)
-                            //    {
-                            //        case 1:
-                            //            // mediaList.Add(obj.mediaBase64[0]);
-                            //            mediaInsertQuery = $"({obj.aMediaTypeID},'{obj.mediaBase64[0]}',{lastId},@cDate)";
-
-                            //            break;
-                            //        case 2:
-                            //            int lastrow = 1;
-                            //            foreach (var item in obj.mediaBase64)
-                            //            {
-                            //                string photoName = SaveImage(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-                            //                if (photoName != "")
-                            //                {
-
-                            //                    // mediaList.Add(@$"https://pullu.az/media/{photoName}");
-                            //                    if (lastrow == obj.mediaBase64.Count())
-                            //                    {
-                            //                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate)";
-                            //                    }
-                            //                    else
-                            //                    {
-                            //                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate),";
-                            //                    }
-                            //                }
-                            //                lastrow++;
-
-                            //            }
-                            //            break;
 
 
-                            //    }
+                                //if (obj.mediaBase64 != null)
+                                //{
+                                //    switch (obj.aMediaTypeID)
+                                //    {
+                                //        case 1:
+                                //            // mediaList.Add(obj.mediaBase64[0]);
+                                //            mediaInsertQuery = $"({obj.aMediaTypeID},'{obj.mediaBase64[0]}',{lastId},@cDate)";
 
-                            //}
-                            //if (mediaList.Count > 0)
-                            //{
+                                //            break;
+                                //        case 2:
+                                //            int lastrow = 1;
+                                //            foreach (var item in obj.mediaBase64)
+                                //            {
+                                //                string photoName = SaveImage(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                                //                if (photoName != "")
+                                //                {
 
-                            //    //int lastrow = 1;
-                            //    foreach (var media in mediaList)
-                            //    {
+                                //                    // mediaList.Add(@$"https://pullu.az/media/{photoName}");
+                                //                    if (lastrow == obj.mediaBase64.Count())
+                                //                    {
+                                //                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate)";
+                                //                    }
+                                //                    else
+                                //                    {
+                                //                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate),";
+                                //                    }
+                                //                }
+                                //                lastrow++;
 
-                            //        if (lastrow == mediaList.Count())
-                            //        {
-                            //            mediaInsertQuery += $"({obj.aMediaTypeID},'{media}',{lastId},@cDate)";
-                            //        }
-                            //        else
-                            //        {
-                            //            mediaInsertQuery += $"({obj.aMediaTypeID},'{media}',{lastId},@cDate),";
-                            //        }
+                                //            }
+                                //            break;
 
-                            //        lastrow++;
 
-                            //    }
-                            //}
+                                //    }
 
-                           
+                                //}
+                                //if (mediaList.Count > 0)
+                                //{
+
+                                //    //int lastrow = 1;
+                                //    foreach (var media in mediaList)
+                                //    {
+
+                                //        if (lastrow == mediaList.Count())
+                                //        {
+                                //            mediaInsertQuery += $"({obj.aMediaTypeID},'{media}',{lastId},@cDate)";
+                                //        }
+                                //        else
+                                //        {
+                                //            mediaInsertQuery += $"({obj.aMediaTypeID},'{media}',{lastId},@cDate),";
+                                //        }
+
+                                //        lastrow++;
+
+                                //    }
+                                //}
+
+
                                 using (MySqlCommand com = new MySqlCommand($"insert into media (mediaTpId,httpUrl,announcementId,cdate) values {mediaInsertQuery}", connection))
                                 {
                                     com.Parameters.AddWithValue("@cDate", now);
@@ -712,23 +820,24 @@ namespace PulluBackEnd.Model.App
 
                                 }
                                 //ishlemelidi indi indi 2 ci inserti elemiyecey. onunniye oldugunu arashdirmalisan. yoxsa acib buraxmisanki error verir axi. ele shey olmur error verirse arashdir aradan qald;r
-                               // vermir eerror
-                               //vermirse ishleda))
-                               //inesrteli elemir
-                               //bax gor niye elemir. serverde error verir lokalda yox?
-                               //serverde insert elemir
-                               //localda eliir
-                               //serverde umumiyyetce mysqle insert elemir ya konkret dbye?
-                               //pnu bilmirem amma bu db ya
-                               //ona gore ola biler ki serverin qiraga cixishi baglidi. administratora demek lazimdi
-                               //acixdi qiraga cixishi
-                               //yoxlamisan?
-                               //remote qoshula bilirsen servere?
-                               //elbette
-                               //qoshul
-                               //bax
-                        
-                                sendMail($"Reklamınız moderatora yoxlama üçün göndərildi", obj.mail);
+                                // vermir eerror
+                                //vermirse ishleda))
+                                //inesrteli elemir
+                                //bax gor niye elemir. serverde error verir lokalda yox?
+                                //serverde insert elemir
+                                //localda eliir
+                                //serverde umumiyyetce mysqle insert elemir ya konkret dbye?
+                                //pnu bilmirem amma bu db ya
+                                //ona gore ola biler ki serverin qiraga cixishi baglidi. administratora demek lazimdi
+                                //acixdi qiraga cixishi
+                                //yoxlamisan?
+                                //remote qoshula bilirsen servere?
+                                //elbette
+                                //qoshul
+                                //bax
+
+                             communication.sendMail($"Reklamınız moderatora yoxlama üçün göndərildi", obj.mail);
+                               communication.sendNotification("Reklamınız moderatora yoxlama üçün göndərildi", userID);
 
                                 statusCode.response = 0; // Все ок
                             }
@@ -769,7 +878,7 @@ namespace PulluBackEnd.Model.App
             }
             else
             {
-               
+
                 statusCode.response = 1;
                 //  return statusCode;
             }
@@ -897,6 +1006,7 @@ namespace PulluBackEnd.Model.App
                     //update users_balance set earningValue = earningValue + (select  price from earnings_tariff where earningstpid = (select atypeID from announcement where announcementId=@advertID) ), udate=now() where userId=@userID and udate<DATE_FORMAT(now(), '%Y-%m-%d')
 
                     connection.Close();
+
                     status.statusCode = 1;
 
                     return status;
@@ -924,48 +1034,7 @@ namespace PulluBackEnd.Model.App
         }
 
 
-        public bool sendNotification(string mail, string pass)
-        {
-            try
-            {
-                //string json = "{ \"method\" : \"guru.test\", \"params\" : [ \"Guru\" ], \"id\" : 123 }";
-                //string json = "{ \"email\" : \"" + mail + "\", \"password\" : \"" + pass + "\", \" returnSecureToken\" :\"true\"}";
-                var json = Newtonsoft.Json.JsonConvert.SerializeObject(new
-                {
-                    email = mail,
-                    password = pass,
-                    returnSecureToken = true
-                });
-
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-                string url = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyPassword?key=AIzaSyCwEuju_UmuNNPrYtxEhsuddOfCzqZQ8nI";
-                HttpClient client = new HttpClient();
-                var rslt = client.PostAsync(url, content);
-                var resp = rslt.Result.Content.ReadAsStringAsync().Result;
-
-
-
-                FirebaseUser deserializedUser = JsonConvert.DeserializeObject<FirebaseUser>(resp);
-
-
-                string notifyJson = "{ \"title\" : \"Salam\", \"userID\" : \"1213\", \"seen\" : false }";
-
-                var notifyContent = new StringContent(notifyJson, Encoding.UTF8, "application/json");
-                string notifyUrl = $"https://pullu-2e3bb.firebaseio.com/users/{deserializedUser.localId}/notifications.json?auth={deserializedUser.idToken}";
-                HttpClient notifyClient = new HttpClient();
-                var notifyRslt = notifyClient.PostAsync(notifyUrl, notifyContent);
-                var notifyResp = notifyRslt.Result.RequestMessage;
-
-                return true;
-            }
-            catch
-            {
-
-                return false;
-            }
-
-        }
-
+       
 
 
 

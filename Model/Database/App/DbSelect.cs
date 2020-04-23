@@ -23,23 +23,21 @@ namespace PulluBackEnd.Model.Database.App
             _hostingEnvironment = hostingEnvironment;
 
         }
-        public List<User> Log_in(string mail, string password)
+        public List<User> LogIn(string mail, string password)
         {
 
 
             List<User> user = new List<User>();
-            using (MySqlConnection connection = new MySqlConnection(ConnectionString)) 
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
 
                 connection.Open();
 
 
-                using (MySqlCommand com = new MySqlCommand("select *,(select name from pullu_db.gender where genderId=a.genderId) as gender," +
-                     "(select balanceValue from users_balance where userId=a.userId) as balance," +
-                     "(select earningValue from users_balance where userId=a.userId) as earning," +
-                     "(select name from pullu_db.city where cityId=a.cityId)as city," +
-                     "(select name from pullu_db.profession where professionId=a.professionId)as profession" +
-                     " from user a where  email=@login and passwd=SHA2(@pass,512) and isActive=1", connection))
+                using (MySqlCommand com = new MySqlCommand(@"select *,
+                     (select balanceValue from users_balance where userId=a.userId) as balance,
+                     (select earningValue from users_balance where userId=a.userId) as earning
+                     from user a where  email=@login and passwd=SHA2(@pass,512) and isActive=1", connection))
                 {
                     com.Parameters.AddWithValue("@login", mail);
                     com.Parameters.AddWithValue("@pass", password);
@@ -60,10 +58,10 @@ namespace PulluBackEnd.Model.Database.App
                                 usr.surname = reader["surname"].ToString();
                                 usr.mail = reader["email"].ToString();
                                 usr.phone = reader["mobile"].ToString();
-                                usr.birthDate = DateTime.Parse(reader["birthdate"].ToString());
-                                usr.gender = reader["gender"].ToString();
-                                usr.city = reader["city"].ToString();
-                                usr.profession = reader["profession"].ToString();
+                                usr.birthDate = reader["birthdate"].ToString();
+                                usr.genderID = Convert.ToInt32(reader["genderID"]);
+                                usr.cityID = Convert.ToInt32(reader["cityID"]);
+                                usr.professionID = Convert.ToInt32(reader["professionID"]);
                                 usr.regDate = DateTime.Parse(reader["cdate"].ToString());
                                 usr.balance = Convert.ToDecimal(reader["balance"]).ToString("0.00");
                                 usr.earning = Convert.ToDecimal(reader["earning"]).ToString("0.00");
@@ -72,7 +70,7 @@ namespace PulluBackEnd.Model.Database.App
 
                             }
                             //  connection.Close();
-                           
+
 
                         }
                     }
@@ -94,12 +92,12 @@ namespace PulluBackEnd.Model.Database.App
 
 
         }
-        public List<Advertisement> Advertisements(string mail, string password,int categoryID)
+        public List<Advertisement> Advertisements(string mail, string password, int categoryID)
 
         {
             List<Advertisement> adsList = new List<Advertisement>();
             long userID = 0;
-            if (Log_in(mail, password).Count > 0)
+            if (LogIn(mail, password).Count > 0)
             {
 
                 string categoryQuery = "";
@@ -108,10 +106,11 @@ namespace PulluBackEnd.Model.Database.App
                     categoryQuery = $"and categoryID={categoryID}";
                 }
 
-                using (MySqlConnection connection = new MySqlConnection(ConnectionString)) { 
+                using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                {
 
 
-                connection.Open();
+                    connection.Open();
 
                     using (MySqlCommand com = new MySqlCommand("select *,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,(select name from category where categoryId=a.categoryId ) as categoryName," +
                          "(select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName" +
@@ -163,7 +162,7 @@ namespace PulluBackEnd.Model.Database.App
                     // connection.Open();
                     using (MySqlCommand com = new MySqlCommand("select * ,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,(select name from category where categoryId=a.categoryId ) as categoryName, " +
                     "(select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName " +
-                    $"from announcement a where isPaid=1 and isActive=1 {categoryQuery} and (announcementID =(select distinct announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and DATE_FORMAT(cdate, '%Y-%m-%d')<DATE_FORMAT(now(), '%Y-%m-%d')) or announcementId not in (select distinct announcementId from announcement_view where userId=@userID))order by cdate desc", connection)) 
+                    $"from announcement a where isPaid=1 and isActive=1 {categoryQuery} and (announcementID =(select distinct announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and DATE_FORMAT(cdate, '%Y-%m-%d')<DATE_FORMAT(now(), '%Y-%m-%d')) or announcementId not in (select distinct announcementId from announcement_view where userId=@userID))order by cdate desc", connection))
                     {
 
                         com.Parameters.AddWithValue("@userID", userID);
@@ -199,12 +198,12 @@ namespace PulluBackEnd.Model.Database.App
                         }
                         com.Dispose();
                     }
-                connection.Close();
+                    connection.Close();
                     connection.Dispose();
                 }
                 return adsList;
             }
-           
+
             return adsList;
 
         }
@@ -215,7 +214,7 @@ namespace PulluBackEnd.Model.Database.App
         {
             List<Advertisement> adsList = new List<Advertisement>();
             long userID = getUserID(mail, password);
-            if (userID>0)
+            if (userID > 0)
             {
 
 
@@ -233,9 +232,9 @@ namespace PulluBackEnd.Model.Database.App
 
 
                 //Сортировка платных реклам по пользователю
-              
 
-              
+
+
                 com.CommandText = @"select distinct announcementId
 ,(select aTypeId from announcement where announcementId=a.announcementId)as aTypeId,
 (select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,
@@ -253,7 +252,7 @@ namespace PulluBackEnd.Model.Database.App
                     while (reader.Read())
                     {
 
-                     
+
                         if (Convert.ToInt32(reader["IsActive"]) == 1)
                         {
                             Advertisement ads = new Advertisement();
@@ -277,11 +276,11 @@ namespace PulluBackEnd.Model.Database.App
 
                         }
 
-                     
+
 
 
                     }
-                 
+
                 }
                 connection.Close();
                 return adsList;
@@ -527,7 +526,7 @@ namespace PulluBackEnd.Model.Database.App
 
 
 
-               
+
 
                 connection.Open();
 
@@ -573,7 +572,7 @@ namespace PulluBackEnd.Model.Database.App
                 string userToken = "";
 
 
-               
+
 
                 connection.Open();
 
@@ -612,7 +611,7 @@ namespace PulluBackEnd.Model.Database.App
             {
                 long userID = 0;
 
-                
+
 
                 connection.Open();
 
@@ -653,7 +652,7 @@ namespace PulluBackEnd.Model.Database.App
             {
                 long userID = 0;
 
-               
+
 
                 connection.Open();
 
@@ -696,7 +695,7 @@ namespace PulluBackEnd.Model.Database.App
             {
 
 
-               
+
 
                 connection.Open();
 
@@ -939,7 +938,9 @@ namespace PulluBackEnd.Model.Database.App
                 connection.Open();
 
                 MySqlCommand com = new MySqlCommand(@"select *,(select name from profession where professionID=a.professionid)as profession,
+ (select name from country where countryID=a.countryID )as country,
                     (select name from city where cityID=a.cityID )as city,
+
                     (select name from gender where genderID=a.genderID )as gender from user a where userID=@userID and isActive=1", connection);
 
 
@@ -960,19 +961,23 @@ namespace PulluBackEnd.Model.Database.App
                         profile.mail = reader["email"].ToString();
                         profile.phone = reader["mobile"].ToString();
                         profile.profession = reader["profession"].ToString();
+                        profile.professionID = Convert.ToInt32(reader["professionID"]);
+                        profile.country = reader["country"].ToString();
+                        profile.countryID = Convert.ToInt32(reader["countryID"]);
                         profile.city = reader["city"].ToString();
+                        profile.cityID = Convert.ToInt32(reader["cityID"]);
                         profile.gender = reader["gender"].ToString();
                         profile.cDate = Convert.ToDateTime(reader["cdate"]);
-                   
+
                         profileList.Add(profile);
                     }
-                  
+
                 }
-   
+
             }
-            
+
             connection.Close();
-            
+
             return profileList;
 
 
@@ -1008,14 +1013,14 @@ namespace PulluBackEnd.Model.Database.App
                     aTypeList.Add(aType);
                 }
             }
-            
+
 
             connection.Close();
 
             return aTypeList;
         }
 
-       
+
 
         public List<CategoryStruct> aCategory()
 
@@ -1048,7 +1053,7 @@ namespace PulluBackEnd.Model.Database.App
                     aCatList.Add(aCat);
                 }
             }
-            
+
 
             connection.Close();
 
@@ -1087,7 +1092,7 @@ namespace PulluBackEnd.Model.Database.App
                     aTariffList.Add(aTariff);
                 }
             }
-           
+
 
             connection.Close();
 
