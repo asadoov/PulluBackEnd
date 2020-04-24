@@ -1,9 +1,9 @@
 ﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|Default">
   <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="appsettings.json">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Database/App/DbInsert.cs">
     <Files>
-      <File FileName="Model/Database/App/DbInsert.cs" Line="839" Column="44" IsPinned="True" />
-      <File FileName="appsettings.json" Line="11" Column="86" />
+      <File FileName="Model/Database/App/DbInsert.cs" Line="886" Column="27" IsPinned="True" />
+      <File FileName="appsettings.json" />
       <File FileName="Startup.cs" />
       <File FileName="Controllers/App/androidmobileappController.cs" />
       <File FileName="Model/Database/Admin/DbSelect.cs" />
@@ -13,7 +13,7 @@
       <File FileName="Controllers/Admin/AdminController.cs" />
       <File FileName="Model/Admin/Status.cs" />
       <File FileName="Model/CommonScripts/Communication.cs" />
-      <File FileName="Model/Database/Admin/DbInsert.cs" Line="228" Column="94" />
+      <File FileName="Model/Database/Admin/DbInsert.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -29,13 +29,15 @@
                 <Node name="CommonScripts" expanded="True" />
                 <Node name="Database" expanded="True">
                   <Node name="Admin" expanded="True" />
-                  <Node name="App" expanded="True" />
+                  <Node name="App" expanded="True">
+                    <Node name="DbInsert.cs" selected="True" />
+                  </Node>
                 </Node>
               </Node>
               <Node name="Properties" expanded="True">
                 <Node name="PublishProfiles" expanded="True" />
               </Node>
-              <Node name="appsettings.json" expanded="True" selected="True" />
+              <Node name="appsettings.json" expanded="True" />
             </Node>
           </Node>
         </State>
