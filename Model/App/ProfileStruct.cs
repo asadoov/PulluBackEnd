@@ -13,8 +13,12 @@ namespace PulluBackEnd.Model.App
         public string phone { get; set; }
         public DateTime bDate { get; set; }
         public string gender { get; set; }
+        public string country { get; set; }
+        public int countryID { get; set; }
         public string city { get; set; }
+        public int cityID { get; set; }
         public string profession { get; set; }
+        public int professionID { get; set; }
         public DateTime cDate { get; set; }
         
     }

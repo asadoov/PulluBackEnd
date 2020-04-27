@@ -28,18 +28,18 @@ namespace PulluBackEnd.Controllers
 
         // GET: api/Admin
         [HttpGet]
-        [Route("user/logIn")]
+        [Route("logIn")]
         [EnableCors("AllowOrigin")]
         public List<AdminStruct> logIn(string username, string pass)
         {
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             List<AdminStruct> user = new List<AdminStruct>();
-            user = select.getUser(username, pass);
+            user = select.logIn(username, pass);
 
             return user;
         }
         [HttpPost]
-        [Route("user/get/ads")]
+        [Route("get/ads")]
         [EnableCors("AllowOrigin")]
         public List<Advertisement> getAds(string username, string pass)
         {
@@ -49,7 +49,71 @@ namespace PulluBackEnd.Controllers
 
             return adsList;
         }
+        [HttpPost]
+        [Route("ads/activate")]
+        [EnableCors("AllowOrigin")]
+        public List<Status> activateAds(string username, string pass, int aID, int isActive)
+        {
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+            List<Status> status = new List<Status>();
+            status = insert.activateAds(username, pass, aID, isActive);
 
+            return status;
+        }
+        [HttpGet]
+        [Route("get/logs")]
+        [EnableCors("AllowOrigin")]
+        public List<LogStruct> getLogs(string username, string pass)
+        {
+
+
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+            List<LogStruct> logList = new List<LogStruct>();
+            logList = select.getLogs(username, pass);
+
+            return logList;
+
+
+        }
+        [HttpGet]
+        [Route("get/logs/pretty")]
+        [EnableCors("AllowOrigin")]
+        public ContentResult getLogsPretty(string username, string pass)
+        {
+
+
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+            List<LogStruct> logList = new List<LogStruct>();
+            logList = select.getLogs(username, pass);
+            string html = "";
+            foreach (var item in logList)
+            {
+                html += @$"<tr>
+    <td>{item.ipAdress}</td>
+    <td>{item.log}</td>
+<td>{item.functionName}</td>
+<td>{item.cdate}</td>
+  </tr>";
+            }
+            return base.Content(@"<html><head><style>
+table, th, td {
+  border: 1px solid black;
+}
+th, td {
+  padding: 10px;
+}
+</style><meta charset = 'UTF-8' ></head>" +
+               @$"<table>
+  <tr>
+    <th>IP Adress</th>
+    <th>Log</th>
+<th>Function name</th>
+<th>Created</th>
+  </tr>
+  {html}
+</table>", "text/html");
+
+        }
 
     }
 }

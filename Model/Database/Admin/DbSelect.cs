@@ -23,51 +23,96 @@ namespace PulluBackEnd.Model.Database.Admin
         }
 
 
-        public List<AdminStruct> getUser(string username, string pass)
+        public List<AdminStruct> logIn(string username, string pass)
         {
 
 
             List<AdminStruct> userList = new List<AdminStruct>();
-            MySqlConnection connection = new MySqlConnection(ConnectionString);
-
-
-            connection.Open();
-
-            MySqlCommand com = new MySqlCommand("SELECT * FROM manager where uname=@username and passwd=SHA2(@pass,256)", connection);
-
-
-            com.Parameters.AddWithValue("@username", username);
-            com.Parameters.AddWithValue("@pass", pass);
-
-            MySqlDataReader reader = com.ExecuteReader();
-            if (reader.HasRows)
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
             {
+                connection.Open();
 
-
-                while (reader.Read())
+                using (MySqlCommand com = new MySqlCommand("SELECT * FROM manager where uname=@username and passwd=SHA2(@pass,256)", connection))
                 {
 
-                    AdminStruct user = new AdminStruct();
+                    com.Parameters.AddWithValue("@username", username);
+                    com.Parameters.AddWithValue("@pass", pass);
 
-                    user.ID = Convert.ToInt32(reader["managerId"]);
-                    user.fullName = reader["fullname"].ToString();
-                    user.mobile = reader["mobile"].ToString();
-                    user.cDate = Convert.ToDateTime(reader["cdate"]);
-                    user.managerTpID = Convert.ToInt32(reader["managerTpID"]);
-                    userList.Add(user);
+                    MySqlDataReader reader = com.ExecuteReader();
+                    if (reader.HasRows)
+                    {
 
 
+                        while (reader.Read())
+                        {
+
+                            AdminStruct user = new AdminStruct();
+
+                            user.ID = Convert.ToInt32(reader["managerId"]);
+                            user.fullName = reader["fullname"].ToString();
+                            user.mobile = reader["mobile"].ToString();
+                            user.cDate = Convert.ToDateTime(reader["cdate"]);
+                            user.managerTpID = Convert.ToInt32(reader["managerTpID"]);
+                            userList.Add(user);
+
+
+
+                        }
+
+
+
+                    }
+
+                    com.Dispose();
 
                 }
-                connection.Close();
-                return userList;
 
-            }
-            else
-            {
+
+
                 connection.Close();
-                return userList;
             }
+
+            return userList;
+
+        }
+        public bool checkAdmin(string username, string pass)
+        {
+            bool userFound = false;
+
+          
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                using (MySqlCommand com = new MySqlCommand("SELECT * FROM manager where uname=@username and passwd=SHA2(@pass,256)", connection))
+                {
+
+                    com.Parameters.AddWithValue("@username", username);
+                    com.Parameters.AddWithValue("@pass", pass);
+
+                    MySqlDataReader reader = com.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+
+
+                        userFound = true;
+
+
+
+                    }
+                   
+
+                    com.Dispose();
+
+                }
+
+
+
+                connection.Close();
+            }
+            return userFound;
+          
+
         }
         public List<Advertisement> getAds(string username, string pass)
         {
@@ -75,11 +120,11 @@ namespace PulluBackEnd.Model.Database.Admin
 
 
 
-                List<Advertisement> adsList = new List<Advertisement>();
-            if (getUser(username,pass).Count>0)
+            List<Advertisement> adsList = new List<Advertisement>();
+            if (checkAdmin(username,pass))
             {
 
-            
+
                 using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                 {
 
@@ -140,6 +185,70 @@ namespace PulluBackEnd.Model.Database.Admin
             }
 
             return adsList;
+
+        }
+        public List<LogStruct> getLogs(string username, string pass)
+        {
+
+
+
+
+            List<LogStruct> logList = new List<LogStruct>();
+            if (checkAdmin(username, pass))
+            {
+
+
+                using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                {
+
+
+                    connection.Open();
+
+                    using (MySqlCommand com = new MySqlCommand("select * from api_log", connection))
+                    {
+
+
+
+
+                     
+
+                        MySqlDataReader reader = com.ExecuteReader();
+                        if (reader.HasRows)
+                        {
+
+
+                            while (reader.Read())
+                            {
+
+                                LogStruct logs = new LogStruct();
+                                logs.ID = Convert.ToInt32(reader["id"]);
+                                logs.ipAdress = reader["ip_adress"].ToString();
+                                logs.log = reader["log"].ToString();
+                                logs.functionName = reader["function_name"].ToString();
+                               
+                                logs.cdate = DateTime.Parse(reader["cdate"].ToString());
+                               
+
+
+
+                                logList.Add(logs);
+
+
+
+                            }
+
+
+
+                        }
+                        com.Dispose();
+
+                    }
+                    connection.Dispose();
+                    connection.Close();
+                }
+            }
+
+            return logList;
 
         }
 
