@@ -187,6 +187,70 @@ namespace PulluBackEnd.Model.Database.Admin
             return adsList;
 
         }
+        public List<LogStruct> getLogs(string username, string pass)
+        {
+
+
+
+
+            List<LogStruct> logList = new List<LogStruct>();
+            if (checkAdmin(username, pass))
+            {
+
+
+                using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                {
+
+
+                    connection.Open();
+
+                    using (MySqlCommand com = new MySqlCommand("select * from api_log", connection))
+                    {
+
+
+
+
+                     
+
+                        MySqlDataReader reader = com.ExecuteReader();
+                        if (reader.HasRows)
+                        {
+
+
+                            while (reader.Read())
+                            {
+
+                                LogStruct logs = new LogStruct();
+                                logs.ID = Convert.ToInt32(reader["id"]);
+                                logs.ipAdress = reader["ip_adress"].ToString();
+                                logs.log = reader["log"].ToString();
+                                logs.functionName = reader["function_name"].ToString();
+                               
+                                logs.cdate = DateTime.Parse(reader["cdate"].ToString());
+                               
+
+
+
+                                logList.Add(logs);
+
+
+
+                            }
+
+
+
+                        }
+                        com.Dispose();
+
+                    }
+                    connection.Dispose();
+                    connection.Close();
+                }
+            }
+
+            return logList;
+
+        }
 
     }
 }

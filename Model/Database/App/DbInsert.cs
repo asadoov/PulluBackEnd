@@ -19,7 +19,7 @@ namespace PulluBackEnd.Model.App
 {
     public class DbInsert
     {
-        Communication communication = new Communication();
+        Communication communication;
         private readonly string ConnectionString;
         public IConfiguration Configuration;
         private readonly IWebHostEnvironment _hostingEnvironment;
@@ -28,6 +28,7 @@ namespace PulluBackEnd.Model.App
             Configuration = configuration;
             ConnectionString = Configuration.GetSection("ConnectionStrings").GetSection("DefaultConnectionString").Value;
             _hostingEnvironment = hostingEnvironment;
+            communication = new Communication(Configuration,_hostingEnvironment);
 
         }
         static string sha256(string randomString)
@@ -123,6 +124,8 @@ namespace PulluBackEnd.Model.App
                     {
 
                       communication.sendMail($"Bizə şifrənizin bərpası barədə müraciət daxil olub, əgər bu doğrunu əks etdirirsə aşağıdakı 4 rəqəmli şifrəni programa daxil edin<br><h2>ŞİFRƏ: {randomCode}</h2>", mail);
+                        communication.sendMail($"Bizə şifrənizin bərpası barədə müraciət daxil olub, əgər bu doğrunu əks etdirirsə aşağıdakı 4 rəqəmli şifrəni programa daxil edin<br><h2>ŞİFRƏ: {randomCode}</h2>", mail);
+
                         //string json = "{ \"email\" : \"" + mail + "\", \"password\" : \"" + randomPass + "\", \" returnSecureToken\" : true }";
 
                         //var content = new StringContent(json, Encoding.UTF8, "application/json");

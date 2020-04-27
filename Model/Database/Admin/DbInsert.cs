@@ -21,7 +21,7 @@ namespace PulluBackEnd.Model.Database.Admin
 {
     public class DbInsert
     {
-        Communication communication = new Communication();
+        Communication communication; 
 
         private readonly string ConnectionString;
         public IConfiguration Configuration;
@@ -31,6 +31,7 @@ namespace PulluBackEnd.Model.Database.Admin
             Configuration = configuration;
             ConnectionString = Configuration.GetSection("ConnectionStrings").GetSection("DefaultConnectionString").Value;
             _hostingEnvironment = hostingEnvironment;
+            communication =new Communication(Configuration,_hostingEnvironment);
 
         }
         static string sha256(string randomString)
