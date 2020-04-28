@@ -1,0 +1,49 @@
+﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|Default">
+  <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Controllers/Admin/AdminController.cs">
+    <Files>
+      <File FileName="Model/CommonScripts/Communication.cs" Line="93" Column="12" />
+      <File FileName="Controllers/App/androidmobileappController.cs" Line="555" Column="49" />
+      <File FileName="Model/Database/App/DbInsert.cs" Line="263" Column="88" />
+      <File FileName="Model/Database/App/DbSelect.cs" />
+      <File FileName="Controllers/App/PaymentController.cs" Line="1" Column="1" />
+      <File FileName="Controllers/Admin/AdminController.cs" Line="88" Column="31" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="PulluBackEnd" expanded="True">
+            <Node name="PulluBackEnd" expanded="True">
+              <Node name="Dependencies" expanded="True" />
+              <Node name="Controllers" expanded="True">
+                <Node name="Admin" expanded="True">
+                  <Node name="AdminController.cs" selected="True" />
+                </Node>
+                <Node name="App" expanded="True" />
+              </Node>
+              <Node name="Model" expanded="True">
+                <Node name="Admin" expanded="True" />
+                <Node name="App" expanded="True" />
+                <Node name="CommonScripts" expanded="True" />
+                <Node name="Database" expanded="True">
+                  <Node name="Admin" expanded="True" />
+                  <Node name="App" expanded="True" />
+                </Node>
+              </Node>
+              <Node name="Properties" expanded="True">
+                <Node name="PublishProfiles" expanded="True" />
+              </Node>
+              <Node name="appsettings.json" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>
