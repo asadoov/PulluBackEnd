@@ -1,28 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "/Users/rufat/Documents/GitHub/PulluBackEnd/PulluBackEnd.csproj": {}
+    "C:\\Users\\test.pts\\Desktop\\PulluBackEnd\\PulluBackEnd.csproj": {}
   },
   "projects": {
-    "/Users/rufat/Documents/GitHub/PulluBackEnd/PulluBackEnd.csproj": {
+    "C:\\Users\\test.pts\\Desktop\\PulluBackEnd\\PulluBackEnd.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/rufat/Documents/GitHub/PulluBackEnd/PulluBackEnd.csproj",
+        "projectUniqueName": "C:\\Users\\test.pts\\Desktop\\PulluBackEnd\\PulluBackEnd.csproj",
         "projectName": "PulluBackEnd",
-        "projectPath": "/Users/rufat/Documents/GitHub/PulluBackEnd/PulluBackEnd.csproj",
-        "packagesPath": "/Users/rufat/.nuget/packages/",
-        "outputPath": "/Users/rufat/Documents/GitHub/PulluBackEnd/obj/",
+        "projectPath": "C:\\Users\\test.pts\\Desktop\\PulluBackEnd\\PulluBackEnd.csproj",
+        "packagesPath": "C:\\Users\\test.pts\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\test.pts\\Desktop\\PulluBackEnd\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
+          "C:\\Microsoft\\Xamarin\\NuGet\\",
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "/Users/rufat/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\test.pts\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -72,6 +76,24 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[3.0.1, 3.0.1]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[3.0.3, 3.0.3]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[3.0.0, 3.0.0]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[3.0.0, 3.0.0]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -80,7 +102,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/3.1.200/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.201\\RuntimeIdentifierGraph.json"
         }
       }
     }
