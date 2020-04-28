@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Mail;
 using System.Text;
 using Microsoft.AspNetCore.Hosting;
@@ -87,37 +88,41 @@ namespace PulluBackEnd.Model.CommonScripts
 
         }
 
-        public async void sendSMS(string text, int tel)
+        public async void sendSMS(string smsText, int smsTel)
         {
             try
             {
                
 
 
-                string smsXML = @"<?xml version='1.0' encoding='utf-8'?>
-  <soap12:Envelope xmlns:xsi = 'http://www.w3.org/2001/XMLSchema-instance' xmlns:xsd = 'http://www.w3.org/2001/XMLSchema' xmlns:soap12 = 'http://www.w3.org/2003/05/soap-envelope' >
-         <soap12:Body>
-          <SendSms xmlns = 'https://www.e-gov.az'
-           <Authentication>
-           <RequestName> pullu </RequestName>
-           <RequestPassword>4l7E0yuLiquNrLp40bpr</RequestPassword>
-              <RequestSmsKey>!pulluRequestSms</RequestSmsKey>
-              </Authentication>
-              <Information>
-              <PhoneNumber> 552136623 </PhoneNumber>
-              <Messages>#evde#qal#smssiz#qalma</Messages>
-<SenderDate> 27.04.2020 </SenderDate>
-   <SenderTime> 12:00:00 </SenderTime>
-      </Information>
-      </SendSms>
-      </soap12:Body>
-       </soap12:Envelope>";
+                string smsXML = @$"<?xml version=""1.0"" encoding=""utf-8""?>
+<soap12:Envelope xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"" xmlns:soap12=""http://www.w3.org/2003/05/soap-envelope"">
+<soap12:Body>
+<SendSms xmlns=""https://www.e-gov.az"">
+<Authentication>
+<RequestName>pullu</RequestName>
+<RequestPassword>4l7E0yuLiquNrLp40bpr</RequestPassword>
+<RequestSmsKey>!pulluRequestSms</RequestSmsKey>
+</Authentication>
+<Information>
+<PhoneNumber>{smsTel}</PhoneNumber>
+<Messages>{smsText}</Messages>
+<SenderDate>27.04.2020</SenderDate>
+<SenderTime>12:00:00</SenderTime>
+</Information>
+</SendSms>
+</soap12:Body>
+</soap12:Envelope>";
 
                 var smsContent = new StringContent(smsXML, Encoding.UTF8, "text/xml");
-                string smsUrl = $"https://globalsms.rabita.az/ws/SmsWebServices.asmx";
-                HttpClient notifyClient = new HttpClient();
-                var smsRslt = notifyClient.PostAsync(smsUrl, smsContent);
-                var smsResp = smsRslt.Result.RequestMessage;
+                //smsContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/xml");
+
+               string smsUrl = $"https://globalsms.rabita.az/ws/SmsWebServices.asmx";
+                HttpClient smsClient = new HttpClient();
+
+                
+                var smsRslt = await smsClient.PostAsync(smsUrl, smsContent);
+                var smsResp = await smsRslt.Content.ReadAsStringAsync();
 
 
             }

@@ -85,6 +85,7 @@ namespace PulluBackEnd.Controllers
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             List<LogStruct> logList = new List<LogStruct>();
             logList = select.getLogs(username, pass);
+            logList.Reverse();
             string html = "";
             foreach (var item in logList)
             {

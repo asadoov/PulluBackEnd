@@ -31,7 +31,7 @@ namespace PulluBackEnd.Controllers
             Configuration = configuration;
 
             _hostingEnvironment = hostingEnvironment;
-            communication =new Communication(Configuration, _hostingEnvironment);
+            communication = new Communication(Configuration, _hostingEnvironment);
         }
         [HttpGet]
         [Route("testIP")]
@@ -273,35 +273,51 @@ namespace PulluBackEnd.Controllers
 
 
         }
+        //[HttpGet]
+        //[Route("verify")]
+        //[EnableCors("AllowOrigin")]
+        //public ContentResult verify(int code)
+        //{
+        //    var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+        //    communication.log($"code -> {security.sha256(code.ToString())}", "verify(int code)", ipAddress.ToString());
+
+        //    try
+        //    {
+
+
+        //        DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+        //        if (insert.verify(code))
+        //        {
+        //            return base.Content("<html><head><meta charset = 'UTF-8' ></head>" +
+        //       "<center><h2>Bildiriş<br>Təşəkkürlər, siz e-poçtunuzu təstiq etdiniz!</h2></center></html>", "text/html");
+        //        }
+
+        //        return base.Content("<html><head><meta charset = 'UTF-8'></head><center><h2>Bildiriş<br>Təəssüfki e-poçtunuz təstiq olunmadı</h2></center></html>", "text/html");
+
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return base.Content($"<html><head><meta charset = 'UTF-8'><center><h2>Bildiriş<br>Server xətası:{ex.Message}</h2></center></html>", "text/html");
+
+        //    }
+
+
+        //}
         [HttpGet]
-        [Route("verify")]
+        [Route("verifySMS")]
         [EnableCors("AllowOrigin")]
-        public ContentResult verify(int code)
+        public Status verifySMS(int code)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"code -> {security.sha256(code.ToString())}", "verify(int code)", ipAddress.ToString());
+            communication.log($"code -> {security.sha256(code.ToString())}", "verifySMS(int code)", ipAddress.ToString());
+           
 
-            try
-            {
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+            return insert.verify(code);
 
-
-                DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-                if (insert.verify(code))
-                {
-                    return base.Content("<html><head><meta charset = 'UTF-8' ></head>" +
-               "<center><h2>Bildiriş<br>Təşəkkürlər, siz e-poçtunuzu təstiq etdiniz!</h2></center></html>", "text/html");
-                }
-
-                return base.Content("<html><head><meta charset = 'UTF-8'></head><center><h2>Bildiriş<br>Təəssüfki e-poçtunuz təstiq olunmadı</h2></center></html>", "text/html");
-
-
-            }
-            catch (Exception ex)
-            {
-                return base.Content($"<html><head><meta charset = 'UTF-8'><center><h2>Bildiriş<br>Server xətası:{ex.Message}</h2></center></html>", "text/html");
-
-            }
 
 
         }
@@ -499,7 +515,7 @@ namespace PulluBackEnd.Controllers
         public Status newAdvertisement([FromForm] NewAdvertisementStruct obj)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
-           
+
             communication.log(Newtonsoft.Json.JsonConvert.SerializeObject(obj).ToString(), "newAdvertisement([FromForm] NewAdvertisementStruct obj)", ipAddress.ToString());
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
             // return 
@@ -533,6 +549,23 @@ namespace PulluBackEnd.Controllers
 
             status.response = 3; // пусто
             return status;
+
+        }
+        [HttpGet]
+        [Route("accounts/password/reset/send/sms")]
+        [EnableCors("AllowOrigin")]
+        public Status sendSMS(int phone)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log(@$"phone -> {phone}", "sendSMS(string mail)", ipAddress.ToString());
+        
+
+                DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+         
+               
+            
+            return insert.sendResetSMS(phone);
 
         }
         [HttpGet]
@@ -639,7 +672,7 @@ namespace PulluBackEnd.Controllers
 
         }
 
-        
+
 
         [HttpGet]
         [Route("user/Firebase")]
@@ -667,6 +700,7 @@ namespace PulluBackEnd.Controllers
 
 
         }
+
     }
 
 }
