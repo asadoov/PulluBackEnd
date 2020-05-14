@@ -21,7 +21,7 @@ namespace PulluBackEnd.Model.Database.Admin
 {
     public class DbInsert
     {
-        Communication communication; 
+        Communication communication;
 
         private readonly string ConnectionString;
         public IConfiguration Configuration;
@@ -31,7 +31,7 @@ namespace PulluBackEnd.Model.Database.Admin
             Configuration = configuration;
             ConnectionString = Configuration.GetSection("ConnectionStrings").GetSection("DefaultConnectionString").Value;
             _hostingEnvironment = hostingEnvironment;
-            communication =new Communication(Configuration,_hostingEnvironment);
+            communication = new Communication(Configuration, _hostingEnvironment);
 
         }
         static string sha256(string randomString)
@@ -127,6 +127,8 @@ namespace PulluBackEnd.Model.Database.Admin
                     {
 
                         communication.sendMail($"Bizə şifrənizin bərpası barədə müraciət daxil olub, əgər bu doğrunu əks etdirirsə aşağıdakı 4 rəqəmli şifrəni programa daxil edin<br><h2>ŞİFRƏ: {randomCode}</h2>", mail);
+
+
                         //string json = "{ \"email\" : \"" + mail + "\", \"password\" : \"" + randomPass + "\", \" returnSecureToken\" : true }";
 
                         //var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -171,6 +173,7 @@ namespace PulluBackEnd.Model.Database.Admin
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             string userMail = "", aInfo = "";
+            int userMobile = 0;
             long userID = 0;
 
             if (select.checkAdmin(uname, pass))
@@ -195,7 +198,7 @@ namespace PulluBackEnd.Model.Database.Admin
                         }
                         if (affectedRows > 0)
                         {
-                            using (MySqlCommand com = new MySqlCommand("select name,userID,(select email from user where userID=a.userID)as userMail from announcement a where announcementID=@aID and isActive=@isActive", connection))
+                            using (MySqlCommand com = new MySqlCommand("select name,userID,(select email from user where userID=a.userID)as userMail,(select mobile from user where userID=a.userID)as userMobile  from announcement a where announcementID=@aID and isActive=@isActive", connection))
                             {
                                 com.Parameters.AddWithValue("@isActive", isActive);
                                 com.Parameters.AddWithValue("@aID", aID);
@@ -206,7 +209,7 @@ namespace PulluBackEnd.Model.Database.Admin
                                     {
                                         while (reader.Read())
                                         {
-
+                                            userMobile = Convert.ToInt32(reader["userMobile"]);
                                             userMail = reader["userMail"].ToString();
                                             aInfo = reader["name"].ToString();
                                             userID = Convert.ToInt32(reader["userID"]);
@@ -218,18 +221,25 @@ namespace PulluBackEnd.Model.Database.Admin
 
 
                                 com.Dispose();
-                                if (isActive==1)
+                                if (isActive == 1)
                                 {
-                                    communication.sendMail($"{aInfo} başlıqlı reklamınız aktiv edildi", userMail);
-                                    communication.sendNotification($"{aInfo} başlıqlı aktiv edildi", userID);
+
+                                    aInfo += " başlıqlı reklam aktiv edildi";
                                 }
                                 else
                                 {
-                                    communication.sendMail($"{aInfo} başlıqlı reklamınız deaktiv edildi", userMail);
-                                    communication.sendNotification($"{aInfo} başlıqlı deaktiv edildi", userID);
+                                    aInfo += " başlıqlı reklam deaktiv edildi";
+
 
                                 }
-                                
+                                if (userMobile > 0) communication.sendSmsAsync($"{aInfo}", userMobile);
+                                if (!string.IsNullOrEmpty(userMail)) communication.sendMail($"{aInfo}", userMail);
+                                if (userID > 0) {
+                                    communication.sendNotificationAsync("Moderator",$"{aInfo}", userID);
+                                    communication.sendPushNotificationAsync("Moderator", aInfo,userID);
+
+                                        }
+
                                 statusCode.response = 0; // Все ок
                             }
 

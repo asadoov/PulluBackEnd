@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PulluBackEnd.Model.App
+namespace PulluBackEnd.Model.App.server
 {
     public class User
     {
@@ -19,8 +19,7 @@ namespace PulluBackEnd.Model.App
         public int professionID { get; set; }
         public string balance { get; set; }
         public string earning { get; set; }
-        public string pass { get; set; }
-        public string newPass { get; set; }
+      
         public DateTime regDate { get; set; }
         
       

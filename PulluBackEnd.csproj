@@ -19,6 +19,8 @@
     <Folder Include="wwwroot\" />
     <Folder Include="wwwroot\media\" />
     <Folder Include="Model\CommonScripts\" />
+    <Folder Include="Model\App\server\" />
+    <Folder Include="Model\App\client\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>

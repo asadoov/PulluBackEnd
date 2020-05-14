@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using PulluBackEnd.Model.Payment;
-
+using PulluBackEnd.Model.CommonScripts;
 namespace PulluBackEnd.Model.Payment
 {
     public class PaymentInsert
     {
+        Communication communication;
         private readonly string ConnectionString;
         public IConfiguration Configuration;
         private readonly IWebHostEnvironment _hostingEnvironment;
@@ -19,6 +20,7 @@ namespace PulluBackEnd.Model.Payment
             Configuration = configuration;
             ConnectionString = Configuration.GetSection("ConnectionStrings").GetSection("DefaultConnectionString").Value;
             _hostingEnvironment = hostingEnvironment;
+            communication = new Communication(Configuration, _hostingEnvironment);
 
         }
         public VerifyStatusStruct verify(VerifyStruct transaction)
@@ -159,9 +161,9 @@ namespace PulluBackEnd.Model.Payment
 
                         connection.Open();
                         com.CommandText = "update users_balance set balanceValue = balanceValue + @amount, cdate=@dateTimeNow where userID=@userID ";
-                 
-                       
-                     
+                        communication.sendNotificationAsync("Mədaxil", "Online odəmə sistemi ilə balansiniz artırldı",uBalance.userID);
+                        communication.sendPushNotificationAsync("Mədaxil", "Online odəmə sistemi ilə balansiniz artırldı", uBalance.userID);
+
                         com.ExecuteNonQuery();
                         connection.Close();
                         //update users_balance set earningValue = earningValue + (select  price from earnings_tariff where earningstpid = (select atypeID from announcement where announcementId=@advertID) ), udate=now() where userId=@userID and udate<DATE_FORMAT(now(), '%Y-%m-%d')

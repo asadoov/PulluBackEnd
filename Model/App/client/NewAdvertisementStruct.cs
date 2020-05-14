@@ -5,7 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 
-namespace PulluBackEnd.Model.App
+namespace PulluBackEnd.Model.App.client
 {
     public class NewAdvertisementStruct
     {

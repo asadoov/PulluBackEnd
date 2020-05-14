@@ -11,7 +11,8 @@ using Microsoft.Extensions.Configuration;
 using PulluBackEnd.Model.App;
 using PulluBackEnd.Model.CommonScripts;
 using PulluBackEnd.Model.Database.App;
-
+using PulluBackEnd.Model.App.client;
+using PulluBackEnd.Model.App.server;
 namespace PulluBackEnd.Controllers
 {
 
@@ -68,31 +69,36 @@ namespace PulluBackEnd.Controllers
                 return user;
             }
         }
+        [HttpPost]
+        [Route("user/get/finance")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<List<FinanceStruct>> getFinance(string mail = "", string pass = "")
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log($"mail -> {mail} \n pass ->{security.sha256(pass)}", "getFinance(string mail, string pass)", ipAddress.ToString());
+
+
+
+            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            return select.getFinance(mail, pass);
+
+
+
+        }
 
         [HttpGet]
         [Route("user/get/ads")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<Advertisement>> getAds(string mail, string pass, int catID)
+        public ActionResult<List<Advertisement>> getAds(string mail=null, string pass=null,int pageNo=1, int isPaid=0, int catID=0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
             communication.log($"mail -> {mail}\npass ->{security.sha256(pass)}\ncatID -> {catID}", "getAds(string mail, string pass, int catID)", ipAddress.ToString());
-            List<Advertisement> ads = new List<Advertisement>();
-            if (string.IsNullOrEmpty(mail) || string.IsNullOrEmpty(pass))
-            {
-
-                return ads;
-            }
-            else
-            {
+            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            return Ok(select.Advertisements(mail, pass,pageNo, isPaid, catID));
 
 
-
-                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
-                ads = select.Advertisements(mail, pass, catID);
-
-                return ads;
-            }
         }
 
 
@@ -175,7 +181,7 @@ namespace PulluBackEnd.Controllers
                                 gender ->{gender}\n
                                 country ->{country}\n
                                 city ->{city}\n
-                                profession ->{profession}\n
+                                profession ->{profession}
 ", "signUp(string mail, string name, string surname, string pass, string phone, string bDate, string gender, string country, string city, string profession)", ipAddress.ToString());
             Status statusCode = new Status();
             if (!string.IsNullOrEmpty(mail) &&
@@ -204,20 +210,21 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("user/update/profile")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<Status> uProfile(User user)
+        public ActionResult uProfile(UpdateProfileStruct uProfile)
         {
 
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log(Newtonsoft.Json.JsonConvert.SerializeObject(user).ToString(), "uProfile(User user)", ipAddress.ToString());
+            communication.log(Newtonsoft.Json.JsonConvert.SerializeObject(uProfile).ToString(), "uProfile(UpdateProfileStruct uProfile)", ipAddress.ToString());
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
 
 
-            return insert.uProfile(user);
+            return Ok(insert.uProfile(uProfile));
 
 
 
         }
+
 
 
         [HttpGet]
@@ -244,76 +251,78 @@ namespace PulluBackEnd.Controllers
 
 
         }
-        [HttpGet]
+        [HttpPost]
         [Route("earnMoney")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<EarnMoney> earnMoney(int advertID, string mail, string pass)
+        public ActionResult<Status> earnMoney(int advertID, string mail, string pass)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
             communication.log($"adverID -> {advertID}\nmail -> {mail}\npass ->{security.sha256(pass)}", "earnMoney(int advertID, string mail, string pass)", ipAddress.ToString());
-            EarnMoney status;
+            Status status;
+
+
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+            status = insert.EarnMoney(advertID, mail, pass);
+            return Ok(status);
+
+
+
+
+
+        }
+        [HttpGet]
+        [Route("verify")]
+        [EnableCors("AllowOrigin")]
+        public ContentResult verify(int code)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log($"code -> {security.sha256(code.ToString())}", "verify(int code)", ipAddress.ToString());
+            string html;
             try
             {
 
 
                 DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-                status = insert.EarnMoney(advertID, mail, pass);
-                return status;
+                Status status = insert.verify(code);
+
+                if (status.response == 0)
+                {
+                    html = @"<html><head><meta charset = 'UTF-8' ></head>" +
+               "<center><h2>Bildiriş<br>Təşəkkürlər, siz e-poçtunuzu təstiq etdiniz!</h2></center></html>";
+                    return base.Content("", "text/html");
+                }
+                else
+                {
+                    html = @"<html><head><meta charset = 'UTF-8'></head><center><h2>Bildiriş<br>Təəssüfki e-poçtunuz təstiq olunmadı</h2></center></html>";
+                }
+
+
 
 
             }
-            catch
+            catch (Exception ex)
             {
-                status = new EarnMoney();
-                status.statusCode = 4;
-                return status;
+                html = @$"<html><head><meta charset = 'UTF-8'><center><h2>Bildiriş<br>Server xətası:{ex.Message}</h2></center></html>";
+
 
             }
+            return base.Content($"{html}", "text/html");
+
 
 
         }
-        //[HttpGet]
-        //[Route("verify")]
-        //[EnableCors("AllowOrigin")]
-        //public ContentResult verify(int code)
-        //{
-        //    var ipAddress = HttpContext.Connection.RemoteIpAddress;
-
-        //    communication.log($"code -> {security.sha256(code.ToString())}", "verify(int code)", ipAddress.ToString());
-
-        //    try
-        //    {
-
-
-        //        DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-        //        if (insert.verify(code))
-        //        {
-        //            return base.Content("<html><head><meta charset = 'UTF-8' ></head>" +
-        //       "<center><h2>Bildiriş<br>Təşəkkürlər, siz e-poçtunuzu təstiq etdiniz!</h2></center></html>", "text/html");
-        //        }
-
-        //        return base.Content("<html><head><meta charset = 'UTF-8'></head><center><h2>Bildiriş<br>Təəssüfki e-poçtunuz təstiq olunmadı</h2></center></html>", "text/html");
-
-
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return base.Content($"<html><head><meta charset = 'UTF-8'><center><h2>Bildiriş<br>Server xətası:{ex.Message}</h2></center></html>", "text/html");
-
-        //    }
-
-
-        //}
         [HttpGet]
-        [Route("verifySMS")]
+        [Route("accounts/activate/user")]
         [EnableCors("AllowOrigin")]
-        public Status verifySMS(int code)
+        public Status activateUser(int code)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"code -> {security.sha256(code.ToString())}", "verifySMS(int code)", ipAddress.ToString());
-           
+            communication.log($"code -> {security.sha256(code.ToString())}", "activateUser(int code)", ipAddress.ToString());
+
 
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
             return insert.verify(code);
@@ -532,7 +541,7 @@ namespace PulluBackEnd.Controllers
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"account reset -> {mail}", "sendMail(string mail)", ipAddress.ToString());
+            communication.log($"mail -> {mail}", "sendMail(string mail)", ipAddress.ToString());
             Status status = new Status();
             if (!string.IsNullOrEmpty(mail))
             {
@@ -551,23 +560,67 @@ namespace PulluBackEnd.Controllers
             return status;
 
         }
-        [HttpGet]
-        [Route("accounts/password/reset/send/sms")]
+        [HttpPost]
+        [Route("accounts/send/sms/code")]
         [EnableCors("AllowOrigin")]
-        public Status sendSMS(int phone)
+        public Status sendResetSMS(int phone = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log(@$"phone -> {phone}", "sendSMS(string mail)", ipAddress.ToString());
-        
+            communication.log(@$"phone -> {phone}", "sendResetSMS(int phone)", ipAddress.ToString());
 
-                DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-         
-               
-            
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+
+
+
             return insert.sendResetSMS(phone);
 
         }
+
+
+
+
+
+        [HttpPost]
+        [Route("accounts/verify/mobile")]
+        [EnableCors("AllowOrigin")]
+        public Status verifyMobile(string mail = "", string pass = "", int newPhone = 0)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log(@$"mail -> {mail}\npass -> {security.sha256(pass)}\nnewPhone -> {newPhone}", "verifyMobile(string mail,string pass,int newPhone)", ipAddress.ToString());
+
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+
+
+
+            return insert.verifyMobile(mail, pass, newPhone);
+
+        }
+        [HttpPost]
+        [Route("accounts/update/phone")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<Status> uPhone(string mail = "", string pass = "", int phone = 0, int code = 0)
+        {
+            //boshluq var -> Kimse kodu bilse api ni calishdirib istediyi nomre yaza biler movcud olamayan bele
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log($"phone -> {phone}\ncode -> {security.sha256(code.ToString())}", "uPhone(int phone,int code)", ipAddress.ToString());
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+
+
+            return insert.uPhone(mail, pass, phone, code);
+
+
+
+        }
+
+
+
+
+
         [HttpGet]
         [Route("accounts/password/reset/confirm")]
         [EnableCors("AllowOrigin")]
@@ -575,7 +628,7 @@ namespace PulluBackEnd.Controllers
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"code -> {code}\nmail -> {mail}, ", "confirmCode(string code, string mail)", ipAddress.ToString());
+            communication.log($"code -> {code}\nmail -> {mail}", "confirmCode(string code, string mail)", ipAddress.ToString());
             Status status;
 
 
@@ -598,7 +651,7 @@ namespace PulluBackEnd.Controllers
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"newPass -> {security.sha256(newPass)}\n mail -> {mail}\n code -> {code} ", "changePass(string newPass, string mail, string code)", ipAddress.ToString());
+            communication.log($"newPass -> {security.sha256(newPass)}\n mail -> {mail}\n code -> {security.sha256(code.ToString())} ", "changePass(string newPass, string mail, string code)", ipAddress.ToString());
 
             Status status;
 
@@ -677,16 +730,22 @@ namespace PulluBackEnd.Controllers
         [HttpGet]
         [Route("user/Firebase")]
         [EnableCors("AllowOrigin")]
-        public bool firebase(string text, long userID)
+        public bool firebase(string title, string body, long userID)
         {
-            var ipAddress = HttpContext.Connection.RemoteIpAddress;
-
-            communication.log($"text -> {text}\n userID -> {userID} ", "firebase(string text, long userID)", ipAddress.ToString());
 
             try
             {
 
-                communication.sendNotification(text, userID);
+                var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+                communication.log($"title -> {title} \n body -> {body} \n userID -> {userID} ", "firebase(string text, long userID)", ipAddress.ToString());
+                communication.sendPushNotificationAsync(title, body, userID);
+                communication.sendNotificationAsync(title, body, userID);
+
+                return true;
+
+
+
                 return true;
 
 

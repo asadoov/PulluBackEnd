@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PulluBackEnd.Model.App
+namespace PulluBackEnd.Model.App.server
 {
-    public class CategoryStruct
+    public class City
     {
         public int ID { get; set; }
         public string name { get; set; }
-        public string catImage { get; set; }
+        public int countryID { get; set; }
+
+
     }
 }
