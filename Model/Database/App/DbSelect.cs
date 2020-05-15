@@ -239,7 +239,7 @@ namespace PulluBackEnd.Model.Database.App
                             case 1:
                                 using (MySqlCommand com = new MySqlCommand("select * ,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,(select name from category where categoryId=a.categoryId ) as categoryName, " +
                        "(select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName " +
-                       $"from announcement a where isPaid=1 and isActive=1 {categoryQuery} and announcementID not in (select distinct announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and cdate>= now() - INTERVAL 1 DAY) order by cdate desc LIMIT {offset}, {recPerPage}", connection))
+                       $"from announcement a where isPaid=1 and isActive=1 {categoryQuery} and announcementID not in (select announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and cdate>= now() - INTERVAL 1 DAY) order by cdate desc LIMIT {offset}, {recPerPage}", connection))
                                 // OLD ALGO ->  $"(announcementId not in (select distinct announcementId from announcement_view where userId=@userID) or announcementID in (select distinct announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and DATE_FORMAT(cdate, '%Y-%m-%d')<DATE_FORMAT(now(), '%Y-%m-%d')))  order by cdate desc", connection))
                                 {
 

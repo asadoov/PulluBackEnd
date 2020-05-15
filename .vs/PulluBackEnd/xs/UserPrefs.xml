@@ -1,20 +1,6 @@
 ﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|Default">
-  <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Database/App/DbInsert.cs">
-    <Files>
-      <File FileName="Model/CommonScripts/Communication.cs" Line="97" Column="1" />
-      <File FileName="Model/Database/App/DbInsert.cs" Line="1277" Column="1" />
-      <File FileName="Controllers/App/androidmobileappController.cs" Line="719" Column="41" />
-      <File FileName="Model/Database/App/DbSelect.cs" Line="415" Column="198" />
-      <File FileName="Model/Database/Admin/DbInsert.cs" />
-      <File FileName="Model/App/client/UpdateProfileStruct.cs" />
-      <File FileName="Model/App/client/NewAdvertisementStruct.cs" />
-      <File FileName="Model/App/server/User.cs" />
-      <File FileName="Model/App/server/EarnMoney.cs" />
-      <File FileName="Model/App/server/FinanceStruct.cs" />
-      <File FileName="Model/Database/Payment/Database/PaymentInsert.cs" />
-      <File FileName="Model/CommonScripts/Security.cs" />
-    </Files>
+  <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
+  <MonoDevelop.Ide.Workbench>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
@@ -44,12 +30,12 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="775" column="1" />
-      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="774" column="1" />
-      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="776" column="1" />
+      <Breakpoint file="/Users/rufat/Desktop/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="775" column="1" />
+      <Breakpoint file="/Users/rufat/Desktop/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="774" column="1" />
+      <Breakpoint file="/Users/rufat/Desktop/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="776" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />

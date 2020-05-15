@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/rufat/Documents/GitHub/PulluBackEnd/PulluBackEnd.csproj": {}
+    "/Users/rufat/Desktop/PulluBackEnd/PulluBackEnd.csproj": {}
   },
   "projects": {
-    "/Users/rufat/Documents/GitHub/PulluBackEnd/PulluBackEnd.csproj": {
+    "/Users/rufat/Desktop/PulluBackEnd/PulluBackEnd.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/rufat/Documents/GitHub/PulluBackEnd/PulluBackEnd.csproj",
+        "projectUniqueName": "/Users/rufat/Desktop/PulluBackEnd/PulluBackEnd.csproj",
         "projectName": "PulluBackEnd",
-        "projectPath": "/Users/rufat/Documents/GitHub/PulluBackEnd/PulluBackEnd.csproj",
+        "projectPath": "/Users/rufat/Desktop/PulluBackEnd/PulluBackEnd.csproj",
         "packagesPath": "/Users/rufat/.nuget/packages/",
-        "outputPath": "/Users/rufat/Documents/GitHub/PulluBackEnd/obj/",
+        "outputPath": "/Users/rufat/Desktop/PulluBackEnd/obj/",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
@@ -72,6 +72,16 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[3.0.1, 3.0.1]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.osx-x64",
+              "version": "[3.0.2, 3.0.2]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -80,7 +90,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/3.1.200/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/3.1.101/RuntimeIdentifierGraph.json"
         }
       }
     }
