@@ -1,6 +1,10 @@
 ﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|Default">
   <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
-  <MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Database/App/DbSelect.cs">
+    <Files>
+      <File FileName="Model/Database/App/DbSelect.cs" Line="248" Column="1" />
+      <File FileName="Model/CommonScripts/Security.cs" Line="12" Column="1" />
+    </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
@@ -23,6 +27,7 @@
                   </Node>
                 </Node>
               </Node>
+              <Node name="appsettings.json" expanded="True" />
             </Node>
           </Node>
         </State>
@@ -30,12 +35,12 @@
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/rufat/Desktop/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="775" column="1" />
-      <Breakpoint file="/Users/rufat/Desktop/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="774" column="1" />
-      <Breakpoint file="/Users/rufat/Desktop/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="776" column="1" />
+      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="775" column="1" />
+      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="774" column="1" />
+      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="776" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />

@@ -178,6 +178,7 @@ namespace PulluBackEnd.Model.Database.App
                     {
                         categoryQuery = $"and categoryID={categoryID}";
                     }
+                      userID = getUserID(mail, password);
 
                     using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                     {
@@ -232,7 +233,7 @@ namespace PulluBackEnd.Model.Database.App
                                     }
                                     //connection.Close();
                                     //Сортировка платных реклам по пользователю
-                                    userID = getUserID(mail, password);
+                                  
                                     com.Dispose();
                                 }
                                 break;
