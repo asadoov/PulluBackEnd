@@ -471,7 +471,6 @@ C:/Users/test.pts/Desktop/PulluBackEnd/obj/Debug/netcoreapp3.0/PulluBackEnd.genr
 /Users/rufat/Desktop/PulluBackEnd/bin/Debug/netcoreapp3.0/appsettings.Development.json
 /Users/rufat/Desktop/PulluBackEnd/bin/Debug/netcoreapp3.0/appsettings.json
 /Users/rufat/Desktop/PulluBackEnd/bin/Debug/netcoreapp3.0/Properties/launchSettings.json
-/Users/rufat/Desktop/PulluBackEnd/bin/Debug/netcoreapp3.0/PulluBackEnd
 /Users/rufat/Desktop/PulluBackEnd/bin/Debug/netcoreapp3.0/PulluBackEnd.deps.json
 /Users/rufat/Desktop/PulluBackEnd/bin/Debug/netcoreapp3.0/PulluBackEnd.runtimeconfig.json
 /Users/rufat/Desktop/PulluBackEnd/bin/Debug/netcoreapp3.0/PulluBackEnd.runtimeconfig.dev.json
@@ -585,3 +584,5 @@ C:/Users/test.pts/Desktop/PulluBackEnd/obj/Debug/netcoreapp3.0/PulluBackEnd.genr
 /Users/rufat/Desktop/PulluBackEnd/obj/Debug/netcoreapp3.0/PulluBackEnd.csproj.CopyComplete
 /Users/rufat/Desktop/PulluBackEnd/obj/Debug/netcoreapp3.0/PulluBackEnd.dll
 /Users/rufat/Desktop/PulluBackEnd/obj/Debug/netcoreapp3.0/PulluBackEnd.pdb
+/Users/rufat/Desktop/PulluBackEnd/obj/Debug/netcoreapp3.0/PulluBackEnd.csproj.CoreCompileInputs.cache
+/Users/rufat/Desktop/PulluBackEnd/obj/Debug/netcoreapp3.0/PulluBackEnd.genruntimeconfig.cache

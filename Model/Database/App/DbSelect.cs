@@ -170,7 +170,8 @@ namespace PulluBackEnd.Model.Database.App
 
 
                 long userID = 0;
-                if (LogIn(mail, password).Count > 0)
+                userID = getUserID(mail, password);
+                if (userID > 0)
                 {
 
                     string categoryQuery = "";
@@ -178,7 +179,7 @@ namespace PulluBackEnd.Model.Database.App
                     {
                         categoryQuery = $"and categoryID={categoryID}";
                     }
-                      userID = getUserID(mail, password);
+                    
 
                     using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                     {
@@ -255,6 +256,7 @@ namespace PulluBackEnd.Model.Database.App
                                             Advertisement ads = new Advertisement();
                                             ads.id = Convert.ToInt32(reader["announcementId"]);
                                             ads.name = reader["name"].ToString();
+                                            ads.userID = Convert.ToInt32(reader["userId"]);
                                             ads.description = reader["description"].ToString();
                                             ads.price = reader["price"].ToString();
                                             ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
@@ -288,6 +290,7 @@ namespace PulluBackEnd.Model.Database.App
                     }
                     return adsList;
                 }
+               
             }
             return adsList;
 
@@ -665,45 +668,56 @@ namespace PulluBackEnd.Model.Database.App
 
         }
 
-        public Status checkUserToken(string code, string mail)
+        public Status checkUserToken(string code, string login)
         {
             Status status = new Status();
-            MySqlConnection connection = new MySqlConnection(ConnectionString);
             try
             {
                 string userToken = "";
-
-
-
-
+                using (MySqlConnection connection = new MySqlConnection(ConnectionString)) {
                 connection.Open();
+               
 
-                MySqlCommand com = new MySqlCommand("select name from user where email=@mail and userToken=SHA2(@userToken,512)", connection);
 
 
-                com.Parameters.AddWithValue("@mail", mail);
-                com.Parameters.AddWithValue("@usertoken", code);
 
-                MySqlDataReader reader = com.ExecuteReader();
-                if (reader.HasRows)
-                {
-                    status.response = 0;
-                }
-                else
-                {
-                    status.response = 1;
-                }
+                   
 
+                    MySqlCommand com = new MySqlCommand("select name from user where (email=@login or mobile = @login) and userToken=SHA2(@userToken,512)", connection);
+
+
+                    com.Parameters.AddWithValue("@login", login);
+                    
+                    com.Parameters.AddWithValue("@usertoken", code);
+
+                    MySqlDataReader reader = com.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+                        status.response = 0;
+                        status.responseString = $"Access allowed";
+                    }
+                    else
+                    {
+                        status.response = 2;
+                        status.responseString = $"Access denied";
+                    }
+
+                   
+                    
+               
                 connection.Close();
-                return status;
             }
-            catch
+                 }
+                catch (Exception ex)
             {
-                connection.Close();
-                status.response = 2;
+               
+                status.response = 1;
+                status.responseString = $"Exception message {ex.Message}";
                 return status;
 
             }
+
+            return status;
 
         }
         public long getUserID(string mail, string pass)

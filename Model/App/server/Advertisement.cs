@@ -9,6 +9,7 @@ namespace PulluBackEnd.Model.App.server
     {
         public int id { get; set; }
         public string name { get; set; }
+        public int userID { get; set; }
         public string sellerFullName { get; set; }
         public string sellerPhone { get; set; }
         public string description { get; set; }

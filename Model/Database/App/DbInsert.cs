@@ -95,11 +95,11 @@ namespace PulluBackEnd.Model.App
                 return false;
             }
         }
-        public Status IsValidPhone(int phone)
+        public Status IsValidPhone(string phone)
         {
 
             Status status = new Status();
-            if (phone > 0)
+            if (!string.IsNullOrEmpty(phone))
             {
 
 
@@ -122,12 +122,12 @@ namespace PulluBackEnd.Model.App
                             if (reader.HasRows)
                             {
                                 status.response = 0;
-                                status.responseString = "phone found";
+                                status.responseString = "user found";
                             }
                             else
                             {
-                                status.response = 0;
-                                status.responseString = "phone not found";
+                                status.response = 2;
+                                status.responseString = "user not found";
 
                             }
                             com.Dispose();
@@ -215,10 +215,10 @@ namespace PulluBackEnd.Model.App
 
 
         }
-        public Status sendResetSMS(int phone)
+        public Status sendResetSMS(string phone)
         {
             Status status = new Status();
-            if (phone > 0)
+            if (!string.IsNullOrEmpty(phone))
             {
 
 
@@ -264,12 +264,7 @@ namespace PulluBackEnd.Model.App
                                     status.response = 0; // Все ок
                                     status.responseString = "verification code sent via sms"; // Все ок
                                 }
-                                else
-                                {
-                                    status.response = 2;// not affected
-                                    status.responseString = "phone not found";
-
-                                }
+                                
                                 com.Dispose();
                             }
 
@@ -303,67 +298,75 @@ namespace PulluBackEnd.Model.App
 
 
         }
+     
+        
 
-        public Status verifyMobile(string mail, string pass, int newPhone)
+        public Status verifyMobile(string mail, string pass, string newPhone)
         {
+
             Status status = new Status();
 
-            if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass) && newPhone > 0)
+            if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass) && !string.IsNullOrEmpty(newPhone))
             {
-
-
-
-
+              
 
 
                 try
                 {
+                    status = IsValidPhone(newPhone);
 
-                    string randomCode = createCode(4);
 
+                    if (status.response == 2)
 
-                    using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                     {
-
-
-
-                        connection.Open();
-
-                        using (MySqlCommand com = new MySqlCommand("update user set userToken=SHA2(@token,512) where email=@mail and passwd=SHA2(@pass,512) ", connection))
+                        string randomCode = createCode(4);
+                        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                         {
-                            com.Parameters.AddWithValue("@token", randomCode);
-                            com.Parameters.AddWithValue("@mail", mail);
-                            com.Parameters.AddWithValue("@pass", pass);
 
-                            int affectedRows = com.ExecuteNonQuery();
 
-                            if (affectedRows > 0)
+
+                            connection.Open();
+
+                            using (MySqlCommand com = new MySqlCommand("update user set userToken=SHA2(@token,512) where email=@mail and passwd=SHA2(@pass,512) ", connection))
                             {
+                                com.Parameters.AddWithValue("@token", randomCode);
+                                com.Parameters.AddWithValue("@mail", mail);
+                                com.Parameters.AddWithValue("@pass", pass);
 
-                                communication.sendSMS($"Sizin shifreniz: {randomCode}", newPhone);
+                                int affectedRows = com.ExecuteNonQuery();
 
-                                //string json = "{ \"email\" : \"" + mail + "\", \"password\" : \"" + randomPass + "\", \" returnSecureToken\" : true }";
+                                if (affectedRows > 0)
+                                {
 
-                                //var content = new StringContent(json, Encoding.UTF8, "application/json");
-                                //string url = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCwEuju_UmuNNPrYtxEhsuddOfCzqZQ8nI";
-                                //HttpClient client = new HttpClient();
-                                //var rslt = client.PostAsync(url, content);
-                                //var resp = rslt.Result.RequestMessage;
-                                status.response = 0; // Все ок
-                                status.responseString = "verification code sent via sms"; // Все ок
+                                    communication.sendSMS($"Sizin shifreniz: {randomCode}", newPhone);
+
+                                    //string json = "{ \"email\" : \"" + mail + "\", \"password\" : \"" + randomPass + "\", \" returnSecureToken\" : true }";
+
+                                    //var content = new StringContent(json, Encoding.UTF8, "application/json");
+                                    //string url = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCwEuju_UmuNNPrYtxEhsuddOfCzqZQ8nI";
+                                    //HttpClient client = new HttpClient();
+                                    //var rslt = client.PostAsync(url, content);
+                                    //var resp = rslt.Result.RequestMessage;
+                                    status.response = 0; // Все ок
+                                    status.responseString = "verification code sent via sms"; // Все ок
+                                }
+                                else
+                                {
+                                    status.response = 2;// not affected
+                                    status.responseString = "user not found";
+
+                                }
+                                com.Dispose();
                             }
-                            else
-                            {
-                                status.response = 2;// not affected
-                                status.responseString = "user not found";
 
-                            }
-                            com.Dispose();
+                            connection.Close();
+
                         }
 
-                        connection.Close();
-
                     }
+                    
+
+                    
 
 
 
@@ -447,7 +450,7 @@ namespace PulluBackEnd.Model.App
             }
             return status;
         }
-        public Status resetPassword(string newPassword, string mail, string code)
+        public Status resetPassword(string newPassword, string login, string code)
         {
             Status status = new Status();
             MySqlConnection connection = new MySqlConnection(ConnectionString);
@@ -460,10 +463,11 @@ namespace PulluBackEnd.Model.App
 
                 connection.Open();
 
-                MySqlCommand com = new MySqlCommand("update user set passwd=SHA2(@newPassword,512),userToken=null where userToken=SHA2(@userToken,512) and email=@email", connection);
+                MySqlCommand com = new MySqlCommand("update user set passwd=SHA2(@newPassword,512),userToken=null where userToken=SHA2(@userToken,512) and (email=@login or mobile = @login)", connection);
                 com.Parameters.AddWithValue("@userToken", code);
                 com.Parameters.AddWithValue("@newPassword", newPassword);
-                com.Parameters.AddWithValue("@email", mail);
+                com.Parameters.AddWithValue("@login", login);
+                
                 int exist = com.ExecuteNonQuery();
                 if (exist > 0)
                 {
@@ -542,7 +546,7 @@ namespace PulluBackEnd.Model.App
 
                     //communication.sendMail($"Qeydiyyatı tamamlamaq üçün, zəhmət olmasa <a href=\'https://pullu.az/api/androidmobileapp/verify?code={userToken}'>linkə</a> daxil olun", mail);
                     communication.sendMail($"Qeydiyyati tamamlamaq ucun shifre: {userToken}", mail);
-                    communication.sendSmsAsync($"Qeydiyyati tamamlamaq ucun shifre: {userToken}", Convert.ToInt32(phone));
+                    communication.sendSmsAsync($"Qeydiyyati tamamlamaq ucun shifre: {userToken}", phone);
 
 
                     //MailMessage mailMsg = new MailMessage();
@@ -774,7 +778,7 @@ namespace PulluBackEnd.Model.App
 
 
 
-                                    if (!string.IsNullOrEmpty(userList[0].phone)) communication.sendSmsAsync("Profiliniz redaktə olundu əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", Convert.ToInt32(userList[0].phone));
+                                    if (!string.IsNullOrEmpty(userList[0].phone)) communication.sendSmsAsync("Profiliniz redaktə olundu əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", userList[0].phone);
                                     //if (!string.IsNullOrEmpty(uProfile.mail)) communication.sendMailAsync($"Profiliniz redaktə olundu əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", uProfile.mail);
                                     if (!string.IsNullOrEmpty(uProfile.mail))  communication.sendMail($"Profiliniz redaktə olundu əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", uProfile.mail);
 
@@ -831,47 +835,57 @@ namespace PulluBackEnd.Model.App
             return statusCode;
         }
 
-        public Status uPhone(string mail, string pass, int newPhone, int code)
+        public Status uPhone(string mail, string pass, string newPhone, int code)
         {
             Status status = new Status();
 
             try
             {
 
-                if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass) && newPhone > 0 && code > 0)
+                if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass) &&!string.IsNullOrEmpty(newPhone) && code > 0)
                 {
 
-
-
-                    using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                    if (IsValidPhone(newPhone).response == 2)
                     {
 
-                        connection.Open();
 
-                        using (MySqlCommand com = new MySqlCommand("update user set mobile=@newPhone,userToken=null where userToken=SHA2(@userToken,512) and email=@email and passwd=SHA2(@pass,512)", connection))
+
+                        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                         {
-                            com.Parameters.AddWithValue("@email", mail);
-                            com.Parameters.AddWithValue("@pass", pass);
-                            com.Parameters.AddWithValue("@userToken", code);
-                            com.Parameters.AddWithValue("@newPhone", newPhone);
 
-                            int exist = com.ExecuteNonQuery();
-                            if (exist > 0)
-                            {
-                                status.response = 0;
-                                status.responseString = "phone is changed";
+                            connection.Open();
 
-                            }
-                            else
+                            using (MySqlCommand com = new MySqlCommand("update user set mobile=@newPhone,userToken=null where userToken=SHA2(@userToken,512) and email=@email and passwd=SHA2(@pass,512)", connection))
                             {
-                                status.response = 2;//phone not changed
-                                status.responseString = "phone not changed";
+                                com.Parameters.AddWithValue("@email", mail);
+                                com.Parameters.AddWithValue("@pass", pass);
+                                com.Parameters.AddWithValue("@userToken", code);
+                                com.Parameters.AddWithValue("@newPhone", newPhone);
+
+                                int exist = com.ExecuteNonQuery();
+                                if (exist > 0)
+                                {
+                                    status.response = 0;
+                                    status.responseString = "phone is changed";
+
+                                }
+                                else
+                                {
+                                    status.response = 2;//phone not changed
+                                    status.responseString = "phone not changed";
+                                }
+                                com.Dispose();
                             }
-                            com.Dispose();
+
+                            connection.Close();
                         }
-
-                        connection.Close();
                     }
+                    else
+                    {
+                        status.response = 4;//phone not changed
+                        status.responseString = "Phone is already refistered";
+                    }
+
                 }
                 else
                 {

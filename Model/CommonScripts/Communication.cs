@@ -39,7 +39,7 @@ namespace PulluBackEnd.Model.CommonScripts
 
             }
         }
-        public async Task sendSmsAsync(string smsText, int smsTel)
+        public async Task sendSmsAsync(string smsText, string smsTel)
         {
 
 
@@ -194,7 +194,7 @@ namespace PulluBackEnd.Model.CommonScripts
 
         }
 
-        public void sendSMS(string smsText, int smsTel)
+        public void sendSMS(string smsText, string smsTel)
         {
             try
             {

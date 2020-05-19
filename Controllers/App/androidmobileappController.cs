@@ -563,7 +563,7 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("accounts/send/sms/code")]
         [EnableCors("AllowOrigin")]
-        public Status sendResetSMS(int phone = 0)
+        public Status sendResetSMS(string phone = "")
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
@@ -585,7 +585,7 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("accounts/verify/mobile")]
         [EnableCors("AllowOrigin")]
-        public Status verifyMobile(string mail = "", string pass = "", int newPhone = 0)
+        public Status verifyMobile(string mail = "", string pass = "", string newPhone = "")
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
@@ -602,7 +602,7 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("accounts/update/phone")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<Status> uPhone(string mail = "", string pass = "", int phone = 0, int code = 0)
+        public ActionResult<Status> uPhone(string mail = "", string pass = "", string phone = "", int code = 0)
         {
             //boshluq var -> Kimse kodu bilse api ni calishdirib istediyi nomre yaza biler movcud olamayan bele
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
@@ -624,17 +624,17 @@ namespace PulluBackEnd.Controllers
         [HttpGet]
         [Route("accounts/password/reset/confirm")]
         [EnableCors("AllowOrigin")]
-        public Status confirmCode(string code, string mail)
+        public Status confirmCode(string code, string login)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"code -> {code}\nmail -> {mail}", "confirmCode(string code, string mail)", ipAddress.ToString());
+            communication.log($"code -> {code}\n login-> {login}", "confirmCode(string code, string login)", ipAddress.ToString());
             Status status;
 
 
 
             dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
-            status = select.checkUserToken(code, mail);
+            status = select.checkUserToken(code, login);
 
             return status;
 
@@ -647,18 +647,18 @@ namespace PulluBackEnd.Controllers
         [HttpGet]
         [Route("accounts/password/reset/newpass")]
         [EnableCors("AllowOrigin")]
-        public Status changePass(string newPass, string mail, string code)
+        public Status changePass(string newPass, string login, string code)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"newPass -> {security.sha256(newPass)}\n mail -> {mail}\n code -> {security.sha256(code.ToString())} ", "changePass(string newPass, string mail, string code)", ipAddress.ToString());
+            communication.log($"newPass -> {security.sha256(newPass)}\n login -> {login}\n code -> {security.sha256(code.ToString())} ", "changePass(string newPass, string mail, string code)", ipAddress.ToString());
 
             Status status;
 
 
 
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-            status = insert.resetPassword(newPass, mail, code);
+            status = insert.resetPassword(newPass, login, code);
 
             return status;
 
