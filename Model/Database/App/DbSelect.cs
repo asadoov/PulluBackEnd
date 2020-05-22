@@ -13,12 +13,12 @@ using PulluBackEnd.Model.App.server;
 
 namespace PulluBackEnd.Model.Database.App
 {
-    public class dbSelect
+    public class DbSelect
     {
         private readonly string ConnectionString;
         public IConfiguration Configuration;
         private readonly IWebHostEnvironment _hostingEnvironment;
-        public dbSelect(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
+        public DbSelect(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             Configuration = configuration;
             ConnectionString = Configuration.GetSection("ConnectionStrings").GetSection("DefaultConnectionString").Value;

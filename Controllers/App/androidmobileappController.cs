@@ -63,7 +63,7 @@ namespace PulluBackEnd.Controllers
 
 
 
-                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
                 user = select.LogIn(mail, pass);
 
                 return user;
@@ -80,7 +80,7 @@ namespace PulluBackEnd.Controllers
 
 
 
-            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             return select.getFinance(mail, pass);
 
 
@@ -95,7 +95,7 @@ namespace PulluBackEnd.Controllers
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
             communication.log($"mail -> {mail}\npass ->{security.sha256(pass)}\ncatID -> {catID}", "getAds(string mail, string pass, int catID)", ipAddress.ToString());
-            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             return Ok(select.Advertisements(mail, pass,pageNo, isPaid, catID));
 
 
@@ -132,7 +132,7 @@ namespace PulluBackEnd.Controllers
 
             communication.log($"", "getCountries()", ipAddress.ToString());
             List<Country> countries = new List<Country>();
-            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             countries = select.getCountries();
 
             return countries;
@@ -146,7 +146,7 @@ namespace PulluBackEnd.Controllers
 
             communication.log($"countryID -> {countryId}", "getCities(int countryId)", ipAddress.ToString());
             List<City> cities = new List<City>();
-            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             cities = select.getCities(countryId);
 
             return cities;
@@ -159,7 +159,7 @@ namespace PulluBackEnd.Controllers
 
             communication.log($"", "getProfessions()", ipAddress.ToString());
             List<Profession> professions = new List<Profession>();
-            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             professions = select.getProfessions();
 
             return professions;
@@ -239,7 +239,7 @@ namespace PulluBackEnd.Controllers
             if (advertID > 0 && !string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
             {
 
-                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
                 if (advertID > 0) advert = select.getAdvertById(advertID, mail, pass);
 
                 return advert;
@@ -344,7 +344,7 @@ namespace PulluBackEnd.Controllers
 
                 if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
                 {
-                    dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                    DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
                     statistics = select.getStatistics(mail, pass);
                     return statistics;
                 }
@@ -376,7 +376,7 @@ namespace PulluBackEnd.Controllers
 
             if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
             {
-                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
                 profile = select.profile(mail, pass);
                 return profile;
             }
@@ -402,7 +402,7 @@ namespace PulluBackEnd.Controllers
             {
 
 
-                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
                 ageRangeList = select.ageRange();
                 return ageRangeList;
 
@@ -433,7 +433,7 @@ namespace PulluBackEnd.Controllers
             {
 
 
-                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
                 aTypeList = select.aType();
                 return aTypeList;
 
@@ -464,7 +464,7 @@ namespace PulluBackEnd.Controllers
             {
 
 
-                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
                 aCatList = select.aCategory();
                 return aCatList;
 
@@ -495,7 +495,7 @@ namespace PulluBackEnd.Controllers
             {
 
 
-                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
                 aTariffList = select.aTariff();
                 return aTariffList;
 
@@ -633,7 +633,7 @@ namespace PulluBackEnd.Controllers
 
 
 
-            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             status = select.checkUserToken(code, login);
 
             return status;
@@ -679,7 +679,7 @@ namespace PulluBackEnd.Controllers
 
 
 
-            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             backgroundList = select.getBackgrounds();
 
             return backgroundList;
@@ -699,7 +699,7 @@ namespace PulluBackEnd.Controllers
 
             communication.log($"mail -> {mail}\n pass -> {security.sha256(pass)} ", "getViews(string mail, string pass)", ipAddress.ToString());
             List<Advertisement> advertisement;
-            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             advertisement = select.getViews(mail, pass);
             return advertisement;
         }
@@ -715,7 +715,7 @@ namespace PulluBackEnd.Controllers
 
 
 
-            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             advertisement = select.getMyAds(mail, pass);
 
             return advertisement;
@@ -756,6 +756,23 @@ namespace PulluBackEnd.Controllers
                 return false;
 
             }
+
+
+        }
+        [HttpPost]
+        [Route("user/update/ad")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<List<FinanceStruct>> uAd(string mail = "", string pass = "",int aID=0,string aName="",string aDescription="")
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log($"mail -> {mail} \n pass ->{security.sha256(pass)}", "uAd(string mail = '', string pass = '',int aID=0,string aName='',string aDescription='')", ipAddress.ToString());
+
+
+
+            DbInsert select = new DbInsert(Configuration, _hostingEnvironment);
+            return select.getFinance(mail, pass);
+
 
 
         }

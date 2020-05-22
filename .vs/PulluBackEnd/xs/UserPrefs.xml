@@ -1,16 +1,9 @@
 ﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|Default">
   <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Controllers/App/androidmobileappController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Database/App/DbInsert.cs">
     <Files>
       <File FileName="Model/Database/App/DbSelect.cs" Line="901" Column="31" />
-      <File FileName="Model/CommonScripts/Security.cs" />
-      <File FileName="Model/App/server/Advertisement.cs" />
-      <File FileName="appsettings.json" />
-      <File FileName="Controllers/App/androidmobileappController.cs" Line="577" Column="32" />
-      <File FileName="Model/CommonScripts/Communication.cs" Line="43" Column="10" />
-      <File FileName="Model/Database/App/DbInsert.cs" Line="98" Column="23" />
-      <File FileName="Model/Database/Admin/DbInsert.cs" Line="235" Column="69" />
-      <File FileName="Model/App/server/Status.cs" Line="10" Column="20" />
+      <File FileName="Model/Database/App/DbInsert.cs" Line="930" Column="71" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -18,9 +11,7 @@
           <Node name="PulluBackEnd" expanded="True">
             <Node name="PulluBackEnd" expanded="True">
               <Node name="Controllers" expanded="True">
-                <Node name="App" expanded="True">
-                  <Node name="androidmobileappController.cs" selected="True" />
-                </Node>
+                <Node name="App" expanded="True" />
               </Node>
               <Node name="Model" expanded="True">
                 <Node name="App" expanded="True">
@@ -30,7 +21,9 @@
                 <Node name="CommonScripts" expanded="True" />
                 <Node name="Database" expanded="True">
                   <Node name="Admin" expanded="True" />
-                  <Node name="App" expanded="True" />
+                  <Node name="App" expanded="True">
+                    <Node name="DbInsert.cs" selected="True" />
+                  </Node>
                   <Node name="Payment" expanded="True">
                     <Node name="Database" expanded="True" />
                   </Node>

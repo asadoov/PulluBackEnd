@@ -609,7 +609,7 @@ namespace PulluBackEnd.Model.App
 
 
 
-                dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
                 List<User> userList = new List<User>();
                 string uQuery = "";
                 userList = select.LogIn(uProfile.mail, uProfile.pass);
@@ -907,6 +907,65 @@ namespace PulluBackEnd.Model.App
             return status;
         }
 
+        public Status uAd(string mail, string pass, int aID, string aName,string aDescription)
+        {
+            Status status = new Status();
+
+            try
+            {
+
+                if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass)&&aID>0 && !string.IsNullOrEmpty(aName) && !string.IsNullOrEmpty(aDescription))
+                {
+                    using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                    {
+
+                        connection.Open();
+
+                        using (MySqlCommand com = new MySqlCommand("update announcement set mobile=@newPhone,userToken=null where userToken=SHA2(@userToken,512) and email=@email and passwd=SHA2(@pass,512)", connection))
+                        {
+                            com.Parameters.AddWithValue("@email", mail);
+                            com.Parameters.AddWithValue("@pass", pass);
+                            com.Parameters.AddWithValue("@aID", aID);
+                            com.Parameters.AddWithValue("@aName", aName);
+                            com.Parameters.AddWithValue("@aDescription", aName);
+
+                            int exist = com.ExecuteNonQuery();
+                            if (exist > 0)
+                            {
+                                status.response = 0;
+                                status.responseString = "phone is changed";
+
+                            }
+                            else
+                            {
+                                status.response = 2;//phone not changed
+                                status.responseString = "phone not changed";
+                            }
+                            com.Dispose();
+                        }
+
+                        connection.Close();
+                    }
+                }
+                else
+                {
+                    status.response = 3;//phone not changed
+                    status.responseString = "params incorrect";
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+
+
+                status.response = 1;//server error
+                status.responseString = ex.Message;//server error
+
+            }
+            return status;
+        }
         public void AdsDeactivator()
         {
 
@@ -1018,7 +1077,7 @@ namespace PulluBackEnd.Model.App
         public Status addNewAdvert(NewAdvertisementStruct obj)
         {
             Status statusCode = new Status();
-            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             string mediaInsertQuery = null;
             string mediaPathUrl = "https://pullu.az/media/";
             long userID = select.getUserID(obj.mail, obj.pass);
@@ -1348,7 +1407,7 @@ namespace PulluBackEnd.Model.App
         public Status EarnMoney(int adverID, string mail, string pass)
 
         {
-            dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             long userID = select.getUserID(mail, pass);
 
             Status status = AddDailyView(adverID, userID);
@@ -1409,7 +1468,7 @@ namespace PulluBackEnd.Model.App
         //public NewAdvertisementStatus newAdvertisement(NewAdvertisementStruct obj)
 
         //{
-        //    dbSelect select = new dbSelect(Configuration, _hostingEnvironment);
+        //    DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
         //    long userID = select.getUserID(obj.mail, obj.pass);
 
         //    EarnMoney status = new EarnMoney();
