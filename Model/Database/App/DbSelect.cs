@@ -239,9 +239,9 @@ namespace PulluBackEnd.Model.Database.App
                                 }
                                 break;
                             case 1:
-                                using (MySqlCommand com = new MySqlCommand("select * ,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,(select name from category where categoryId=a.categoryId ) as categoryName, " +
+                                using (MySqlCommand com = new MySqlCommand("select * ,(SELECT count FROM announcement_tariff where trfid=a.trfId)as trfViewCount,(select count(distinct userID) from announcement_view where announcementId=a.announcementId)as views,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,(select name from category where categoryId=a.categoryId ) as categoryName, " +
                        "(select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName " +
-                       $"from announcement a where isPaid=1 and isActive=1 {categoryQuery} and announcementID not in (select announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and cdate>= now() - INTERVAL 1 DAY) order by cdate desc LIMIT {offset}, {recPerPage}", connection))
+                       $"from announcement a  where isPaid=1 and isActive=1 {categoryQuery} and announcementID not in (select announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and cdate>= now() - INTERVAL 1 DAY) order by cdate desc LIMIT {offset}, {recPerPage}", connection))
                                 // OLD ALGO ->  $"(announcementId not in (select distinct announcementId from announcement_view where userId=@userID) or announcementID in (select distinct announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and DATE_FORMAT(cdate, '%Y-%m-%d')<DATE_FORMAT(now(), '%Y-%m-%d')))  order by cdate desc", connection))
                                 {
 
@@ -252,27 +252,30 @@ namespace PulluBackEnd.Model.Database.App
 
                                         while (reader.Read())
                                         {
-
-                                            Advertisement ads = new Advertisement();
-                                            ads.id = Convert.ToInt32(reader["announcementId"]);
-                                            ads.name = reader["name"].ToString();
-                                            ads.userID = Convert.ToInt32(reader["userId"]);
-                                            ads.description = reader["description"].ToString();
-                                            ads.price = reader["price"].ToString();
-                                            ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
-                                            ads.aTypeName = reader["aTypeName"].ToString();
-                                            ads.isPaid = Convert.ToInt32(reader["isPaid"]);
-                                            ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
-                                            ads.catId = Convert.ToInt32(reader["categoryId"]);
-                                            ads.catName = reader["categoryName"].ToString();
-                                            ads.cDate = DateTime.Parse(reader["cdate"].ToString());
-                                            ads.photoUrl = new List<string>();
-                                            ads.photoUrl.Add(reader["photoUrl"].ToString());
+                                            if (Convert.ToInt32(reader["views"]) <= (reader["trfViewCount"] == DBNull.Value ? 0 : Convert.ToInt32(reader["trfViewCount"])))
+                                            {
 
 
+                                                Advertisement ads = new Advertisement();
+                                                ads.id = Convert.ToInt32(reader["announcementId"]);
+                                                ads.name = reader["name"].ToString();
+                                                ads.userID = Convert.ToInt32(reader["userId"]);
+                                                ads.description = reader["description"].ToString();
+                                                ads.price = reader["price"].ToString();
+                                                ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
+                                                ads.aTypeName = reader["aTypeName"].ToString();
+                                                ads.isPaid = Convert.ToInt32(reader["isPaid"]);
+                                                ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
+                                                ads.catId = Convert.ToInt32(reader["categoryId"]);
+                                                ads.catName = reader["categoryName"].ToString();
+                                                ads.cDate = DateTime.Parse(reader["cdate"].ToString());
+                                                ads.photoUrl = new List<string>();
+                                                ads.photoUrl.Add(reader["photoUrl"].ToString());
 
-                                            adsList.Add(ads);
 
+
+                                                adsList.Add(ads);
+                                            }
 
                                         }
 
@@ -297,7 +300,7 @@ namespace PulluBackEnd.Model.Database.App
         }
 
 
-        public List<Advertisement> getViews(string mail, string password)
+        public List<Advertisement> getMyViews(string mail, string password)
 
         {
             List<Advertisement> adsList = new List<Advertisement>();
@@ -327,6 +330,7 @@ namespace PulluBackEnd.Model.Database.App
 
                     com.CommandText = @"select distinct announcementId
 ,(select aTypeId from announcement where announcementId=a.announcementId)as aTypeId,
+(select cDate from announcement where announcementId=a.announcementId)as cDate,
 (select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,
 (select name from announcement where announcementId=a.announcementId)as aName,
 (select description from announcement where announcementId=a.announcementId)as aDescription,
@@ -342,8 +346,8 @@ namespace PulluBackEnd.Model.Database.App
                         while (reader.Read())
                         {
 
-
-                            if (reader["IsActive"]!=null&&Convert.ToInt32(reader["IsActive"]) == 1)
+                            int isActive = reader["IsActive"] == DBNull.Value ? 0 : Convert.ToInt32(reader["IsActive"]);
+                            if (isActive == 1)
                             {
                                 Advertisement ads = new Advertisement();
 
@@ -353,7 +357,7 @@ namespace PulluBackEnd.Model.Database.App
                                 ads.description = reader["aDescription"].ToString();
                                 ads.price = reader["aPrice"].ToString();
                                 ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
-
+                                ads.cDate = DateTime.Parse(reader["cdate"].ToString());
                                 ads.isPaid = Convert.ToInt32(reader["isPaid"]);
 
                                 //  ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
@@ -416,7 +420,7 @@ namespace PulluBackEnd.Model.Database.App
 
 
 
-                    com.CommandText = @"select *,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl from announcement a where userid = @userID order by cdate desc";
+                    com.CommandText = @"select *,(SELECT count FROM announcement_tariff where trfid=a.trfId)as trfViewCount,(select count(distinct userID) from announcement_view where announcementId=a.announcementId)as views,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl from announcement a where userid = @userID order by cdate desc";
                     com.Parameters.AddWithValue("@userID", userID);
                     MySqlDataReader reader = com.ExecuteReader();
                     if (reader.HasRows)
@@ -424,9 +428,9 @@ namespace PulluBackEnd.Model.Database.App
 
                         while (reader.Read())
                         {
+                            int isActive = reader["IsActive"] == DBNull.Value ? 0 : Convert.ToInt32(reader["IsActive"]);
 
-
-                            if (reader["IsActive"]!=null&&Convert.ToInt32(reader["IsActive"]) == 1)
+                            if (isActive != 2)
                             {
                                 Advertisement ads = new Advertisement();
 
@@ -436,7 +440,10 @@ namespace PulluBackEnd.Model.Database.App
                                 ads.description = reader["description"].ToString();
                                 ads.price = reader["price"].ToString();
                                 ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
-
+                                ads.isActive = Convert.ToInt32(reader["IsActive"]);
+                                ads.views = Convert.ToInt32(reader["views"]);
+                                ads.tariffViewCount = reader["trfViewCount"] == DBNull.Value ? 0 : Convert.ToInt32(reader["trfViewCount"]);
+                                ads.cDate = DateTime.Parse(reader["cdate"].ToString());
                                 ads.isPaid = Convert.ToInt32(reader["isPaid"]);
 
                                 //  ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
@@ -896,6 +903,7 @@ namespace PulluBackEnd.Model.Database.App
 
                     Advertisement ads = new Advertisement();
                     ads.id = Convert.ToInt32(reader["announcementId"]);
+                    ads.userID = Convert.ToInt32(reader["userID"]);
                     ads.name = reader["name"].ToString();
                     ads.sellerFullName = $"{reader["sellerName"].ToString()} {reader["sellerSurname"].ToString()}";
                     ads.sellerPhone = reader["sellerPhone"].ToString();
@@ -987,7 +995,6 @@ namespace PulluBackEnd.Model.Database.App
                 MySqlCommand com = new MySqlCommand("Select(select distinct count(email) from user)as allUsers /* umumi qeydiyyat sayi */," +
                     "(select distinct count(email) from user where DATE_FORMAT(cdate, '%Y-%m-%d')=DATE_FORMAT(now(), '%Y-%m-%d'))as allUsersToday, /*Bugune qeydiyyat sayi*/" +
                     "(select count(*) from announcement)as allAds, /*Butun reklam sayi*/" +
-                    "(select count(*) from announcement where userID=@userID)as myAds, /* istifadecinin reklamlari*/" +
                     "(select count(*) from announcement_view where userID=@userID and DATE_FORMAT(cdate, '%Y-%m-%d')=DATE_FORMAT(now(), '%Y-%m-%d'))as myTodayViews, /*Bugune baxish*/" +
                     "(select count(*) from announcement_view where userID=@userID)as allMyViews,  /*umumi baxishiniz*/" +
                     "(select count(*) from announcement_view a where userID=@userID and announcementId=(select announcementId from announcement where announcementID=a.announcementID and isPaid=1))as myPaidViews, /* Pulluara baxish sayi*/" +
@@ -1012,7 +1019,6 @@ namespace PulluBackEnd.Model.Database.App
                         statistics.allUsers = Convert.ToInt32(reader["allUsers"]);
                         statistics.allUsersToday = Convert.ToInt32(reader["allUsersToday"]);
                         statistics.allAds = Convert.ToInt32(reader["allAds"]);
-                        statistics.myAds = Convert.ToInt32(reader["myAds"]);
                         statistics.myTodayViews = Convert.ToInt32(reader["myTodayViews"]);
                         statistics.allMyViews = Convert.ToInt32(reader["allMyViews"]);
                         statistics.myPaidViews = Convert.ToInt32(reader["myPaidViews"]);
