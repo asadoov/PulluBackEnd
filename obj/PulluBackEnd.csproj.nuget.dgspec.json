@@ -17,7 +17,7 @@
           "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "/Users/rufat/.nuget/NuGet/NuGet.Config"
+          "/Users/rufat/.config/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.0"
@@ -59,7 +59,7 @@
             },
             "MySql.Data": {
               "target": "Package",
-              "version": "[8.0.18, )"
+              "version": "[8.0.20, )"
             }
           },
           "imports": [

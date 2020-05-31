@@ -74,7 +74,7 @@ namespace PulluBackEnd.Model.App
 
                 connection.Open();
 
-                MySqlCommand com = new MySqlCommand("select * from user where email=@mail", connection);
+                MySqlCommand com = new MySqlCommand("select * from user where email=@mail and isActive = 1", connection);
                 com.Parameters.AddWithValue("@mail", emailaddress);
                 MySqlDataReader reader = com.ExecuteReader();
 
