@@ -17,13 +17,13 @@ namespace PulluBackEnd.Model.App.server
         public int aTypeId { get; set; }
         public string aTypeName { get; set; }
         public int isPaid { get; set; }
-
+        public int isActive { get; set; }
         public int mediaTpId { get; set; }
         public int catId { get; set; }
         public string catName { get; set; }
         public DateTime cDate { get; set; }
         public List<string> photoUrl { get; set; }
         public int views { get; set; }
-
+        public int tariffViewCount { get; set; }
     }
 }

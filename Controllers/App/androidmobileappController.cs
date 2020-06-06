@@ -43,7 +43,7 @@ namespace PulluBackEnd.Controllers
             return ipAddress.ToString();
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("user/login")]
         [EnableCors("AllowOrigin")]
         public ActionResult<List<User>> log_in(string mail, string pass)
@@ -94,7 +94,7 @@ namespace PulluBackEnd.Controllers
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"mail -> {mail}\npass ->{security.sha256(pass)}\ncatID -> {catID}", "getAds(string mail, string pass, int catID)", ipAddress.ToString());
+            communication.log($"mail = {mail}\npass = {security.sha256(pass)}\ncatID = {catID}\npageNo = {pageNo}\nisPaid = {isPaid}", "getAds(string mail=null, string pass=null,int pageNo=1, int isPaid=0, int catID=0)", ipAddress.ToString());
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             return Ok(select.Advertisements(mail, pass,pageNo, isPaid, catID));
 
@@ -700,7 +700,7 @@ namespace PulluBackEnd.Controllers
             communication.log($"mail -> {mail}\n pass -> {security.sha256(pass)} ", "getViews(string mail, string pass)", ipAddress.ToString());
             List<Advertisement> advertisement;
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            advertisement = select.getViews(mail, pass);
+            advertisement = select.getMyViews(mail, pass);
             return advertisement;
         }
         [HttpGet]
@@ -762,21 +762,54 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("user/update/ad")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<FinanceStruct>> uAd(string mail = "", string pass = "",int aID=0,string aName="",string aDescription="")
+        public ActionResult<Status> uAd(string mail = "", string pass = "",int aID=0,string aName="",string aDescription="",int aPrice=0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"mail -> {mail} \n pass ->{security.sha256(pass)}", "uAd(string mail = '', string pass = '',int aID=0,string aName='',string aDescription='')", ipAddress.ToString());
+            communication.log($"mail -> {mail} \n pass -> {security.sha256(pass)} \n aID -> {aID} \n aName -> {aName} \n aDescription -> {aDescription} \n aPrice -> {aPrice}", "uAd(string mail = '', string pass = '',int aID=0,string aName='',string aDescription='',int aPrice=0)", ipAddress.ToString());
 
 
 
-            DbInsert select = new DbInsert(Configuration, _hostingEnvironment);
-            return select.getFinance(mail, pass);
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+            return insert.uAd(mail, pass,aID,aName,aDescription,aPrice);
 
 
 
         }
+        [HttpPost]
+        [Route("user/delete/ad")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<Status> deleteAd(string mail = "", string pass = "", int aID = 0)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
+            communication.log($"mail -> {mail} \n pass -> {security.sha256(pass)} \n aID -> {aID} ", "deleteAd(string mail = '', string pass = '',int aID=0)", ipAddress.ToString());
+
+
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+            return insert.deleteAd(mail, pass, aID);
+
+
+
+        }
+        [HttpPost]
+        [Route("user/update/pass")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<Status> uPass(string mail = "", string pass = "", string newPass = "")
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log($"mail = {mail} \n pass = {security.sha256(pass)} \n newPass = {newPass}", "uPass(string mail = '', string pass = '', string newPass = '')", ipAddress.ToString());
+
+
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+            return insert.uPass(mail, pass, newPass);
+
+
+
+        }
     }
 
 }
