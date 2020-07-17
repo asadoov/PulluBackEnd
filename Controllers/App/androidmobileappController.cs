@@ -46,28 +46,20 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("user/login")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<User>> log_in(string mail, string pass)
+        public ActionResult<List<User>> log_in(int phone, string pass)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"mail -> {mail}\npass ->{security.sha256(pass)}", "log_in(string mail, string pass)", ipAddress.ToString());
+            communication.log($"phone = {phone}\npass ->{security.sha256(pass)}", "log_in(string mail, string pass)", ipAddress.ToString());
 
-            List<User> user = new List<User>();
-            if (string.IsNullOrEmpty(mail) || string.IsNullOrEmpty(pass))
-            {
-
-                return user;
-            }
-            else
-            {
-
+          
 
 
                 DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-                user = select.LogIn(mail, pass);
+            return select.logIn(phone, pass);
 
-                return user;
-            }
+               
+            
         }
         [HttpPost]
         [Route("user/get/finance")]
@@ -90,13 +82,18 @@ namespace PulluBackEnd.Controllers
         [HttpGet]
         [Route("user/get/ads")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<Advertisement>> getAds(string mail=null, string pass=null,int pageNo=1, int isPaid=0, int catID=0)
+        public ActionResult<ResponseStruct<Advertisement>> getAds(string mail = null, string pass = null, int pageNo = 1, int isPaid = 0, int catID = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
+            string userData = "";
+            if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
+            {
+                userData = $"mail = { mail}\npass = { security.sha256(pass)}";
+            }
 
-            communication.log($"mail = {mail}\npass = {security.sha256(pass)}\ncatID = {catID}\npageNo = {pageNo}\nisPaid = {isPaid}", "getAds(string mail=null, string pass=null,int pageNo=1, int isPaid=0, int catID=0)", ipAddress.ToString());
+            communication.log($"{userData}\ncatID = {catID}\npageNo = {pageNo}\nisPaid = {isPaid}", "getAds(string mail=null, string pass=null,int pageNo=1, int isPaid=0, int catID=0)", ipAddress.ToString());
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            return Ok(select.Advertisements(mail, pass,pageNo, isPaid, catID));
+            return Ok(select.Advertisements(mail, pass, pageNo, isPaid, catID));
 
 
         }
@@ -151,6 +148,20 @@ namespace PulluBackEnd.Controllers
 
             return cities;
         }
+        [HttpGet]
+        [Route("get/interests")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<List<Interest>> getInterests()
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log($"", "getInterests()", ipAddress.ToString());
+           
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+            return select.getInterests();
+
+          
+        }
         [Route("get/professions")]
         [EnableCors("AllowOrigin")]
         public ActionResult<List<Profession>> getProfessions()
@@ -165,45 +176,36 @@ namespace PulluBackEnd.Controllers
             return professions;
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("user/signUp")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<Status> signUp(string mail, string name, string surname, string pass, string phone, string bDate, string gender, string country, string city, string profession)
+        public ActionResult<Status> signUp(NewUserStruct newUser)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log(@$"mail ->{mail}\n
-                                name -> {name}\n
-                                surname ->{surname}\n
-                                pass ->{security.sha256(pass)}\n
-                                phone ->{phone}\n
-                                bDate ->{bDate}\n
-                                gender ->{gender}\n
-                                country ->{country}\n
-                                city ->{city}\n
-                                profession ->{profession}
+            communication.log(@$"mail = {newUser.mail}\n
+                                name = {newUser.name}\n
+                                surname = {newUser.surname}\n
+                                pass = {security.sha256(newUser.pass)}\n
+                              phone = {newUser.phone}
+                                bDate = {newUser.bDate}\n
+                                gender = {newUser.gender}\n
+                                country = {newUser.country}\n
+                                city = {newUser.city}\n
+                                interestIds = {newUser.interestIds}\n
+otp = {newUser.otp}
 ", "signUp(string mail, string name, string surname, string pass, string phone, string bDate, string gender, string country, string city, string profession)", ipAddress.ToString());
-            Status statusCode = new Status();
-            if (!string.IsNullOrEmpty(mail) &&
-                !string.IsNullOrEmpty(name) &&
-                !string.IsNullOrEmpty(surname) &&
-                !string.IsNullOrEmpty(pass) &&
-                !string.IsNullOrEmpty(phone) &&
-                !string.IsNullOrEmpty(bDate) &&
-                !string.IsNullOrEmpty(gender) &&
-                !string.IsNullOrEmpty(country) &&
-                !string.IsNullOrEmpty(city) &&
-                !string.IsNullOrEmpty(profession))
-            {
+           
+           
 
 
                 DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-                statusCode = insert.SignUp(mail, name, surname, pass, phone, bDate, gender, country, city, profession);
+            return insert.signUp(newUser);
 
-                return statusCode;
-            }
-            statusCode.response = 3;//Ошибка параметров
-            return statusCode;
+                
+           
+            
+          
 
         }
 
@@ -230,22 +232,17 @@ namespace PulluBackEnd.Controllers
         [HttpGet]
         [Route("user/about")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<Advertisement>> about(int advertID, string mail, string pass)
+        public ActionResult<List<Advertisement>> about(int advertID)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"adverID -> {advertID}\nmail -> {mail}\npass ->{security.sha256(pass)}", "about(int advertID, string mail, string pass)", ipAddress.ToString());
-            List<Advertisement> advert = new List<Advertisement>();
-            if (advertID > 0 && !string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
-            {
+            communication.log($"adverID -> {advertID}", "about(int advertID)", ipAddress.ToString());
 
-                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-                if (advertID > 0) advert = select.getAdvertById(advertID, mail, pass);
 
-                return advert;
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+            return select.getAdvertById(advertID);
 
-            }
-            return advert;
+
 
 
 
@@ -561,9 +558,27 @@ namespace PulluBackEnd.Controllers
 
         }
         [HttpPost]
-        [Route("accounts/send/sms/code")]
+        [Route("accounts/send/sms")]
         [EnableCors("AllowOrigin")]
-        public Status sendResetSMS(string phone = "")
+        public Status sendSMS(int phone = 0)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log(@$"phone -> {phone}", "sendSms(int phone)", ipAddress.ToString());
+
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+
+
+
+            return insert.sendSms(phone);
+
+        }
+
+        [HttpPost]
+        [Route("accounts/send/reset/sms")]
+        [EnableCors("AllowOrigin")]
+        public Status sendResetSMS(int phone = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
@@ -573,19 +588,35 @@ namespace PulluBackEnd.Controllers
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
 
 
-
+             
             return insert.sendResetSMS(phone);
 
         }
 
 
+        [HttpPost]
+        [Route("accounts/verify/otp")]
+        [EnableCors("AllowOrigin")]
+        public Status verifyOtp(int mobile = 0,int code = 0)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
+            communication.log(@$"mobile = {mobile}\nOTP = {code}", "verifyOtp(int code)", ipAddress.ToString());
+
+
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+
+
+
+            return select.verifyOtp(mobile,code);
+
+        }
 
 
         [HttpPost]
         [Route("accounts/verify/mobile")]
         [EnableCors("AllowOrigin")]
-        public Status verifyMobile(string mail = "", string pass = "", string newPhone = "")
+        public Status verifyMobile(string mail = "", string pass = "", int newPhone = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
@@ -602,7 +633,7 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("accounts/update/phone")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<Status> uPhone(string mail = "", string pass = "", string phone = "", int code = 0)
+        public ActionResult<Status> uPhone(string mail = "", string pass = "", int phone = 0, int code = 0)
         {
             //boshluq var -> Kimse kodu bilse api ni calishdirib istediyi nomre yaza biler movcud olamayan bele
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
@@ -693,20 +724,20 @@ namespace PulluBackEnd.Controllers
         [HttpGet]
         [Route("user/get/views")]
         [EnableCors("AllowOrigin")]
-        public List<Advertisement> getViews(string mail, string pass)
+        public ResponseStruct<Advertisement> getViews(string mail, string pass)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
             communication.log($"mail -> {mail}\n pass -> {security.sha256(pass)} ", "getViews(string mail, string pass)", ipAddress.ToString());
-            List<Advertisement> advertisement;
+
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            advertisement = select.getMyViews(mail, pass);
-            return advertisement;
+            return select.getMyViews(mail, pass);
+
         }
         [HttpGet]
         [Route("user/get/my/ads")]
         [EnableCors("AllowOrigin")]
-        public List<Advertisement> getMyAds(string mail, string pass)
+        public ResponseStruct<Advertisement> getMyAds(string mail, string pass)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
@@ -716,9 +747,30 @@ namespace PulluBackEnd.Controllers
 
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            advertisement = select.getMyAds(mail, pass);
+            return select.getMyAds(mail, pass);
 
-            return advertisement;
+
+
+
+
+
+        }
+        [HttpGet]
+        [Route("user/get/my/ads/viewers")]
+        [EnableCors("AllowOrigin")]
+        public ResponseStruct<ViewerStruct> getMyAdViewers(long phone, string pass,int aID)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log($"phone = {phone}\n pass = {security.sha256(pass)} ", "getMyAdViewers(int phone, string pass)", ipAddress.ToString());
+            List<Advertisement> advertisement;
+
+
+
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+            return select.getMyAdViewers(phone, pass,aID);
+
+
 
 
 
@@ -762,7 +814,7 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("user/update/ad")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<Status> uAd(string mail = "", string pass = "",int aID=0,string aName="",string aDescription="",int aPrice=0)
+        public ActionResult<Status> uAd(string mail = "", string pass = "", int aID = 0, string aName = "", string aDescription = "", int aPrice = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
@@ -771,7 +823,7 @@ namespace PulluBackEnd.Controllers
 
 
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-            return insert.uAd(mail, pass,aID,aName,aDescription,aPrice);
+            return insert.uAd(mail, pass, aID, aName, aDescription, aPrice);
 
 
 

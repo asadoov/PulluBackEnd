@@ -1,29 +1,28 @@
 {
   "format": 1,
   "restore": {
-    "/Users/rufat/Documents/GitHub/PulluBackEnd/PulluBackEnd.csproj": {}
+    "/Users/rufat/Desktop/PulluBackEnd/PulluBackEnd.csproj": {}
   },
   "projects": {
-    "/Users/rufat/Documents/GitHub/PulluBackEnd/PulluBackEnd.csproj": {
+    "/Users/rufat/Desktop/PulluBackEnd/PulluBackEnd.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/rufat/Documents/GitHub/PulluBackEnd/PulluBackEnd.csproj",
+        "projectUniqueName": "/Users/rufat/Desktop/PulluBackEnd/PulluBackEnd.csproj",
         "projectName": "PulluBackEnd",
-        "projectPath": "/Users/rufat/Documents/GitHub/PulluBackEnd/PulluBackEnd.csproj",
+        "projectPath": "/Users/rufat/Desktop/PulluBackEnd/PulluBackEnd.csproj",
         "packagesPath": "/Users/rufat/.nuget/packages/",
-        "outputPath": "/Users/rufat/Documents/GitHub/PulluBackEnd/obj/",
+        "outputPath": "/Users/rufat/Desktop/PulluBackEnd/obj/",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "/Users/rufat/.config/NuGet/NuGet.Config"
+          "/Users/rufat/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.0"
         ],
         "sources": {
-          "/Users/rufat/Downloads": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -42,17 +41,17 @@
           "dependencies": {
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[3.0.0, )"
+              "version": "[3.1.6, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[3.0.0, )"
+              "version": "[3.1.6, )"
             },
             "Microsoft.Extensions.Logging.Debug": {
               "target": "Package",
-              "version": "[3.0.0, )"
+              "version": "[3.1.6, )"
             },
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
@@ -60,7 +59,7 @@
             },
             "MySql.Data": {
               "target": "Package",
-              "version": "[8.0.20, )"
+              "version": "[8.0.21, )"
             }
           },
           "imports": [
@@ -73,6 +72,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[3.0.1, 3.0.1]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -81,7 +86,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/3.1.300/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/3.1.301/RuntimeIdentifierGraph.json"
         }
       }
     }

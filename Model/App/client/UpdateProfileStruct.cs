@@ -6,7 +6,7 @@ namespace PulluBackEnd.Model.App.client
         public int uID { get; set; }
         public  string name { get; set; }
         public string surname { get; set; }
-        public string mail { get; set; }
+        public int phone { get; set; }
         public string pass { get; set; }
         public string newPass { get; set; }
        

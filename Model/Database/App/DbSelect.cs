@@ -25,7 +25,7 @@ namespace PulluBackEnd.Model.Database.App
             _hostingEnvironment = hostingEnvironment;
 
         }
-        public List<User> LogIn(string mail, string password)
+        public List<User> logIn(int mobile, string password)
         {
 
 
@@ -39,15 +39,16 @@ namespace PulluBackEnd.Model.Database.App
                 using (MySqlCommand com = new MySqlCommand(@"select *,
                      (select balanceValue from users_balance where userId=a.userId) as balance,
                      (select earningValue from users_balance where userId=a.userId) as earning
-                     from user a where  email=@login and passwd=SHA2(@pass,512) and isActive=1", connection))
+                     from user a where  mobile=@login and passwd=SHA2(@pass,512) and isActive=1", connection))
                 {
-                    com.Parameters.AddWithValue("@login", mail);
+                    com.Parameters.AddWithValue("@login", mobile);
                     com.Parameters.AddWithValue("@pass", password);
 
                     using (MySqlDataReader reader = com.ExecuteReader())
                     {
                         if (reader.HasRows)
                         {
+                            string defaultUserPhoto = "";
 
 
                             while (reader.Read())
@@ -59,11 +60,38 @@ namespace PulluBackEnd.Model.Database.App
                                 usr.name = reader["name"].ToString();
                                 usr.surname = reader["surname"].ToString();
                                 usr.mail = reader["email"].ToString();
-                                usr.phone = reader["mobile"].ToString();
+                                usr.phone = Convert.ToInt32(reader["mobile"]);
                                 usr.birthDate = reader["birthdate"].ToString();
                                 usr.genderID = Convert.ToInt32(reader["genderID"]);
                                 usr.cityID = Convert.ToInt32(reader["cityID"]);
-                                usr.professionID = Convert.ToInt32(reader["professionID"]);
+                                switch (usr.genderID)
+                                {
+                                    case 1:
+                                        defaultUserPhoto = "http://master.pullu.az/public/assets/images/users/userboy.png";
+                                        break;
+                                    case 2:
+                                        defaultUserPhoto = "http://master.pullu.az/public/assets/images/users/usergirl.png";
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                if (reader["photo"] != DBNull.Value)
+                                {
+                                    if (!string.IsNullOrEmpty(reader["photo"].ToString()))
+                                    {
+                                        usr.photoURL = reader["photo"].ToString();
+                                    }
+                                    else
+                                    {
+                                        usr.photoURL = defaultUserPhoto;
+                                    }
+
+                                }
+                                else
+                                {
+                                    usr.photoURL = defaultUserPhoto;
+                                }
+                                 //(reader["photo"] == DBNull.Value ? defaultUserPhoto : reader["photo"].ToString());
                                 usr.regDate = DateTime.Parse(reader["cdate"].ToString());
                                 usr.balance = Convert.ToDecimal(reader["balance"]).ToString("0.000");
                                 usr.earning = Convert.ToDecimal(reader["earning"]).ToString("0.000");
@@ -158,28 +186,45 @@ namespace PulluBackEnd.Model.Database.App
 
 
 
-        public List<Advertisement> Advertisements(string mail, string password,int pageNo, int isPaid, int categoryID)
+        public ResponseStruct<Advertisement> Advertisements(string mail, string password,int pageNo, int isPaid, int categoryID)
 
         {
             int recPerPage = 10;
-
-            List<Advertisement> adsList = new List<Advertisement>();
-            if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(password)&&isPaid >= 0&&pageNo>0)
+            ResponseStruct<Advertisement> adResponse = new ResponseStruct<Advertisement>();
+            // List<Advertisement> adsList = new List<Advertisement>();
+            adResponse.data = new List<Advertisement>();
+            if (isPaid >= 0&&pageNo>0)
             {
                 int offset = (pageNo - 1) * recPerPage;
 
 
                 long userID = 0;
-                userID = getUserID(mail, password);
-                if (userID > 0)
+                
+                if (!string.IsNullOrEmpty(mail)&&!string.IsNullOrEmpty(password))
                 {
-
+                    userID = getUserID(mail, password);
+                    if (userID>0)
+                    {
+                        adResponse.status = 1;//authorized
+                    }
+                    else
+                    {
+                        adResponse.status = 2;//user not found
+                    }
+                   
+                }
+                else
+                {
+                    adResponse.status = 3;//not authorized
+                }
+              
                     string categoryQuery = "";
                     if (categoryID > 0)
                     {
                         categoryQuery = $"and categoryID={categoryID}";
+
                     }
-                    
+
 
                     using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                     {
@@ -223,7 +268,7 @@ namespace PulluBackEnd.Model.Database.App
 
 
 
-                                            adsList.Add(ads);
+                                            adResponse.data.Add(ads);
 
 
                                         }
@@ -234,14 +279,21 @@ namespace PulluBackEnd.Model.Database.App
                                     }
                                     //connection.Close();
                                     //Сортировка платных реклам по пользователю
-                                  
+
                                     com.Dispose();
                                 }
                                 break;
                             case 1:
+                                string userQuery = "";
+                                if (userID > 0)
+                                {
+
+                                    userQuery = "and announcementID not in (select announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and cdate>= now() - INTERVAL 1 DAY)";
+
+                                }
                                 using (MySqlCommand com = new MySqlCommand("select * ,(SELECT count FROM announcement_tariff where trfid=a.trfId)as trfViewCount,(select count(distinct userID) from announcement_view where announcementId=a.announcementId)as views,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,(select name from category where categoryId=a.categoryId ) as categoryName, " +
-                       "(select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName " +
-                       $"from announcement a  where isPaid=1 and isActive=1 {categoryQuery} and announcementID not in (select announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and cdate>= now() - INTERVAL 1 DAY) order by cdate desc LIMIT {offset}, {recPerPage}", connection))
+                           "(select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName " +
+                           $"from announcement a  where isPaid=1 and isActive=1 {categoryQuery} {userQuery} order by cdate desc LIMIT {offset}, {recPerPage}", connection))
                                 // OLD ALGO ->  $"(announcementId not in (select distinct announcementId from announcement_view where userId=@userID) or announcementID in (select distinct announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and DATE_FORMAT(cdate, '%Y-%m-%d')<DATE_FORMAT(now(), '%Y-%m-%d')))  order by cdate desc", connection))
                                 {
 
@@ -274,7 +326,7 @@ namespace PulluBackEnd.Model.Database.App
 
 
 
-                                                adsList.Add(ads);
+                                                adResponse.data.Add(ads);
                                             }
 
                                         }
@@ -291,44 +343,55 @@ namespace PulluBackEnd.Model.Database.App
                         connection.Close();
                         connection.Dispose();
                     }
-                    return adsList;
-                }
+               
+                
+               
+                    return adResponse;
+                
+               
+                
                
             }
-            return adsList;
+            return adResponse;
 
         }
 
 
-        public List<Advertisement> getMyViews(string mail, string password)
+        public ResponseStruct<Advertisement> getMyViews(string mail, string password)
 
         {
-            List<Advertisement> adsList = new List<Advertisement>();
+            ResponseStruct<Advertisement> myAds = new ResponseStruct<Advertisement>();
+            myAds.data = new List<Advertisement>();
             try
             {
-                long userID = getUserID(mail, password);
-                if (userID > 0)
+                if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(password))
                 {
 
 
-
-
-                    MySqlConnection connection = new MySqlConnection(ConnectionString);
-
-
-                    connection.Open();
-
-                    MySqlCommand com = new MySqlCommand();
-                    com.Connection = connection;
+                    long userID = getUserID(mail, password);
+                    if (userID > 0)
+                    {
+                        myAds.status = 1;//authorized
 
 
 
+                        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                        {
+                            connection.Open();
 
-                    //Сортировка платных реклам по пользователю
+                            using (MySqlCommand com = new MySqlCommand())
+                            {
+
+                                com.Connection = connection;
 
 
 
-                    com.CommandText = @"select distinct announcementId
+
+                                //Сортировка платных реклам по пользователю
+
+
+
+                                com.CommandText = @"select distinct announcementId
 ,(select aTypeId from announcement where announcementId=a.announcementId)as aTypeId,
 (select cDate from announcement where announcementId=a.announcementId)as cDate,
 (select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,
@@ -338,143 +401,353 @@ namespace PulluBackEnd.Model.Database.App
 (select isActive from announcement where announcementId=a.announcementId)as IsActive,
 (select isPaid from announcement where announcementId=a.announcementId)as IsPaid
  from announcement_view a where userid =@userID";
-                    com.Parameters.AddWithValue("@userID", userID);
-                    MySqlDataReader reader = com.ExecuteReader();
-                    if (reader.HasRows)
-                    {
+                                com.Parameters.AddWithValue("@userID", userID);
+                                MySqlDataReader reader = com.ExecuteReader();
+                                if (reader.HasRows)
+                                {
 
-                        while (reader.Read())
-                        {
+                                    while (reader.Read())
+                                    {
 
-                            int isActive = reader["IsActive"] == DBNull.Value ? 0 : Convert.ToInt32(reader["IsActive"]);
-                            if (isActive == 1)
-                            {
-                                Advertisement ads = new Advertisement();
+                                        int isActive = reader["IsActive"] == DBNull.Value ? 0 : Convert.ToInt32(reader["IsActive"]);
+                                        if (isActive == 1)
+                                        {
+                                            Advertisement ads = new Advertisement();
 
 
-                                ads.id = Convert.ToInt32(reader["announcementId"]);
-                                ads.name = reader["aName"].ToString();
-                                ads.description = reader["aDescription"].ToString();
-                                ads.price = reader["aPrice"].ToString();
-                                ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
-                                ads.cDate = DateTime.Parse(reader["cdate"].ToString());
-                                ads.isPaid = Convert.ToInt32(reader["isPaid"]);
+                                            ads.id = Convert.ToInt32(reader["announcementId"]);
+                                            ads.name = reader["aName"].ToString();
+                                            ads.description = reader["aDescription"].ToString();
+                                            ads.price = reader["aPrice"].ToString();
+                                            ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
+                                            ads.cDate = DateTime.Parse(reader["cdate"].ToString());
+                                            ads.isPaid = Convert.ToInt32(reader["isPaid"]);
 
-                                //  ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
-                                //   ads.catId = Convert.ToInt32(reader["categoryId"]);
-                                //     ads.catName = reader["categoryName"].ToString();
-                                // ads.cDate = DateTime.Parse(reader["cdate"].ToString());
-                                ads.photoUrl = new List<string>();
-                                ads.photoUrl.Add(reader["photoUrl"].ToString());
-                                adsList.Add(ads);
+                                            //  ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
+                                            //   ads.catId = Convert.ToInt32(reader["categoryId"]);
+                                            //     ads.catName = reader["categoryName"].ToString();
+                                            // ads.cDate = DateTime.Parse(reader["cdate"].ToString());
+                                            ads.photoUrl = new List<string>();
+                                            ads.photoUrl.Add(reader["photoUrl"].ToString());
+                                            myAds.data.Add(ads);
 
+                                        }
+
+
+
+
+                                    }
+
+                                }
                             }
 
-
+                            connection.Close();
 
 
                         }
 
+
+
+
                     }
-                    connection.Close();
-                    return adsList;
+                    else
+                    {
+                        myAds.status = 2;//user not found
+                    }
+                }
+                else
+                {
+                    myAds.status = 3;//not authorized
                 }
              
             }
             catch (Exception ex)
             {
-               
+                myAds.status = 4;//error
+
             }
 
-            return adsList;
+            return myAds;
 
         }
 
 
 
-        public List<Advertisement> getMyAds(string mail, string password)
+        public ResponseStruct<Advertisement> getMyAds(string mail, string password)
 
         {
-            List<Advertisement> adsList = new List<Advertisement>();
+            ResponseStruct<Advertisement> myAds = new ResponseStruct<Advertisement>();
+
+            myAds.data = new List<Advertisement>();
             try
             {
-                long userID = getUserID(mail, password);
-                if (userID > 0)
+                if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(password))
                 {
 
 
-
-
-                    MySqlConnection connection = new MySqlConnection(ConnectionString);
-
-
-                    connection.Open();
-
-                    MySqlCommand com = new MySqlCommand();
-                    com.Connection = connection;
-
-
-
-
-                    //Сортировка платных реклам по пользователю
-
-
-
-                    com.CommandText = @"select *,(SELECT count FROM announcement_tariff where trfid=a.trfId)as trfViewCount,(select count(distinct userID) from announcement_view where announcementId=a.announcementId)as views,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl from announcement a where userid = @userID order by cdate desc";
-                    com.Parameters.AddWithValue("@userID", userID);
-                    MySqlDataReader reader = com.ExecuteReader();
-                    if (reader.HasRows)
+                    long userID = getUserID(mail, password);
+                    if (userID > 0)
                     {
 
-                        while (reader.Read())
+                        myAds.status = 1;//authorized
+
+
+                        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                         {
-                            int isActive = reader["IsActive"] == DBNull.Value ? 0 : Convert.ToInt32(reader["IsActive"]);
 
-                            if (isActive != 2)
+                            connection.Open();
+
+                            using (MySqlCommand com = new MySqlCommand())
                             {
-                                Advertisement ads = new Advertisement();
+                                com.Connection = connection;
 
 
-                                ads.id = Convert.ToInt32(reader["announcementId"]);
-                                ads.name = reader["name"].ToString();
-                                ads.description = reader["description"].ToString();
-                                ads.price = reader["price"].ToString();
-                                ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
-                                ads.isActive = Convert.ToInt32(reader["IsActive"]);
-                                ads.views = Convert.ToInt32(reader["views"]);
-                                ads.tariffViewCount = reader["trfViewCount"] == DBNull.Value ? 0 : Convert.ToInt32(reader["trfViewCount"]);
-                                ads.cDate = DateTime.Parse(reader["cdate"].ToString());
-                                ads.isPaid = Convert.ToInt32(reader["isPaid"]);
 
-                                //  ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
-                                //   ads.catId = Convert.ToInt32(reader["categoryId"]);
-                                //     ads.catName = reader["categoryName"].ToString();
-                                // ads.cDate = DateTime.Parse(reader["cdate"].ToString());
-                                ads.photoUrl = new List<string>();
-                                ads.photoUrl.Add(reader["photoUrl"].ToString());
-                                adsList.Add(ads);
 
+                                //Сортировка платных реклам по пользователю
+
+
+
+                                com.CommandText = @"select *,(SELECT count FROM announcement_tariff where trfid=a.trfId)as trfViewCount,(select count(distinct userID) from announcement_view where announcementId=a.announcementId)as views,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl from announcement a where userid = @userID order by cdate desc";
+                                com.Parameters.AddWithValue("@userID", userID);
+                                MySqlDataReader reader = com.ExecuteReader();
+                                if (reader.HasRows)
+                                {
+
+                                    while (reader.Read())
+                                    {
+                                        int isActive = reader["IsActive"] == DBNull.Value ? 0 : Convert.ToInt32(reader["IsActive"]);
+
+                                        if (isActive != 2)
+                                        {
+                                            Advertisement ads = new Advertisement();
+
+
+                                            ads.id = Convert.ToInt32(reader["announcementId"]);
+                                            ads.name = reader["name"].ToString();
+                                            ads.description = reader["description"].ToString();
+                                            ads.price = reader["price"].ToString();
+                                            ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
+                                            ads.isActive = Convert.ToInt32(reader["IsActive"]);
+                                            ads.views = Convert.ToInt32(reader["views"]);
+                                            ads.tariffViewCount = reader["trfViewCount"] == DBNull.Value ? 0 : Convert.ToInt32(reader["trfViewCount"]);
+                                            ads.cDate = DateTime.Parse(reader["cdate"].ToString());
+                                            ads.isPaid = Convert.ToInt32(reader["isPaid"]);
+
+                                            //  ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
+                                            //   ads.catId = Convert.ToInt32(reader["categoryId"]);
+                                            //     ads.catName = reader["categoryName"].ToString();
+                                            // ads.cDate = DateTime.Parse(reader["cdate"].ToString());
+                                            ads.photoUrl = new List<string>();
+                                            ads.photoUrl.Add(reader["photoUrl"].ToString());
+                                            myAds.data.Add(ads);
+
+                                        }
+
+
+
+
+                                    }
+
+                                }
                             }
 
-
-
+                            connection.Close();
 
                         }
 
+
+
                     }
-                    connection.Close();
-                    return adsList;
+                    else
+                    {
+                        myAds.status = 2;//user not found
+                    }
+                }
+                else
+                {
+                    myAds.status = 3;//not authorized
+
                 }
             }
             catch (Exception ex)
             {
-
+                myAds.status = 4;// server error
             }
           
-            return adsList;
+            return myAds;
 
         }
+        public ResponseStruct<ViewerStruct> getMyAdViewers(long phone, string password,int aID)
 
+        {
+            ResponseStruct<ViewerStruct> viewersObject = new ResponseStruct<ViewerStruct>();
+
+            viewersObject.data = new List<ViewerStruct>();
+            try
+            {
+                if (phone>0 && !string.IsNullOrEmpty(password))
+                {
+
+
+                    long userID = getUserIdByMobile(phone, password);
+                    if (userID > 0)
+                    {
+
+                       
+
+
+                        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                        {
+                            long aPublisherID = 0;
+                            connection.Open();
+                            using (MySqlCommand com = new MySqlCommand())
+                            {
+                                com.Connection = connection;
+
+
+
+
+                                //Сортировка платных реклам по пользователю
+                               
+
+
+                                com.CommandText = @"select userid from announcement where announcementid=@aID";
+                                com.Parameters.AddWithValue("@aID", aID);
+                                using (MySqlDataReader reader = com.ExecuteReader()) {
+                                    if (reader.HasRows)
+                                    {
+
+                                        while (reader.Read())
+                                        {
+                                            aPublisherID = reader["userid"] == DBNull.Value ? 0 : Convert.ToInt64(reader["userid"]);
+                                        }
+
+                                    }
+                                }
+
+                                
+                            }
+                            if (aPublisherID == userID)
+                            {
+                                using (MySqlCommand com = new MySqlCommand())
+                                {
+                                    com.Connection = connection;
+
+
+
+
+                                    //Сортировка платных реклам по пользователю
+
+
+
+                                    com.CommandText = @"SELECT  distinct userid ,
+(select genderId from user where userid = a.userid)as genderID,
+(select photo from user where userid = a.userid)as photo,
+(select name from user where userid = a.userid)as name,
+(select surname from user where userid = a.userid)as surname
+FROM pullu_db.announcement_view a where announcementId = @aID and userid > 0;
+";
+                                    com.Parameters.AddWithValue("@aID", aID);
+                                    using (MySqlDataReader reader = com.ExecuteReader())
+                                    {
+                                        if (reader.HasRows)
+                                        {
+                                            string defaultUserPhoto = "";
+                                            while (reader.Read())
+                                            {
+                                                ViewerStruct viewer = new ViewerStruct();
+                                                if (reader["name"] != DBNull.Value && reader["surname"] != DBNull.Value && userID != (reader["userid"] == DBNull.Value ? 0 : Convert.ToInt64(reader["userid"])))
+                                                {
+                                                    switch (Convert.ToInt32(reader["genderID"]))
+                                                    {
+                                                        case 1:
+                                                            defaultUserPhoto = "http://master.pullu.az/public/assets/images/users/userboy.png";
+                                                            break;
+                                                        case 2:
+                                                            defaultUserPhoto = "http://master.pullu.az/public/assets/images/users/usergirl.png";
+                                                            break;
+                                                        default:
+                                                            break;
+                                                    }
+                                                    if (reader["photo"] != DBNull.Value)
+                                                    {
+                                                        if (!string.IsNullOrEmpty(reader["photo"].ToString()))
+                                                        {
+                                                            viewer.photoURL = reader["photo"].ToString();
+                                                        }
+                                                        else
+                                                        {
+                                                            viewer.photoURL = defaultUserPhoto;
+                                                        }
+                                                        
+                                                    }
+                                                    else
+                                                    {
+                                                        viewer.photoURL = defaultUserPhoto;
+                                                    }
+                                                     //(reader["photo"] == DBNull.Value  ? defaultUserPhoto : reader["photo"].ToString());
+                                                    viewer.name = reader["name"].ToString();
+                                                    viewer.surname = reader["surname"].ToString();
+
+                                                    viewersObject.data.Add(viewer);
+
+                                                }
+                                               
+
+
+
+
+
+                                            }
+                                            
+                                           
+                                        }
+                                        
+                                    }
+                                }
+
+                                if (viewersObject.data.Count > 0)
+                                {
+                                    viewersObject.status = 1;//authorized and has viewers
+                                }
+                                else
+                                {
+                                    viewersObject.status = 2;//authorized and has no viewers
+                                }
+                            }
+                            else
+                            {
+                                viewersObject.status = 3;//this user could not see this viewers
+                            }
+                         
+
+                            connection.Close();
+
+                        }
+
+
+
+                    }
+                    else
+                    {
+                        viewersObject.status = 4;//access danied
+                    }
+                }
+                else
+                {
+                    viewersObject.status = 5;//param problem
+
+                }
+            }
+            catch (Exception ex)
+            {
+                viewersObject.status = 6;// server error
+            }
+
+            return viewersObject;
+
+        }
 
 
         public bool IsValid(string emailaddress)
@@ -765,7 +1038,44 @@ namespace PulluBackEnd.Model.Database.App
 
             }
         }
+        public long getUserIdByMobile(long mobile, string pass)
+        {
+            MySqlConnection connection = new MySqlConnection(ConnectionString);
+            try
+            {
+                long userID = 0;
 
+
+
+                connection.Open();
+
+                MySqlCommand com = new MySqlCommand("select userID from user where mobile=@mobile and passwd=SHA2(@pass,512) limit 1", connection);
+
+
+                com.Parameters.AddWithValue("@mobile", mobile);
+                com.Parameters.AddWithValue("@pass", pass);
+                MySqlDataReader reader = com.ExecuteReader();
+                if (reader.HasRows)
+                {
+
+
+                    while (reader.Read())
+                    {
+                        userID = Convert.ToInt64(reader["userID"]);
+                    }
+                }
+
+
+                connection.Close();
+                return userID;
+            }
+            catch
+            {
+                connection.Close();
+                return 0;
+
+            }
+        }
 
 
         public bool getAdvertPaidType(int advertID)
@@ -857,119 +1167,138 @@ namespace PulluBackEnd.Model.Database.App
             }
         }
 
-        public List<Advertisement> getAdvertById(int advertID, string mail, string pass)
+        public List<Advertisement> getAdvertById(int advertID)
 
         {
 
-            if (!getAdvertPaidType(advertID))
+            
+
+
+            List<Advertisement> adsList = new List<Advertisement>();
+            string viewCountQuery = "";
+            if (advertID > 0)
             {
-                long userID = getUserID(mail, pass);
-                if (userID > 0)
+
+
+
+                if (!getAdvertPaidType(advertID))
                 {
-                    if (!viewExist(userID, advertID))
+                    //long userID = getUserID(mail, pass);
+                    //if (userID > 0)
+                    //{
+                    //if (!viewExist(userID, advertID))
+                    //{
+
+                    //}
+                    DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+                    insert.addView(advertID, 0);
+
+                    
+                    viewCountQuery = ",(select count(viewId) from announcement_view where announcementId=@advertID)as views";
+                }
+                else
+                {
+                    viewCountQuery = ",(select count(distinct userID) from announcement_view where announcementId=@advertID)as views";
+                }
+
+                using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+
+                {
+                    connection.Open();
+
+                    using (MySqlCommand com = new MySqlCommand("select *,(select name from user where userID=a.userID)as sellerName,(select surname from user where userID=a.userID)as sellerSurname,(select mobile from user where userID=a.userID)as sellerPhone,(select name from category where categoryId=a.categoryId ) as categoryName," +
+                          $"(select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName {viewCountQuery}" +
+                          " from announcement a where isActive=1 and announcementId=@advertID", connection)) {
+
+                        com.Parameters.AddWithValue("@advertID", advertID);
+
+
+                        using (MySqlDataReader reader = com.ExecuteReader()) {
+                            if (reader.HasRows)
+                            {
+
+
+                                while (reader.Read())
+                                {
+
+                                    Advertisement ads = new Advertisement();
+                                    ads.id = Convert.ToInt32(reader["announcementId"]);
+                                    ads.userID = Convert.ToInt32(reader["userID"]);
+                                    ads.name = reader["name"].ToString();
+                                    ads.sellerFullName = $"{reader["sellerName"].ToString()} {reader["sellerSurname"].ToString()}";
+                                    ads.sellerPhone = reader["sellerPhone"].ToString();
+                                    ads.description = reader["description"].ToString();
+                                    ads.price = reader["price"].ToString();
+                                    ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
+                                    ads.aTypeName = reader["aTypeName"].ToString();
+                                    ads.isPaid = Convert.ToInt32(reader["isPaid"]);
+                                    ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
+                                    ads.catId = Convert.ToInt32(reader["categoryId"]);
+                                    ads.catName = reader["categoryName"].ToString();
+                                    ads.cDate = DateTime.Parse(reader["cdate"].ToString());
+                                    ads.views = Convert.ToInt32(reader["views"]);
+                                    //ads.photoUrl = new List<string>();
+                                    //ads.photoUrl.Add(reader["photoUrl"].ToString());
+
+
+
+                                    adsList.Add(ads);
+
+
+                                }
+                            }
+                            else
+                            {
+                                return adsList;
+                            }
+                        }
+                           
+
+
+                    }
+
+
+                    using (MySqlCommand com = new MySqlCommand("select httpUrl from media where announcementId=@advertID", connection))
                     {
-                        DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-                        insert.addView(advertID, userID);
+                        com.Parameters.AddWithValue("@advertID", advertID);
+                        using (MySqlDataReader reader = com.ExecuteReader()) {
+                           
+                            if (reader.HasRows)
+                            {
+                                adsList[0].photoUrl = new List<string>();
+
+                                while (reader.Read())
+                                {
+
+
+                                    adsList[0].photoUrl.Add(reader["httpUrl"].ToString());
+
+
+
+
+
+
+                                }
+                                connection.Close();
+
+
+
+
+                            }
+                            else
+                            {
+                                connection.Close();
+
+                            }
+
+                        }
+
+                          
                     }
                 }
 
             }
-
-
-            List<Advertisement> adsList = new List<Advertisement>();
-
-
-
-            MySqlConnection connection = new MySqlConnection(ConnectionString);
-
-
-            connection.Open();
-
-            MySqlCommand com = new MySqlCommand("select *,(select name from user where userID=a.userID)as sellerName,(select surname from user where userID=a.userID)as sellerSurname,(select mobile from user where userID=a.userID)as sellerPhone,(select name from category where categoryId=a.categoryId ) as categoryName," +
-                "(select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName, (select count(distinct userID) from announcement_view where announcementId=@advertID)as views" +
-                " from announcement a where isActive=1 and announcementId=@advertID", connection);
-
-
-            com.Parameters.AddWithValue("@advertID", advertID);
-
-
-            MySqlDataReader reader = com.ExecuteReader();
-            if (reader.HasRows)
-            {
-
-
-                while (reader.Read())
-                {
-
-                    Advertisement ads = new Advertisement();
-                    ads.id = Convert.ToInt32(reader["announcementId"]);
-                    ads.userID = Convert.ToInt32(reader["userID"]);
-                    ads.name = reader["name"].ToString();
-                    ads.sellerFullName = $"{reader["sellerName"].ToString()} {reader["sellerSurname"].ToString()}";
-                    ads.sellerPhone = reader["sellerPhone"].ToString();
-                    ads.description = reader["description"].ToString();
-                    ads.price = reader["price"].ToString();
-                    ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
-                    ads.aTypeName = reader["aTypeName"].ToString();
-                    ads.isPaid = Convert.ToInt32(reader["isPaid"]);
-                    ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
-                    ads.catId = Convert.ToInt32(reader["categoryId"]);
-                    ads.catName = reader["categoryName"].ToString();
-                    ads.cDate = DateTime.Parse(reader["cdate"].ToString());
-                    ads.views = Convert.ToInt32(reader["views"]);
-                    //ads.photoUrl = new List<string>();
-                    //ads.photoUrl.Add(reader["photoUrl"].ToString());
-
-
-
-                    adsList.Add(ads);
-
-
-                }
-            }
-            else
-            {
-                return adsList;
-            }
-
-            connection.Close();
-
-            connection.Open();
-
-            com.CommandText = "select httpUrl from media where announcementId=@advertID";
-
-            reader = com.ExecuteReader();
-            if (reader.HasRows)
-            {
-                adsList[0].photoUrl = new List<string>();
-
-                while (reader.Read())
-                {
-
-
-                    adsList[0].photoUrl.Add(reader["httpUrl"].ToString());
-
-
-
-
-
-
-                }
-                connection.Close();
-
-
-                return adsList;
-
-            }
-            else
-            {
-                connection.Close();
-                return adsList;
-            }
-
-
-
-
+            return adsList;
 
 
         }
@@ -1257,7 +1586,114 @@ namespace PulluBackEnd.Model.Database.App
 
             return ageRangeList;
         }
+        public Status verifyOtp(int mobile, int code)
+        {
+            Status status = new Status();
+            if (code > 0 && mobile>0)
+            {
 
+
+                try
+                {
+
+
+                    using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                    {
+
+
+
+
+                        connection.Open();
+
+                        using (MySqlCommand com = new MySqlCommand("select * from user where userToken=SHA2(@userToken,512) and mobile = @mobile", connection))
+                        {
+
+                            com.Parameters.AddWithValue("@userToken", code);
+                            com.Parameters.AddWithValue("@mobile", mobile);
+                            MySqlDataReader reader = com.ExecuteReader();
+
+                            // int exist = com.ExecuteNonQuery();
+                            if (reader.HasRows)
+                            {
+                                status.response = 1;
+                                status.responseString = "code is ok";
+                            }
+                            else
+                            {
+                                status.response = 2;
+                                status.responseString = "access danied";
+
+                            }
+
+                        }
+                        connection.Close();
+
+
+                    }
+                }
+                catch (Exception ex)
+                {
+                    status.response = 3;
+                    status.responseString = $"Server error. Exception Message: {ex.Message}";
+
+                }
+            }
+            else
+            {
+                status.response = 4;
+                status.responseString = "code is empty";
+            }
+            return status;
+        }
+        public List<Interest> getInterests()
+
+        {
+            List<Interest> interestList = new List<Interest>();
+
+
+          using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                using (MySqlCommand com = new MySqlCommand("Select * from interests", connection)) {
+
+                    MySqlDataReader reader = com.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+
+
+                        while (reader.Read())
+                        {
+                            
+                            Interest interest = new Interest();
+                            interest.ID = Convert.ToInt32(reader["interestId"]);
+                            interest.name = reader["interestName"].ToString();
+                         
+
+
+                            interestList.Add(interest);
+
+
+                        }
+                       
+                    
+
+                    }
+                    
+                    connection.Close();
+                }
+
+
+
+
+
+            }
+
+
+            return interestList;
+
+
+        }
 
     }
 }

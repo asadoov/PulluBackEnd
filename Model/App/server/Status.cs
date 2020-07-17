@@ -9,5 +9,6 @@ namespace PulluBackEnd.Model.App.server
     {
         public int response { get; set; }
         public string responseString { get; set; }
+       
     }
 }

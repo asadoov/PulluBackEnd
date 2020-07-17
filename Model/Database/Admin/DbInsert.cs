@@ -173,7 +173,7 @@ namespace PulluBackEnd.Model.Database.Admin
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             string userMail = "", aInfo = "";
-            string userMobile = "";
+            int userMobile = 0;
             long userID = 0;
 
             if (select.checkAdmin(uname, pass))
@@ -209,7 +209,7 @@ namespace PulluBackEnd.Model.Database.Admin
                                     {
                                         while (reader.Read())
                                         {
-                                            userMobile = reader["userMobile"].ToString();
+                                            userMobile = Convert.ToInt32(reader["userMobile"]);
                                             userMail = reader["userMail"].ToString();
                                             aInfo = reader["name"].ToString();
                                             userID = Convert.ToInt32(reader["userID"]);
@@ -232,7 +232,7 @@ namespace PulluBackEnd.Model.Database.Admin
 
 
                                 }
-                                if (!string.IsNullOrEmpty(userMobile)) communication.sendSmsAsync($"{aInfo}", userMobile);
+                                if (userMobile>0) communication.sendSmsAsync($"{aInfo}", userMobile);
                                 if (!string.IsNullOrEmpty(userMail)) communication.sendMail($"{aInfo}", userMail);
                                 if (userID > 0) {
                                     communication.sendNotificationAsync("Moderator",$"{aInfo}", userID);
