@@ -95,7 +95,7 @@ namespace PulluBackEnd.Model.App
                 return false;
             }
         }
-        public Status IsValidPhone(Int64 phone)
+        public Status IsValidPhone(long phone)
         {
 
             Status status = new Status();
@@ -234,7 +234,7 @@ namespace PulluBackEnd.Model.App
 
 
         }
-        public Status sendSms(int phone)
+        public Status sendSms(long phone)
         {
             Status status = new Status();
 

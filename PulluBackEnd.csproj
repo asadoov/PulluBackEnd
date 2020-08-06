@@ -23,6 +23,11 @@
     <Folder Include="Model\App\client\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="RSACriptoGen">
+      <HintPath>..\..\Downloads\RSACriptoGen.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties properties_4launchsettings_1json__JsonSchema="" appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>
 
 </Project>

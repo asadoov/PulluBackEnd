@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using PulluBackEnd.Model.Payment;
 using PulluBackEnd.Model.CommonScripts;
+using PulluBackEnd.Model.Database.Payment;
+
 namespace PulluBackEnd.Model.Payment
 {
     public class PaymentInsert
@@ -23,88 +25,9 @@ namespace PulluBackEnd.Model.Payment
             communication = new Communication(Configuration, _hostingEnvironment);
 
         }
-        public VerifyStatusStruct verify(VerifyStruct transaction)
+      
 
-        {
-
-
-
-            VerifyStatusStruct status = new VerifyStatusStruct();
-
-
-            try
-            {
-                //40bd001563085fc35165329ea1ff5c5ecbdbbeef -> smart Pay sha1 1 time
-
-                string encriptedBundle = null;
-
-                DateTime now = DateTime.Now;
-
-                MySqlConnection connection = new MySqlConnection(ConnectionString);
-                connection.Open();
-                MySqlCommand com = new MySqlCommand("select * from api_access where bundleID=sha1(@bundleID)", connection);
-                com.Parameters.AddWithValue("bundleID", transaction.bundleID);
-
-                MySqlDataReader reader = com.ExecuteReader();
-
-                if (reader.HasRows)
-                {
-
-                    while (reader.Read())
-                    {
-                        encriptedBundle = reader["bundleID"].ToString();
-
-
-                    }
-
-                }
-                connection.Close();
-
-                if (!string.IsNullOrEmpty(encriptedBundle))
-                {
-                    connection.Open();
-                    com.CommandText = "Select(select name from user where userID=@userID ) as name," +
-                        "(select surname from user where userID=@userID) as surname," +
-                        "(select balanceValue from users_balance where userID=@userID) as balance";
-                    com.Parameters.AddWithValue("@userID", transaction.userID);
-                    reader = com.ExecuteReader();
-                    if (reader.HasRows)
-                    {
-                        while (reader.Read())
-                        {
-                            status.userNameSurname = $"{reader["name"].ToString()} {reader["surname"].ToString()}";
-                            status.balance = Convert.ToDouble(reader["balance"]);
-                        }
-                        connection.Close();
-
-                        status.response = "0";
-
-
-                        return status;
-                    }
-                    status.response = "1";
-
-
-                    return status;
-                }
-                status.response = "3";
-
-                return status;
-
-
-            }
-            catch (Exception ex)
-            {
-                status.response = $"Internal error: {ex.Message}";
-                return status;
-            }
-
-
-
-
-        }
-
-        public TransactionStatusStruct updateBalance(TransactionStruct uBalance)
+        public TransactionStatusStruct UpBalance(TransactionStruct uBalance)
 
         {
 
@@ -191,6 +114,92 @@ namespace PulluBackEnd.Model.Payment
 
 
 
+
+        }
+        public long InsertTransaction(long userID,long serviceID,long amount,long account) {
+            long paymentID = 0;
+
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                
+                DateTime now = DateTime.Now;
+                connection.Open();
+                using (MySqlCommand com = new MySqlCommand(@"insert into withdraw
+(amount,serviceID,userID,account,cdate)
+values(@amount,@serviceID,@userID,@account,@cdate)", connection))
+                {
+                    com.Parameters.AddWithValue("@amount", amount);
+                    com.Parameters.AddWithValue("@serviceID", serviceID);
+                    com.Parameters.AddWithValue("@userID", userID);
+                    com.Parameters.AddWithValue("@account", account);
+                    com.Parameters.AddWithValue("@cdate", now);
+                    
+  
+                    com.ExecuteNonQuery();
+                   paymentID = com.LastInsertedId;
+                    com.Dispose();
+                }
+
+
+
+                connection.Close();
+
+            }
+            return paymentID;
+        }
+        public void UpdateTransaction(long paymentID, long state, long substate,int final)
+        {
+           
+
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+
+                DateTime now = DateTime.Now;
+                connection.Open();
+                using (MySqlCommand com = new MySqlCommand(@"update withdraw set state=@state,substate=@substate,final=@final,udate=@udate where withdrawID = @paymentID", connection))
+                {
+                    com.Parameters.AddWithValue("@state", state);
+                    com.Parameters.AddWithValue("@substate", substate);
+                    com.Parameters.AddWithValue("@final", final);
+                    com.Parameters.AddWithValue("@udate", now);
+                    com.Parameters.AddWithValue("@paymentID", paymentID);
+
+
+                    com.ExecuteNonQuery();
+                   
+                    com.Dispose();
+                }
+
+
+
+                connection.Close();
+
+            }
+       
+        }
+        public void WithdrawUserBalance(long userID,long amount) {
+
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+
+                DateTime now = DateTime.Now;
+                connection.Open();
+                using (MySqlCommand com = new MySqlCommand(@"update users_balance set earningValue = earningValue - @amount, udate=@now where userID=@userID", connection))
+                {
+                    com.Parameters.AddWithValue("@amount",Convert.ToDouble(amount)/100);
+                    com.Parameters.AddWithValue("@userID", userID);
+                    com.Parameters.AddWithValue("@now", now);
+  
+                    com.ExecuteNonQuery();
+
+                    com.Dispose();
+                }
+
+
+
+                connection.Close();
+
+            }
 
         }
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace PulluBackEnd.Model.Payment
+namespace PulluBackEnd.Model.Database.Payment
 {
     public class TransactionStruct
     {

@@ -612,3 +612,4 @@ C:/Users/test.pts/Desktop/PulluBackEnd/obj/Release/netcoreapp3.0/PulluBackEnd.pd
 /Users/rufat/Desktop/PulluBackEnd/bin/Release/netcoreapp3.0/System.ComponentModel.Annotations.dll
 /Users/rufat/Desktop/PulluBackEnd/bin/Release/netcoreapp3.0/System.Diagnostics.DiagnosticSource.dll
 /Users/rufat/Desktop/PulluBackEnd/bin/Release/netcoreapp3.0/System.Runtime.CompilerServices.Unsafe.dll
+/Users/rufat/Desktop/PulluBackEnd/bin/Release/netcoreapp3.0/RSACriptoGen.dll

@@ -194,7 +194,7 @@ namespace PulluBackEnd.Model.CommonScripts
 
         }
 
-        public void sendSMS(string smsText, int smsTel)
+        public void sendSMS(string smsText, long smsTel)
         {
             try
             {

@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using PulluBackEnd.Model.Payment;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using PulluBackEnd.Model.Database.Payment;
+using PulluBackEnd.Model.App.server;
+using PulluBackEnd.Model.Database.Payment.Database;
 
 namespace PulluBackEnd.Controllers
 {
@@ -61,11 +64,11 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("pay")]
         [EnableCors("AllowOrigin")]
-        public TransactionStatusStruct pay([FromBody] TransactionStruct obj)
+        public TransactionStatusStruct UpBalance([FromBody] TransactionStruct obj)
         {
           
             PaymentInsert insert = new PaymentInsert(Configuration, _hostingEnvironment);
-            return insert.updateBalance(obj);
+            return insert.UpBalance(obj);
            
         }
         [HttpPost]
@@ -74,10 +77,45 @@ namespace PulluBackEnd.Controllers
         public VerifyStatusStruct verify([FromBody] VerifyStruct obj)
         {
 
-            PaymentInsert insert = new PaymentInsert(Configuration, _hostingEnvironment);
-            return insert.verify(obj);
+            PaymentSelect select = new PaymentSelect(Configuration, _hostingEnvironment);
+            return select.Verify(obj);
 
         }
+        [HttpGet]
+         [Route("get/withdraw/services")]
+         [EnableCors("AllowOrigin")]
+         public ActionResult<ResponseStruct<WithdrawService>> GetWithdrawServices()
+         {
+            PaymentSelect select = new PaymentSelect(Configuration, _hostingEnvironment);
+            return select.GetWithdrawServices();
+         }
+       
+         [HttpGet]
+         [Route("withdraw/mobile/operators/verify")]
+         [EnableCors("AllowOrigin")]
+         public ActionResult<Status> OperatorVerify(long mobile,string pass,long payMobile,int serviceID)
+         {
+            
+            if (serviceID == 418)
+            {
+                PaymentOperations pOperations = new PaymentOperations(Configuration, _hostingEnvironment);
+               return pOperations.AzercellVeify(mobile, pass,payMobile);
+                
+            }
 
+            return new Status();
+         }
+
+
+        [HttpPost]
+        [Route("withdraw")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<Status> WithdrawFunds(long mobile, string pass, long account,long serviceID,long amount)
+        {
+            PaymentOperations pOperations = new PaymentOperations(Configuration, _hostingEnvironment);
+            return pOperations.WithdrawFunds(mobile, pass, account, serviceID, amount);
+
+
+        }
     }
 }

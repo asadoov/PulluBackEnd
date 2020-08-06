@@ -13,6 +13,15 @@ using PulluBackEnd.Model.CommonScripts;
 using PulluBackEnd.Model.Database.App;
 using PulluBackEnd.Model.App.client;
 using PulluBackEnd.Model.App.server;
+using System.Buffers.Text;
+using System.Security.Cryptography;
+using System.Text;
+using Org.BouncyCastle.Crypto.Encodings;
+using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.OpenSsl;
+using RSACriptoGen;
+
 namespace PulluBackEnd.Controllers
 {
 
@@ -52,14 +61,14 @@ namespace PulluBackEnd.Controllers
 
             communication.log($"phone = {phone}\npass ->{security.sha256(pass)}", "log_in(string mail, string pass)", ipAddress.ToString());
 
-          
 
 
-                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             return select.logIn(phone, pass);
 
-               
-            
+
+
         }
         [HttpPost]
         [Route("user/get/finance")]
@@ -156,11 +165,11 @@ namespace PulluBackEnd.Controllers
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
             communication.log($"", "getInterests()", ipAddress.ToString());
-           
+
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             return select.getInterests();
 
-          
+
         }
         [Route("get/professions")]
         [EnableCors("AllowOrigin")]
@@ -195,17 +204,17 @@ namespace PulluBackEnd.Controllers
                                 interestIds = {newUser.interestIds}\n
 otp = {newUser.otp}
 ", "signUp(string mail, string name, string surname, string pass, string phone, string bDate, string gender, string country, string city, string profession)", ipAddress.ToString());
-           
-           
 
 
-                DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
             return insert.signUp(newUser);
 
-                
-           
-            
-          
+
+
+
+
 
         }
 
@@ -560,7 +569,7 @@ otp = {newUser.otp}
         [HttpPost]
         [Route("accounts/send/sms")]
         [EnableCors("AllowOrigin")]
-        public Status sendSMS(int phone = 0)
+        public Status sendSMS(long phone = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
@@ -588,7 +597,7 @@ otp = {newUser.otp}
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
 
 
-             
+
             return insert.sendResetSMS(phone);
 
         }
@@ -597,7 +606,7 @@ otp = {newUser.otp}
         [HttpPost]
         [Route("accounts/verify/otp")]
         [EnableCors("AllowOrigin")]
-        public Status verifyOtp(int mobile = 0,int code = 0)
+        public Status verifyOtp(int mobile = 0, int code = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
@@ -608,7 +617,7 @@ otp = {newUser.otp}
 
 
 
-            return select.verifyOtp(mobile,code);
+            return select.verifyOtp(mobile, code);
 
         }
 
@@ -758,7 +767,7 @@ otp = {newUser.otp}
         [HttpGet]
         [Route("user/get/my/ads/viewers")]
         [EnableCors("AllowOrigin")]
-        public ResponseStruct<ViewerStruct> getMyAdViewers(long phone, string pass,int aID)
+        public ResponseStruct<ViewerStruct> getMyAdViewers(long phone, string pass, int aID)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
@@ -768,7 +777,7 @@ otp = {newUser.otp}
 
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            return select.getMyAdViewers(phone, pass,aID);
+            return select.getMyAdViewers(phone, pass, aID);
 
 
 
@@ -859,6 +868,51 @@ otp = {newUser.otp}
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
             return insert.uPass(mail, pass, newPass);
 
+
+
+        }
+        
+        [HttpGet]
+        [Route("user/pay")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<string> signCert(string request)
+        {
+            /*
+            string clearText = @"<request point = ""469""> <menu/> </request>";
+            string privateKey = @"-----BEGIN RSA PRIVATE KEY-----
+  MIICXQIBAAKBgQCteFbuy0K9Xo/dM3o+ODAioylGIqeWxlZ/2Q6HqRnHRCpEbyjA
+  xyb/uh1sHiw10iG0B3ff/gSX5LF1K5Z+9hf3AiP1NBeMHXqpal0ZRVUF+USpiPk5
+  LSj3Oi5dlkwh8xpq5Mo5U/u0PHTLMt8rhe6IgoPZp1gfs6l9Ji9I7JpcuQIDAQAB
+  AoGAdjwInLgj5CjYy78zeccYX/NvxWMHcUf8WyWZtrN2Y5A9cumFEGhtV24GcdPa
+  9FAmMqvIc/6SKOlyXtd3u0+HIuwYD0vfb7N7hrpD2qac60oHfKhjRz2C78xmPK7i
+  YzjWLiDUPy8aot/vecTux0XZozssK+UqzhCnvUO2ZLEqQJUCQQD7zLdeFiIX6e1C
+  FWveFBiEGwGxxsQ65kfHuiv8TPzdFGYQU4K3n8bKhQt20xGcSc178qCJJE2RByJa
+  CJ7LqOCTAkEAsF0gBgEqF6gvamJeCAvXapcY8YgXmyRSC9y9LjCIzg51/UW38ygi
+  3dgmdJhfgcHiSM3rkzQSWVgHe5Gb+EU5AwJBAJx1PdMWiaS2VBhl2xqo/frIFStz
+  yGaYxC1UfxRMeiqdDDZEzcpvW0RnmxIAYMbuDOJhhmLwzcm51xx+kr0VeEUCQGoZ
+  rEFQhAU1bkkfIpjOnusGOcBc8m6oPB/czYczNapZcsxLHC5R0CAMgJ4WaSbEAKFy
+  GK43Xm6XkfDaGa4T3wcCQQDT6FU+8+YbbZwP2BXC3cgD1i2KXbZCVtpKqaQtzpd1
+  vzLcYIsZmp7jIH1l+1uReyC5rSHMrz0xr6+2RUYoakXi
+  -----END RSA PRIVATE KEY-----";
+
+            var bytesToEncrypt = Encoding.UTF8.GetBytes(clearText);
+
+            var encryptEngine = new Pkcs1Encoding(new RsaEngine());
+
+            using (var txtreader = new StringReader(privateKey))
+            {
+                var keyPair = (AsymmetricCipherKeyPair)new PemReader(txtreader).ReadObject();
+
+                encryptEngine.Init(true, keyPair.Private);
+            }
+
+            var encrypted = Convert.ToBase64String(encryptEngine.ProcessBlock(bytesToEncrypt, 0, bytesToEncrypt.Length));
+            return encrypted;
+            */
+
+
+            KeyManager.SetKeyPath($"{_hostingEnvironment.ContentRootPath}/wwwroot/private.pem");
+            return KeyManager.GenerateSignature(request, Encoding.UTF8);
 
 
         }
