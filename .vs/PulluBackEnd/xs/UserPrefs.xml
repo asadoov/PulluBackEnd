@@ -1,18 +1,19 @@
-﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|Default">
+﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|">
   <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Database/App/DbInsert.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Startup.cs">
     <Files>
       <File FileName="Controllers/App/PaymentController.cs" Line="116" Column="41" IsPinned="True" />
       <File FileName="Model/Database/Payment/Database/PaymentSelect.cs" />
-      <File FileName="Controllers/App/androidmobileappController.cs" Line="583" Column="30" />
-      <File FileName="Model/CommonScripts/Communication.cs" Line="194" Column="1" />
+      <File FileName="Controllers/App/androidmobileappController.cs" />
+      <File FileName="Model/CommonScripts/Communication.cs" />
       <File FileName="Model/App/server/Status.cs" />
       <File FileName="Model/Database/App/DbSelect.cs" />
       <File FileName="Model/Database/Payment/WithdrawService.cs" />
-      <File FileName="Model/Database/App/DbInsert.cs" Line="98" Column="40" />
+      <File FileName="Model/Database/App/DbInsert.cs" />
       <File FileName="Program.cs" />
       <File FileName="Model/Database/Payment/Database/PaymentInsert.cs" />
-      <File FileName="Model/Database/Payment/Database/PaymentOperations.cs" Line="261" Column="67" />
+      <File FileName="Model/Database/Payment/Database/PaymentOperations.cs" />
+      <File FileName="Startup.cs" Line="58" Column="34" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -20,27 +21,25 @@
           <Node name="PulluBackEnd" expanded="True">
             <Node name="PulluBackEnd" expanded="True">
               <Node name="Dependencies" expanded="True">
+                <Node name="AssemblyDependencies" expanded="True" />
                 <Node name="FrameworkReferences" expanded="True" />
                 <Node name="PackageDependencies" expanded="True" />
               </Node>
-              <Node name="Controllers" expanded="True">
-                <Node name="App" expanded="True" />
-              </Node>
+              <Node name="Controllers" expanded="True" />
               <Node name="Model" expanded="True">
                 <Node name="App" expanded="True">
                   <Node name="server" expanded="True" />
                 </Node>
                 <Node name="CommonScripts" expanded="True" />
                 <Node name="Database" expanded="True">
-                  <Node name="App" expanded="True">
-                    <Node name="DbInsert.cs" selected="True" />
-                  </Node>
+                  <Node name="App" expanded="True" />
                   <Node name="Payment" expanded="True">
                     <Node name="Database" expanded="True" />
                   </Node>
                 </Node>
               </Node>
               <Node name="wwwroot" expanded="True" />
+              <Node name="Startup.cs" selected="True" />
             </Node>
           </Node>
         </State>
