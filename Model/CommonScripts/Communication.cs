@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using PulluBackEnd.Model.App;
+using PulluBackEnd.Model.Database.App;
 
 namespace PulluBackEnd.Model.CommonScripts
 {
@@ -172,23 +173,30 @@ namespace PulluBackEnd.Model.CommonScripts
         {
             try
             {
-                MailMessage mailMsg = new MailMessage();
-                using (SmtpClient SmtpServer = new SmtpClient("webmail.rabita.az"))
+
+                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+                //string email = select.getUserMail(to);
+                if (!string.IsNullOrEmpty(to))
                 {
-                    mailMsg.IsBodyHtml = true;
-                    mailMsg.From = new MailAddress("contact@pullu.az");
-                    mailMsg.To.Add($"{to}");
-                    mailMsg.Subject = "Pullu (Dəstək)";
-                    mailMsg.Body = body;
+                    MailMessage mailMsg = new MailMessage();
+                    using (SmtpClient SmtpServer = new SmtpClient("webmail.rabita.az"))
+                    {
+                        mailMsg.IsBodyHtml = true;
+                        mailMsg.From = new MailAddress("contact@pullu.az");
+                        mailMsg.To.Add($"{to}");
+                        mailMsg.Subject = "Pullu (Dəstək)";
+                        mailMsg.Body = body;
 
-                    SmtpServer.Port = 587;
+                        SmtpServer.Port = 587;
 
-                    SmtpServer.Credentials = new System.Net.NetworkCredential("contact@pullu.az", "88nf9uRf9b");
-                    SmtpServer.EnableSsl = true;
+                        SmtpServer.Credentials = new System.Net.NetworkCredential("contact@pullu.az", "88nf9uRf9b");
+                        SmtpServer.EnableSsl = true;
 
-                    await SmtpServer.SendMailAsync(mailMsg);
-                    //SmtpServer.Dispose();
+                        await SmtpServer.SendMailAsync(mailMsg);
+                        //SmtpServer.Dispose();
+                    }
                 }
+               
             }
             catch { }
 

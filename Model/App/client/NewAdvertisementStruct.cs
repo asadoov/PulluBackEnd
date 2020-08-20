@@ -9,8 +9,8 @@ namespace PulluBackEnd.Model.App.client
 {
     public class NewAdvertisementStruct
     {
-        public string mail { get; set; }
-        public string pass { get; set; }
+        public string userToken { get; set; }
+        public string requestToken { get; set; }
         public int isPaid { get; set; }
         public int aTypeID { get; set; }
         public int aCategoryID { get; set; }

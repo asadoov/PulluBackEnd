@@ -14,7 +14,7 @@ namespace PulluBackEnd.Model.App.client
         public int country { get; set; }
         public int city { get; set; }
         public List<int> interestIds { get; set; }
-        public Int64 phone { get; set; }
+        public long phone { get; set; }
         public int otp { get; set; }
     }
 }

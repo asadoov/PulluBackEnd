@@ -165,69 +165,74 @@ namespace PulluBackEnd.Model.App
             }
             return status;
         }
-        public  Status sendResetMail(string mail)
+        public  Status sendResetMail(string mail = "")
         {
             Status statusCode = new Status();
-            MySqlConnection connection = new MySqlConnection(ConnectionString);
-            if (IsValid(mail))
-            {
-
-
-                try
+           
+                if (IsValid(mail))
                 {
 
-                    string randomCode = createCode(4);
 
-
-
-
-                    connection.Open();
-
-                    MySqlCommand com = new MySqlCommand("update user set userToken=SHA2(@newPass,512) where email=@mail", connection);
-
-
-                    com.Parameters.AddWithValue("@newPass", randomCode);
-                    com.Parameters.AddWithValue("@mail", mail);
-
-
-                    int affectedRows = com.ExecuteNonQuery();
-
-                    if (affectedRows > 0)
+                    try
                     {
 
-                        
-                        communication.sendMail($"Bizə şifrənizin bərpası barədə müraciət daxil olub, əgər bu doğrunu əks etdirirsə aşağıdakı 4 rəqəmli şifrəni programa daxil edin<br><h2>ŞİFRƏ: {randomCode}</h2>", mail);
+                        string randomCode = createCode(4);
 
-                        //string json = "{ \"email\" : \"" + mail + "\", \"password\" : \"" + randomPass + "\", \" returnSecureToken\" : true }";
 
-                        //var content = new StringContent(json, Encoding.UTF8, "application/json");
-                        //string url = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCwEuju_UmuNNPrYtxEhsuddOfCzqZQ8nI";
-                        //HttpClient client = new HttpClient();
-                        //var rslt = client.PostAsync(url, content);
-                        //var resp = rslt.Result.RequestMessage;
-                        statusCode.response = 0; // Все ок
-                    }
-                    else
+                    using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                     {
-                        statusCode.response = 1;// ошибка сервера
+
+
+                        connection.Open();
+
+                        MySqlCommand com = new MySqlCommand("update user set otp=SHA2(@newPass,512) where email=@mail", connection);
+
+
+                        com.Parameters.AddWithValue("@newPass", randomCode);
+                        com.Parameters.AddWithValue("@mail", mail);
+
+
+                        int affectedRows = com.ExecuteNonQuery();
+
+                        if (affectedRows > 0)
+                        {
+
+
+                            communication.sendMail($"Bizə şifrənizin bərpası barədə müraciət daxil olub, əgər bu doğrunu əks etdirirsə aşağıdakı 4 rəqəmli şifrəni programa daxil edin<br><h2>ŞİFRƏ: {randomCode}</h2>", mail);
+
+                            //string json = "{ \"email\" : \"" + mail + "\", \"password\" : \"" + randomPass + "\", \" returnSecureToken\" : true }";
+
+                            //var content = new StringContent(json, Encoding.UTF8, "application/json");
+                            //string url = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCwEuju_UmuNNPrYtxEhsuddOfCzqZQ8nI";
+                            //HttpClient client = new HttpClient();
+                            //var rslt = client.PostAsync(url, content);
+                            //var resp = rslt.Result.RequestMessage;
+                            statusCode.response = 1; // Все ок
+                        }
+                        else
+                        {
+                            statusCode.response = 2;// ошибка сервера
+                        }
+                        connection.Close();
+
                     }
 
+                    }
+                    catch
+                    {
+                        statusCode.response = 2;// ошибка сервера
+
+                    }
 
 
                 }
-                catch
+                else
                 {
-                    statusCode.response = 1;// ошибка сервера
-
+                    statusCode.response = 3;// нет такого мейла
                 }
-
-
-            }
-            else
-            {
-                statusCode.response = 2;// нет такого мейла
-            }
-            connection.Close();
+               
+            
+               
             return statusCode;
 
 
@@ -259,7 +264,7 @@ namespace PulluBackEnd.Model.App
 
                                 connection.Open();
 
-                                using (MySqlCommand com = new MySqlCommand("insert into user (userToken,mobile,isActive,cdate) values (SHA2(@token,512),@mobile,0,@now) ", connection))
+                                using (MySqlCommand com = new MySqlCommand("insert into user (otp,mobile,isActive,cdate) values (SHA2(@token,512),@mobile,0,@now) ", connection))
                                 {
                                     com.Parameters.AddWithValue("@token", randomCode);
                                     com.Parameters.AddWithValue("@mobile", phone);
@@ -279,7 +284,7 @@ namespace PulluBackEnd.Model.App
                                         //HttpClient client = new HttpClient();
                                         //var rslt = client.PostAsync(url, content);
                                         //var resp = rslt.Result.RequestMessage;
-                                        status.response = 3; // Все ок
+                                        status.response = 3; // New User Registered
                                         status.responseString = "verification code sent via sms"; // Все ок
                                     }
 
@@ -312,7 +317,7 @@ namespace PulluBackEnd.Model.App
 
                         connection.Open();
 
-                        using (MySqlCommand com = new MySqlCommand("update user set userToken = SHA2(@token,512) where mobile=@mobile ", connection))
+                        using (MySqlCommand com = new MySqlCommand("update user set otp = SHA2(@token,512) where mobile=@mobile ", connection))
                         {
                             com.Parameters.AddWithValue("@token", randomCode);
                             com.Parameters.AddWithValue("@mobile", phone);
@@ -355,18 +360,18 @@ namespace PulluBackEnd.Model.App
 
 
         }
-        public Status sendResetSMS(int phone)
+        public Status SendResetSMS(long phone)
         {
             Status status = new Status();
-            
 
+            try
+            {
                 status = IsValidPhone(phone);
                 if (status.response == 2)
                 {
 
 
-                    try
-                    {
+                 
 
                         string randomCode = createCode(4);
 
@@ -378,7 +383,7 @@ namespace PulluBackEnd.Model.App
 
                             connection.Open();
 
-                            using (MySqlCommand com = new MySqlCommand("update user set userToken=SHA2(@token,512) where mobile=@phone", connection))
+                            using (MySqlCommand com = new MySqlCommand("update user set otp=SHA2(@token,512) where mobile=@phone", connection))
                             {
                                 com.Parameters.AddWithValue("@token", randomCode);
                                 com.Parameters.AddWithValue("@phone", phone);
@@ -398,7 +403,7 @@ namespace PulluBackEnd.Model.App
                                     //HttpClient client = new HttpClient();
                                     //var rslt = client.PostAsync(url, content);
                                     //var resp = rslt.Result.RequestMessage;
-                                    status.response = 0; // Все ок
+                                    status.response = 1; // Все ок
                                     status.responseString = "verification code sent via sms"; // Все ок
                                 }
                                 
@@ -411,19 +416,19 @@ namespace PulluBackEnd.Model.App
 
 
 
-                    }
-                    catch (Exception ex)
-                    {
-                        status.response = 1;// ошибка сервера
-                        status.responseString = ex.Message;
-
-                    }
+                  
 
 
                 }
 
+                  }
+                    catch (Exception ex)
+            {
+                status.response = 4;// ошибка сервера
+                status.responseString = ex.Message;
 
-            
+            }
+
             return status;
 
 
@@ -433,91 +438,105 @@ namespace PulluBackEnd.Model.App
      
         
 
-        public Status verifyMobile(string mail, string pass, int newPhone)
+        public Status UpdateUserPhone(string userToken, string requestToken, long newPhone)
         {
 
             Status status = new Status();
-
-            if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass) && newPhone>0)
+           
+            if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(requestToken) && newPhone>0)
             {
-              
-
-
-                try
+                Security security = new Security(Configuration, _hostingEnvironment);
+                int userID1 = security.selectUserToken(userToken);
+                int userID2 = security.selectRequestToken(requestToken);
+                if (userID1 == userID2 && userID1 > 0 && userID2 > 0)
                 {
-                    status = IsValidPhone(newPhone);
 
-
-                    if (status.response == 2)
-
+                    try
                     {
-                        string randomCode = createCode(4);
-                        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                       // Status status = new Status();
+
+                        status = IsValidPhone(newPhone);
+
+
+                        if (status.response == 2)
+
                         {
-
-
-
-                            connection.Open();
-
-                            using (MySqlCommand com = new MySqlCommand("update user set userToken=SHA2(@token,512) where email=@mail and passwd=SHA2(@pass,512) ", connection))
+                            string randomCode = createCode(4);
+                            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                             {
-                                com.Parameters.AddWithValue("@token", randomCode);
-                                com.Parameters.AddWithValue("@mail", mail);
-                                com.Parameters.AddWithValue("@pass", pass);
 
-                                int affectedRows = com.ExecuteNonQuery();
 
-                                if (affectedRows > 0)
+
+                                connection.Open();
+
+                                using (MySqlCommand com = new MySqlCommand("update user set otp=SHA2(@token,512) where userId=@uID ", connection))
                                 {
+                                    com.Parameters.AddWithValue("@token", randomCode);
+                                    com.Parameters.AddWithValue("@uID", userID1);
+                                   
 
-                                    communication.sendSMS($"Sizin shifreniz: {randomCode}", newPhone);
+                                    int affectedRows = com.ExecuteNonQuery();
 
-                                    //string json = "{ \"email\" : \"" + mail + "\", \"password\" : \"" + randomPass + "\", \" returnSecureToken\" : true }";
+                                    if (affectedRows > 0)
+                                    {
 
-                                    //var content = new StringContent(json, Encoding.UTF8, "application/json");
-                                    //string url = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCwEuju_UmuNNPrYtxEhsuddOfCzqZQ8nI";
-                                    //HttpClient client = new HttpClient();
-                                    //var rslt = client.PostAsync(url, content);
-                                    //var resp = rslt.Result.RequestMessage;
-                                    status.response = 0; // Все ок
-                                    status.responseString = "verification code sent via sms"; // Все ок
+                                        communication.sendSMS($"Sizin shifreniz: {randomCode}", newPhone);
+
+                                        //string json = "{ \"email\" : \"" + mail + "\", \"password\" : \"" + randomPass + "\", \" returnSecureToken\" : true }";
+
+                                        //var content = new StringContent(json, Encoding.UTF8, "application/json");
+                                        //string url = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyCwEuju_UmuNNPrYtxEhsuddOfCzqZQ8nI";
+                                        //HttpClient client = new HttpClient();
+                                        //var rslt = client.PostAsync(url, content);
+                                        //var resp = rslt.Result.RequestMessage;
+                                        status.requestToken = security.requestTokenGenerator(userToken, userID1);
+                                        status.response = 1; // Все ок
+                                        status.responseString = "verification code sent via sms"; // Все ок
+
+
+                                    }
+                                    else
+                                    {
+                                        status.response = 2;// not affected
+                                        status.responseString = "user not found";
+
+
+                                    }
+                                    com.Dispose();
                                 }
-                                else
-                                {
-                                    status.response = 2;// not affected
-                                    status.responseString = "user not found";
 
-                                }
-                                com.Dispose();
+                                connection.Close();
+
                             }
-
-                            connection.Close();
 
                         }
 
+
+
+
+
+
                     }
-                    
+                    catch (Exception ex)
+                    {
+                        status.response = 3;// ошибка сервера
+                        //status.responseString = ex.Message;
 
-                    
-
-
+                    }
 
                 }
-                catch (Exception ex)
+                else
                 {
-                    status.response = 1;// ошибка сервера
-                    status.responseString = ex.Message;
-
+                    status.response = 3;
+                    status.responseString = "access danied";
                 }
-
-
 
 
             }
             else
             {
                 status.response = 3;
-                status.responseString = "params is incorrect";
+               status.responseString = "access danied";
             }
             return status;
 
@@ -545,10 +564,10 @@ namespace PulluBackEnd.Model.App
 
                         connection.Open();
 
-                        using (MySqlCommand com = new MySqlCommand("update user set isActive=1,userToken=null where userToken=SHA2(@userToken,512)", connection))
+                        using (MySqlCommand com = new MySqlCommand("update user set isActive=1,otp=null where otp=SHA2(@otp,512)", connection))
                         {
 
-                            com.Parameters.AddWithValue("@userToken", code);
+                            com.Parameters.AddWithValue("@otp", code);
                             int exist = com.ExecuteNonQuery();
                             if (exist > 0)
                             {
@@ -583,46 +602,89 @@ namespace PulluBackEnd.Model.App
             return status;
         }
        
-        public Status resetPassword(string newPassword, string login, string code)
+        public Status ResetPasswordByMail(string newPassword, string mail, string code)
         {
             Status status = new Status();
-            MySqlConnection connection = new MySqlConnection(ConnectionString);
+
             try
             {
 
 
-
-
-
-                connection.Open();
-
-                MySqlCommand com = new MySqlCommand("update user set passwd=SHA2(@newPassword,512),userToken=null where userToken=SHA2(@userToken,512) and (email=@login or mobile = @login)", connection);
-                com.Parameters.AddWithValue("@userToken", code);
-                com.Parameters.AddWithValue("@newPassword", newPassword);
-                com.Parameters.AddWithValue("@login", login);
-                
-                int exist = com.ExecuteNonQuery();
-                if (exist > 0)
+                using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                 {
-                    status.response = 0;
+                    connection.Open();
 
+                    MySqlCommand com = new MySqlCommand("update user set passwd=SHA2(@newPassword,512),otp=null where otp=SHA2(@otp,512) and email=@mail", connection);
+                    com.Parameters.AddWithValue("@otp", code);
+                    com.Parameters.AddWithValue("@newPassword", newPassword);
+                    com.Parameters.AddWithValue("@mail", mail);
+
+                    int exist = com.ExecuteNonQuery();
+                    if (exist > 0)
+                    {
+                        status.response = 1;
+
+                    }
+                    else
+                    {
+                        status.response = 2;//password not changed
+                    }
+                    connection.Close();
+                    return status;
                 }
-                else
-                {
-                    status.response = 1;//password not changed
-                }
-                connection.Close();
+            }
+            catch (Exception ex)
+            {
+             
+                status.response = 2;//server error
                 return status;
             }
-            catch
+
+        }
+        public Status ResetPasswordBySms(string newPassword, long phone, string code)
+        {
+            Status status = new Status();
+
+            try
             {
-                connection.Close();
+
+
+                using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                {
+                    connection.Open();
+
+                    MySqlCommand com = new MySqlCommand("update user set passwd=SHA2(@newPassword,512),otp=null where otp=SHA2(@otp,512) and mobile = @phone)", connection);
+                    com.Parameters.AddWithValue("@otp", code);
+                    com.Parameters.AddWithValue("@newPassword", newPassword);
+                    com.Parameters.AddWithValue("@phone", phone);
+
+                    int exist = com.ExecuteNonQuery();
+                    if (exist > 0)
+                    {
+                        status.response = 0;
+
+                    }
+                    else
+                    {
+                        status.response = 1;//password not changed
+                    }
+                    connection.Close();
+                    return status;
+                }
+            }
+            catch (Exception ex)
+            {
 
                 status.response = 2;//server error
                 return status;
             }
+
         }
-        public Status signUp(NewUserStruct newUser)
+
+
+
+
+        public Status SignUp(NewUserStruct newUser)
 
         {
             Status statusCode = new Status();
@@ -655,7 +717,7 @@ namespace PulluBackEnd.Model.App
 
                             connection.Open();
 
-                            using (MySqlCommand com = new MySqlCommand("select userid from user where mobile=@mobile and userToken=SHA2(@otp,512)", connection))
+                            using (MySqlCommand com = new MySqlCommand("select userid from user where mobile=@mobile and otp=SHA2(@otp,512)", connection))
                             {
 
                                 com.Parameters.AddWithValue("@mobile", newUser.phone);
@@ -686,7 +748,7 @@ namespace PulluBackEnd.Model.App
 
                             if (userID>0)
                             {
-                                using (MySqlCommand com = new MySqlCommand("update user set name=@name,surname=@surname,userToken=null,email=@mail,passwd=SHA2(@pass,512),birthdate=@birthDate,genderId=@genderId,isactive=1,isblocked=0,resetrequested=0,cdate=@dateTimeNow, countryId=@countyId,cityId=@cityId" +
+                                using (MySqlCommand com = new MySqlCommand("update user set name=@name,surname=@surname,otp=null,email=@mail,passwd=SHA2(@pass,512),birthdate=@birthDate,genderId=@genderId,isactive=1,isblocked=0,resetrequested=0,cdate=@dateTimeNow, countryId=@countyId,cityId=@cityId" +
                                                                 " WHERE userId=@userId", connection))
                                 {
                                     com.Parameters.AddWithValue("@name", newUser.name);
@@ -724,9 +786,9 @@ namespace PulluBackEnd.Model.App
 
 
 
-                                    //communication.sendMail($"Qeydiyyatı tamamlamaq üçün, zəhmət olmasa <a href=\'https://pullu.az/api/androidmobileapp/verify?code={userToken}'>linkə</a> daxil olun", mail);
-                                    //communication.sendMail($"Qeydiyyati tamamlamaq ucun shifre: {userToken}", mail);
-                                    //communication.sendSmsAsync($"Qeydiyyati tamamlamaq ucun shifre: {userToken}", phone);
+                                    //communication.sendMail($"Qeydiyyatı tamamlamaq üçün, zəhmət olmasa <a href=\'https://pullu.az/api/androidmobileapp/verify?code={otp}'>linkə</a> daxil olun", mail);
+                                    //communication.sendMail($"Qeydiyyati tamamlamaq ucun shifre: {otp}", mail);
+                                    //communication.sendSmsAsync($"Qeydiyyati tamamlamaq ucun shifre: {otp}", phone);
 
 
                                     //MailMessage mailMsg = new MailMessage();
@@ -735,7 +797,7 @@ namespace PulluBackEnd.Model.App
                                     //mailMsg.From = new MailAddress("asadzade99@gmail.com");
                                     //mailMsg.To.Add($"{mail}");
                                     //mailMsg.Subject = "Pullu (Dəstək)";
-                                    //mailMsg.Body = $"Qeydiyyatı tamamlamaq üçün, zəhmət olmasa <a href=\'https://pullu.az/api/androidmobileapp/verify?code={userToken}'>linkə</a> daxil olun";
+                                    //mailMsg.Body = $"Qeydiyyatı tamamlamaq üçün, zəhmət olmasa <a href=\'https://pullu.az/api/androidmobileapp/verify?code={otp}'>linkə</a> daxil olun";
 
                                     //SmtpServer.Port = 587;
                                     //SmtpServer.Credentials = new System.Net.NetworkCredential("asadzade99@gmail.com", "odqnmjiogipltmwi");
@@ -752,7 +814,7 @@ namespace PulluBackEnd.Model.App
                                     //HttpClient client = new HttpClient();
                                     //var rslt = client.PostAsync(url, content);
                                     //var resp = rslt.Result.RequestMessage;
-
+                                    
                                     statusCode.response = 1; // User created
                                     statusCode.responseString = "OK"; // User created
                                 }
@@ -765,7 +827,7 @@ namespace PulluBackEnd.Model.App
                             }
                             else
                             {
-                                statusCode.response = 3; //wrong otp or phone
+                                statusCode.response = 2; //wrong otp or phone
                                 statusCode.responseString = "user not found";//wrong otp or phone
                             }
 
@@ -790,13 +852,13 @@ namespace PulluBackEnd.Model.App
                 else
                 {
 
-                    statusCode.response = 4;//user is active
+                    statusCode.response = 2;//user is active
                     statusCode.responseString = "user is active or not found";
                 }
             }
             else
             {
-                statusCode.response = 5;//Ошибка параметров
+                statusCode.response = 2;//Ошибка параметров
 
             }
             return statusCode;
@@ -809,186 +871,184 @@ namespace PulluBackEnd.Model.App
 
         {
             Status statusCode = new Status();
-            if (uProfile.phone>0 && !string.IsNullOrEmpty(uProfile.pass) && uProfile.uID > 0)
+            if (!string.IsNullOrEmpty(uProfile.userToken) && !string.IsNullOrEmpty(uProfile.requestToken))
             {
-
-
-
-                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-                List<User> userList = new List<User>();
-                string uQuery = "";
-                userList = select.logIn(uProfile.phone, uProfile.pass);
-                if (userList.Count > 0) // Проверка существования юзера
-                {
-
-
                     try
                     {
+                    DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+                    List<User> userList = new List<User>();
+                    string uQuery = "";
 
-
-                        if (!string.IsNullOrEmpty(uProfile.name))
+                    Security security = new Security(Configuration, _hostingEnvironment);
+                        int userID1 = security.selectUserToken(uProfile.userToken);
+                        int userID2 = security.selectRequestToken(uProfile.requestToken);
+                    
+                        if (userID1 == userID2 && userID1 > 0 && userID2 > 0)
                         {
-                            if (string.IsNullOrEmpty(uQuery))
+
+                            if (!string.IsNullOrEmpty(uProfile.name))
                             {
-                                uQuery += "name=@name";
-                            }
-                            else
-                            {
-                                uQuery += " ,name=@name";
-                            }
-
-                        }
-                        if (!string.IsNullOrEmpty(uProfile.surname))
-                        {
-                            if (string.IsNullOrEmpty(uQuery))
-                            {
-                                uQuery += "surname = @surname";
-                            }
-                            else
-                            {
-                                uQuery += " ,surname = @surname";
-                            }
-
-                        }
-                        //if (!string.IsNullOrEmpty(uProfile.newMail))
-                        //{
-                        //    if (string.IsNullOrEmpty(uQuery))
-                        //    {
-                        //        uQuery += "email = @newMail";
-                        //    }
-                        //    else
-                        //    {
-                        //        uQuery += " ,email = @newMail";
-                        //    }
-
-                        //}
-                        //if (uProfile.phone > 0)
-                        //{
-                        //    if (string.IsNullOrEmpty(uQuery))
-                        //    {
-                        //        uQuery += "mobile = @mobile";
-                        //    }
-                        //    else
-                        //    {
-                        //        uQuery += " ,mobile = @mobile";
-                        //    }
-
-                        //}
-                        if (!string.IsNullOrEmpty(uProfile.newPass))
-                        {
-                            if (string.IsNullOrEmpty(uQuery))
-                            {
-                                uQuery += "passwd = SHA2(@newPass,512)";
-                            }
-                            else
-                            {
-                                uQuery += " ,passwd = SHA2(@newPass,512)";
-                            }
-
-                        }
-
-                        if (!string.IsNullOrEmpty(uProfile.bDate))
-                        {
-                            if (string.IsNullOrEmpty(uQuery))
-                            {
-                                uQuery += "birthDate = @birthDate";
-                            }
-                            else
-                            {
-                                uQuery += " ,birthDate = @birthDate";
-                            }
-
-                        }
-                        if (uProfile.genderID > 0)
-                        {
-                            if (string.IsNullOrEmpty(uQuery))
-                            {
-                                uQuery += "genderId=@genderID";
-                            }
-                            else
-                            {
-                                uQuery += " ,genderId=@genderID";
-                            }
-
-                        }
-                        if (uProfile.countryID > 0)
-                        {
-                            if (string.IsNullOrEmpty(uQuery))
-                            {
-                                uQuery += "countryId=@countryID";
-                            }
-                            else
-                            {
-                                uQuery += " ,countryId=@countryID";
-                            }
-
-
-                        }
-                        if (uProfile.cityID > 0)
-                        {
-                            if (string.IsNullOrEmpty(uQuery))
-                            {
-                                uQuery += "cityId=@cityID";
-                            }
-                            else
-                            {
-                                uQuery += " ,cityId=@cityID";
-                            }
-
-
-                        }
-                        if (uProfile.professionID > 0)
-                        {
-                            if (string.IsNullOrEmpty(uQuery))
-                            {
-                                uQuery += "professionId=@professionID";
-                            }
-                            else
-                            {
-                                uQuery += " ,professionId=@professionID";
-                            }
-
-                        }
-
-                        if (!string.IsNullOrEmpty(uQuery))
-                        {
-                            DateTime now = DateTime.Now;
-
-                            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
-                            {
-
-
-                                connection.Open();
-
-                                using (MySqlCommand com = new MySqlCommand(@$"update user set {uQuery} ,udate=@dateTimeNow
-     WHERE userID=@uID", connection))
+                                if (string.IsNullOrEmpty(uQuery))
                                 {
-                                    if (!string.IsNullOrEmpty(uProfile.name)) com.Parameters.AddWithValue("@name", uProfile.name);
-                                    if (!string.IsNullOrEmpty(uProfile.surname)) com.Parameters.AddWithValue("@surname", uProfile.surname);
+                                    uQuery += "name=@name";
+                                }
+                                else
+                                {
+                                    uQuery += " ,name=@name";
+                                }
+
+                            }
+                            if (!string.IsNullOrEmpty(uProfile.surname))
+                            {
+                                if (string.IsNullOrEmpty(uQuery))
+                                {
+                                    uQuery += "surname = @surname";
+                                }
+                                else
+                                {
+                                    uQuery += " ,surname = @surname";
+                                }
+
+                            }
+                            //if (!string.IsNullOrEmpty(uProfile.newMail))
+                            //{
+                            //    if (string.IsNullOrEmpty(uQuery))
+                            //    {
+                            //        uQuery += "email = @newMail";
+                            //    }
+                            //    else
+                            //    {
+                            //        uQuery += " ,email = @newMail";
+                            //    }
+
+                            //}
+                            //if (uProfile.phone > 0)
+                            //{
+                            //    if (string.IsNullOrEmpty(uQuery))
+                            //    {
+                            //        uQuery += "mobile = @mobile";
+                            //    }
+                            //    else
+                            //    {
+                            //        uQuery += " ,mobile = @mobile";
+                            //    }
+
+                            //}
+                            if (!string.IsNullOrEmpty(uProfile.newPass))
+                            {
+                                if (string.IsNullOrEmpty(uQuery))
+                                {
+                                    uQuery += "passwd = SHA2(@newPass,512)";
+                                }
+                                else
+                                {
+                                    uQuery += " ,passwd = SHA2(@newPass,512)";
+                                }
+
+                            }
+
+                            if (!string.IsNullOrEmpty(uProfile.bDate))
+                            {
+                                if (string.IsNullOrEmpty(uQuery))
+                                {
+                                    uQuery += "birthDate = @birthDate";
+                                }
+                                else
+                                {
+                                    uQuery += " ,birthDate = @birthDate";
+                                }
+
+                            }
+                            if (uProfile.genderID > 0)
+                            {
+                                if (string.IsNullOrEmpty(uQuery))
+                                {
+                                    uQuery += "genderId=@genderID";
+                                }
+                                else
+                                {
+                                    uQuery += " ,genderId=@genderID";
+                                }
+
+                            }
+                            if (uProfile.countryID > 0)
+                            {
+                                if (string.IsNullOrEmpty(uQuery))
+                                {
+                                    uQuery += "countryId=@countryID";
+                                }
+                                else
+                                {
+                                    uQuery += " ,countryId=@countryID";
+                                }
 
 
-                                    if (uProfile.uID > 0) com.Parameters.AddWithValue("@uID", uProfile.uID);
-                                    if (!string.IsNullOrEmpty(uProfile.bDate)) com.Parameters.AddWithValue("@birthDate", DateTime.Parse(uProfile.bDate));
-                                    if (uProfile.genderID > 0) com.Parameters.AddWithValue("@genderID", uProfile.genderID);
-                                    if (uProfile.countryID > 0) com.Parameters.AddWithValue("@countryID", uProfile.countryID);
-                                    if (uProfile.cityID > 0) com.Parameters.AddWithValue("@cityID", uProfile.cityID);
-                                    if (!string.IsNullOrEmpty(uProfile.newPass)) com.Parameters.AddWithValue("@newPass", uProfile.newPass);
-                                    if (uProfile.professionID > 0) com.Parameters.AddWithValue("@professionID", uProfile.professionID);
-                                    com.Parameters.AddWithValue("@dateTimeNow", now);
-
-                                    com.ExecuteNonQuery();
-
-                                    long lastId = com.LastInsertedId;
-
+                            }
+                            if (uProfile.cityID > 0)
+                            {
+                                if (string.IsNullOrEmpty(uQuery))
+                                {
+                                    uQuery += "cityId=@cityID";
+                                }
+                                else
+                                {
+                                    uQuery += " ,cityId=@cityID";
+                                }
 
 
+                            }
+                            if (uProfile.professionID > 0)
+                            {
+                                if (string.IsNullOrEmpty(uQuery))
+                                {
+                                    uQuery += "professionId=@professionID";
+                                }
+                                else
+                                {
+                                    uQuery += " ,professionId=@professionID";
+                                }
 
-                                    if (userList[0].phone>0) communication.sendSmsAsync("Profiliniz redaktə olundu əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", userList[0].phone);
-                                    //if (!string.IsNullOrEmpty(uProfile.mail)) communication.sendMailAsync($"Profiliniz redaktə olundu əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", uProfile.mail);
-                                   // if (!string.IsNullOrEmpty(uProfile.mail))  communication.sendMail($"Profiliniz redaktə olundu əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", uProfile.mail);
+                            }
+
+                            if (!string.IsNullOrEmpty(uQuery))
+                            {
+                                DateTime now = DateTime.Now;
+
+                                using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                                {
 
 
-                                    if (uProfile.uID > 0) communication.sendNotificationAsync("Profiliniz redaktə olundu ", "Əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", uProfile.uID);
+                                    connection.Open();
+
+                                    using (MySqlCommand com = new MySqlCommand(@$"update user set {uQuery} ,udate=@dateTimeNow
+     WHERE userID=@uID", connection))
+                                    {
+                                        if (!string.IsNullOrEmpty(uProfile.name)) com.Parameters.AddWithValue("@name", uProfile.name);
+                                        if (!string.IsNullOrEmpty(uProfile.surname)) com.Parameters.AddWithValue("@surname", uProfile.surname);
+
+
+                                         com.Parameters.AddWithValue("@uID", userID1);
+                                        if (!string.IsNullOrEmpty(uProfile.bDate)) com.Parameters.AddWithValue("@birthDate", DateTime.Parse(uProfile.bDate));
+                                        if (uProfile.genderID > 0) com.Parameters.AddWithValue("@genderID", uProfile.genderID);
+                                        if (uProfile.countryID > 0) com.Parameters.AddWithValue("@countryID", uProfile.countryID);
+                                        if (uProfile.cityID > 0) com.Parameters.AddWithValue("@cityID", uProfile.cityID);
+                                        if (!string.IsNullOrEmpty(uProfile.newPass)) com.Parameters.AddWithValue("@newPass", uProfile.newPass);
+                                        if (uProfile.professionID > 0) com.Parameters.AddWithValue("@professionID", uProfile.professionID);
+                                        com.Parameters.AddWithValue("@dateTimeNow", now);
+
+                                        com.ExecuteNonQuery();
+
+                                        long lastId = com.LastInsertedId;
+
+                                    
+
+
+                                        //if (userList[0].phone > 0) communication.sendSmsAsync("Profiliniz redaktə olundu əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", userList[0].phone);
+                                        //if (!string.IsNullOrEmpty(uProfile.mail)) communication.sendMailAsync($"Profiliniz redaktə olundu əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", uProfile.mail);
+                                        // if (!string.IsNullOrEmpty(uProfile.mail))  communication.sendMail($"Profiliniz redaktə olundu əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", uProfile.mail);
+
+
+                                         communication.sendNotificationAsync("Profiliniz redaktə olundu ", "Əgər bunu siz etmisinizsə bu bildirişə önəm verməyə bilərsiniz, əks hallda bizimlə pullu@pesekar.az maili vasitəsi ilə əlaqə saxlayın", userID1);
                                     // string json = "{ \"email\" : \"" + user.mail + "\", \"password\" : \"" + user.pass + "\", \" returnSecureToken\" : true }";
 
                                     // var content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -997,87 +1057,173 @@ namespace PulluBackEnd.Model.App
                                     //var rslt = client.PostAsync(url, content);
                                     //var resp = rslt.Result.RequestMessage;
 
-                                    statusCode.response = 0; // Все ок
+                                    statusCode.requestToken = security.requestTokenGenerator(uProfile.userToken, userID1);
+                                    statusCode.response = 1; // Все ок
 
-                                    com.Dispose();
+                                        com.Dispose();
 
+                                    }
+
+
+                                    connection.Close();
                                 }
 
-
-                                connection.Close();
                             }
-
+                        else
+                        {
+                            statusCode.response = 2; //empty
                         }
 
 
 
 
 
-
+                        }
+                        else
+                        {
+                            statusCode.response = 3; //access danied
+                        statusCode.responseString = "access danied";
+                    }
                     }
                     catch (Exception ex)
                     {
-                        statusCode.response = 1;//Ошибка сервера
+                        statusCode.response = 4;//Ошибка сервера
                         statusCode.responseString = ex.Message;
                         return statusCode;
                     }
 
                     //http://127.0.0.1:44301/api/androidmobileapp/user/signUp?mail=asadzade99@gmail.com&username=asa&name=asa&surname=asa&pass=1&phone=1&bdate=1987-08-23&gender=Ki%C5%9Fi&country=Az%C9%99rbaycan&city=Bak%C4%B1&profession=Texnologiya%20sektoru
 
-                }
-                else
-                {
-
-                    statusCode.response = 2;//Юзер существует
-                    return statusCode;
-                }
+            
             }
             else
             {
                 statusCode.response = 3;
-                statusCode.responseString = "Authentication fail";
+                statusCode.responseString = "access danied";
             }
             return statusCode;
         }
 
-        public Status uPhone(string mail, string pass, int newPhone, int code)
+        public Status VerifyUserNewPhone(string userToken, string requestToken, int newPhone, int otp)
         {
             Status status = new Status();
 
             try
             {
 
-                if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass) &&newPhone>0 && code > 0)
+                if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(requestToken) &&newPhone>0 && otp > 0)
                 {
-                    status = IsValidPhone(newPhone);
-                    if (status.response == 2)
+                    Security security = new Security(Configuration, _hostingEnvironment);
+                    int userID1 = security.selectUserToken(userToken);
+                    int userID2 = security.selectRequestToken(requestToken);
+                    DateTime now = DateTime.Now;
+                    if (userID1 == userID2 && userID1 > 0 && userID2 > 0)
                     {
+                        status = IsValidPhone(newPhone);
+                        if (status.response == 2)
+                        {
 
 
 
+                            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                            {
+
+                                connection.Open();
+
+                                using (MySqlCommand com = new MySqlCommand("update user set mobile=@newPhone,otp=null where otp=SHA2(@otp,512) and userID=@uID", connection))
+                                {
+                                    com.Parameters.AddWithValue("@uID", userID1);
+                                    
+                                    com.Parameters.AddWithValue("@otp", otp);
+                                    com.Parameters.AddWithValue("@newPhone", newPhone);
+
+                                    int exist = com.ExecuteNonQuery();
+                                    if (exist > 0)
+                                    {
+                                        status.requestToken = security.requestTokenGenerator(userToken, userID1);
+                                        status.response = 1;
+                                        status.responseString = "phone is changed";
+
+                                    }
+                                    else
+                                    {
+                                        status.response = 2;//phone not changed
+                                        status.responseString = "phone not changed";
+                                    }
+                                    com.Dispose();
+                                }
+
+                                connection.Close();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        status.response = 3;
+                        status.responseString = "access danied";
+                    }
+
+                }
+                else
+                {
+                    status.response = 3;
+                    status.responseString = "access danied";
+                }
+
+
+
+            }
+            catch (Exception ex)
+            {
+
+
+                status.response = 4;//server error
+                status.responseString = ex.Message;//server error
+
+            }
+            return status;
+        }
+
+        public Status uAd(string userToken, string requestToken, int aID, string aName,string aDescription, int aPrice)
+        {
+            Status status = new Status();
+
+            try
+            {
+
+                if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(requestToken)&&aID>0 && aPrice>0 && !string.IsNullOrEmpty(aName) && !string.IsNullOrEmpty(aDescription))
+                {
+                    DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+                    Security security = new Security(Configuration, _hostingEnvironment);
+                    int userID1 = security.selectUserToken(userToken);
+                    int userID2 = security.selectRequestToken(requestToken);
+                   
+                    if (userID1 == userID2 && userID1 > 0 && userID2 > 0)
+                    {
                         using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                         {
 
                             connection.Open();
 
-                            using (MySqlCommand com = new MySqlCommand("update user set mobile=@newPhone,userToken=null where userToken=SHA2(@userToken,512) and email=@email and passwd=SHA2(@pass,512)", connection))
+                            using (MySqlCommand com = new MySqlCommand("update announcement set name=@aName,description=@aDescription,price=@aPrice,isActive=0 where userID = @uID and announcementID=@aID", connection))
                             {
-                                com.Parameters.AddWithValue("@email", mail);
-                                com.Parameters.AddWithValue("@pass", pass);
-                                com.Parameters.AddWithValue("@userToken", code);
-                                com.Parameters.AddWithValue("@newPhone", newPhone);
-
+                                com.Parameters.AddWithValue("@uID", userID1);
+                                com.Parameters.AddWithValue("@aID", aID);
+                                com.Parameters.AddWithValue("@aName", aName);
+                                com.Parameters.AddWithValue("@aDescription", aDescription);
+                                com.Parameters.AddWithValue("@aPrice", aPrice);
                                 int exist = com.ExecuteNonQuery();
                                 if (exist > 0)
                                 {
-                                    status.response = 0;
-                                    status.responseString = "phone is changed";
+                                    status.requestToken = security.requestTokenGenerator(userToken, userID1);
+                                    status.response = 1;
+                                    status.responseString = "data changed";
 
                                 }
                                 else
                                 {
                                     status.response = 2;//phone not changed
-                                    status.responseString = "phone not changed";
+                                    status.responseString = "data not changed";
                                 }
                                 com.Dispose();
                             }
@@ -1085,74 +1231,16 @@ namespace PulluBackEnd.Model.App
                             connection.Close();
                         }
                     }
-                   
-
-                }
-                else
-                {
-                    status.response = 3;//phone not changed
-                    status.responseString = "params incorrect";
-                }
-
-
-
-            }
-            catch (Exception ex)
-            {
-
-
-                status.response = 1;//server error
-                status.responseString = ex.Message;//server error
-
-            }
-            return status;
-        }
-
-        public Status uAd(string mail, string pass, int aID, string aName,string aDescription, int aPrice)
-        {
-            Status status = new Status();
-
-            try
-            {
-
-                if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass)&&aID>0 && aPrice>0 && !string.IsNullOrEmpty(aName) && !string.IsNullOrEmpty(aDescription))
-                {
-                    DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-                    long uID = select.getUserID(mail, pass);
-                    using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+                    else
                     {
-
-                        connection.Open();
-
-                        using (MySqlCommand com = new MySqlCommand("update announcement set name=@aName,description=@aDescription,price=@aPrice,isActive=0 where userID = @uID and announcementID=@aID", connection))
-                        {
-                            com.Parameters.AddWithValue("@uID", uID);
-                            com.Parameters.AddWithValue("@aID", aID);
-                            com.Parameters.AddWithValue("@aName", aName);
-                            com.Parameters.AddWithValue("@aDescription", aDescription);
-                            com.Parameters.AddWithValue("@aPrice", aPrice);
-                            int exist = com.ExecuteNonQuery();
-                            if (exist > 0)
-                            {
-                                status.response = 0;
-                                status.responseString = "data changed";
-
-                            }
-                            else
-                            {
-                                status.response = 2;//phone not changed
-                                status.responseString = "data not changed";
-                            }
-                            com.Dispose();
-                        }
-
-                        connection.Close();
+                        status.response = 3;
+                        status.responseString = "access danied";
                     }
                 }
                 else
                 {
-                    status.response = 3;//phone not changed
-                    status.responseString = "params incorrect";
+                    status.response = 3;
+                    status.responseString = "access danied";
                 }
 
 
@@ -1162,7 +1250,7 @@ namespace PulluBackEnd.Model.App
             {
 
 
-                status.response = 1;//server error
+                status.response = 2;//server error
                 status.responseString = ex.Message;//server error
 
             }
@@ -1278,354 +1366,367 @@ namespace PulluBackEnd.Model.App
         //}
         public Status addNewAdvert(NewAdvertisementStruct obj)
         {
-            Status statusCode = new Status();
-            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            string mediaInsertQuery = null;
-            string mediaPathUrl = "https://pullu.az/media/";
-            long userID = select.getUserID(obj.mail, obj.pass);
-            long lastId;
-            bool writePermission = true;
-            if (!string.IsNullOrEmpty(obj.aDescription) && !string.IsNullOrEmpty(obj.aTitle) && !string.IsNullOrEmpty(obj.aPrice) && (!string.IsNullOrEmpty(obj.aBackgroundUrl) || obj.files.Count > 0))
+            Status status = new Status();
+            try
             {
-                if (userID > 0) // Проверка существования юзера
+
+            
+            Security security = new Security(Configuration, _hostingEnvironment);
+            int userID1 = security.selectUserToken(obj.userToken);
+            int userID2 = security.selectRequestToken(obj.requestToken);
+           
+            if (userID1 == userID2 && userID1 > 0 && userID2 > 0)
+            {
+
+                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+                string mediaInsertQuery = null;
+                string mediaPathUrl = "https://pullu.az/media/";
+
+                long lastId;
+                bool writePermission = true;
+                if (!string.IsNullOrEmpty(obj.aDescription) && !string.IsNullOrEmpty(obj.aTitle) && !string.IsNullOrEmpty(obj.aPrice) && (!string.IsNullOrEmpty(obj.aBackgroundUrl) || obj.files.Count > 0))
                 {
-                    try
-                    {
-                        using (MySqlConnection connection = new MySqlConnection(ConnectionString))
-                        {
-                            List<String> mediaList = new List<string>();
-                            DateTime now = DateTime.Now;
-                            connection.Open();
-
-                            if (obj.isPaid > 0&&obj.aTrfID>0)
+               
+                      
+                            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                             {
-                                Double uBalance = 0,aTrfPrice=0;
-                                long balanceID = 0;
+                                List<string> mediaList = new List<string>();
+                                DateTime now = DateTime.Now;
+                                connection.Open();
 
-                                using (MySqlCommand com = new MySqlCommand("select * from users_balance where userID=@userID", connection))
+                                if (obj.isPaid > 0 && obj.aTrfID > 0)
                                 {
-                                    com.Parameters.AddWithValue("@userID", userID);
+                                    Double uBalance = 0, aTrfPrice = 0;
+                                    long balanceID = 0;
 
-                                    using (MySqlDataReader reader = com.ExecuteReader())
+                                    using (MySqlCommand com = new MySqlCommand("select * from users_balance where userID=@userID", connection))
                                     {
-                                        if (reader.HasRows)
+                                        com.Parameters.AddWithValue("@userID", userID1);
+
+                                        using (MySqlDataReader reader = com.ExecuteReader())
                                         {
-                                            while (reader.Read())
+                                            if (reader.HasRows)
                                             {
-                                                uBalance = Convert.ToDouble(reader["balanceValue"]);
-                                                balanceID = Convert.ToInt64(reader["balanceId"]);
-                                            }
-                                        }
-                                    }
-                                   
-
-                                    com.Dispose();
-                                }
-                                using (MySqlCommand com = new MySqlCommand("select * from announcement_tariff where trfID=@trfID", connection))
-                                {
-                                    com.Parameters.AddWithValue("@trfID", obj.aTrfID);
-
-                                    using (MySqlDataReader reader = com.ExecuteReader()) {
-                                        if (reader.HasRows)
-                                        {
-                                            while (reader.Read())
-                                            {
-                                                aTrfPrice = Convert.ToDouble(reader["price"]);
-
-                                            }
-                                        }
-                                    }
-                                        
-
-                                    com.Dispose();
-                                }
-                                if (uBalance > aTrfPrice&&uBalance>0&&aTrfPrice>0) {
-
-                                    
-                                    if (aTrfPrice>0)
-                                    {
-                                        int affectedRows = 0;
-
-
-                                        using (MySqlCommand com = new MySqlCommand("update users_balance set balanceValue = @balance where balanceID=@balanceID", connection))
-                                        {
-                                            com.Parameters.AddWithValue("@balance", uBalance - aTrfPrice);
-                                            com.Parameters.AddWithValue("@balanceID", balanceID);
-                                            affectedRows = com.ExecuteNonQuery();
-
-                                            com.Dispose();
-                                        }
-                                        
-                                    }
-                                }
-                                else
-                                {
-                                    writePermission = false;
-                                    statusCode.response = 4;
-                                    statusCode.responseString = "Not enough money";
-                                }
-                            }
-
-                            if (writePermission)
-                            {
-
-
-                                using (MySqlCommand com = new MySqlCommand("INSERT INTO announcement (userID,name,description,price,atypeid,ispaid,isactive,mediatpid,trfid,categoryId,countryid,cityid,genderid,rangeid,professionId,cdate)" +
-                                     " Values (@userID,@name,@description,@price,@aTypeId,@isPaid,0,@mediaTpId,@trfId,@categoryId" +
-                                     ",@countryId,@cityId,@genderId,@rangeId,@professionID,@cDate)", connection))
-                                {
-
-
-                                    com.Parameters.AddWithValue("@userID", userID);
-                                    com.Parameters.AddWithValue("@name", obj.aTitle);
-                                    com.Parameters.AddWithValue("@description", obj.aDescription);
-                                    com.Parameters.AddWithValue("@isPaid", obj.isPaid);
-                                    com.Parameters.AddWithValue("@price", obj.aPrice);
-                                    com.Parameters.AddWithValue("@aTypeId", obj.aTypeID);
-                                    com.Parameters.AddWithValue("@mediaTpId", obj.aMediaTypeID);
-                                    com.Parameters.AddWithValue("@trfId", obj.aTrfID);
-                                    com.Parameters.AddWithValue("@categoryId", obj.aCategoryID);
-                                    com.Parameters.AddWithValue("@countryID", obj.aCountryId);
-                                    com.Parameters.AddWithValue("@cityId", obj.aCityId);
-                                    com.Parameters.AddWithValue("@genderId", obj.aGenderID);
-                                    com.Parameters.AddWithValue("@rangeId", obj.aAgeRangeID);
-                                    com.Parameters.AddWithValue("@professionID", obj.aProfessionID);
-                                    com.Parameters.AddWithValue("@cDate", now);
-
-                                    com.ExecuteNonQuery();
-
-                                    lastId = com.LastInsertedId;
-                                    com.Dispose();
-                                }
-                                // string photoName = SaveImage(obj.files[0], sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-
-                                if (lastId > 0)
-                                {
-
-                                    switch (obj.aMediaTypeID)
-                                    {
-                                        case 1:
-                                            // mediaList.Add(obj.mediaBase64[0]);
-
-                                            mediaInsertQuery = $"({obj.aMediaTypeID},'{obj.aBackgroundUrl}',{lastId},@cDate)";
-
-
-
-                                            break;
-                                        case 2:
-                                            if (obj.files != null)
-                                            {
-                                                int lastrow = 1;
-                                                foreach (var item in obj.files)
+                                                while (reader.Read())
                                                 {
-                                                    string photoName = SaveFile(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-                                                    if (photoName != "")
-                                                    {
-
-                                                        // mediaList.Add(@$"https://pullu.az/media/{photoName}");
-                                                        if (lastrow == obj.files.Count())
-                                                        {
-                                                            mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate)";
-                                                        }
-                                                        else
-                                                        {
-                                                            mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate),";
-                                                        }
-                                                    }
-                                                    lastrow++;
-
+                                                    uBalance = Convert.ToDouble(reader["balanceValue"]);
+                                                    balanceID = Convert.ToInt64(reader["balanceId"]);
                                                 }
                                             }
-                                            break;
-                                        case 3:
-                                            if (obj.files != null)
-                                            {
-                                                int lastrow = 1;
-                                                foreach (var item in obj.files)
-                                                {
-                                                    string videoName = SaveFile(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-                                                    if (videoName != "")
-                                                    {
-
-                                                        // mediaList.Add(@$"https://pullu.az/media/{photoName}");
-                                                        if (lastrow == obj.files.Count())
-                                                        {
-                                                            mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{videoName}',{lastId},@cDate)";
-                                                        }
-                                                        else
-                                                        {
-                                                            mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{videoName}',{lastId},@cDate),";
-                                                        }
-                                                    }
-                                                    lastrow++;
-
-                                                }
-                                            }
-                                            break;
+                                        }
 
 
-
-                                    }
-
-
-
-                                    //if (obj.mediaBase64 != null)
-                                    //{
-                                    //    switch (obj.aMediaTypeID)
-                                    //    {
-                                    //        case 1:
-                                    //            // mediaList.Add(obj.mediaBase64[0]);
-                                    //            mediaInsertQuery = $"({obj.aMediaTypeID},'{obj.mediaBase64[0]}',{lastId},@cDate)";
-
-                                    //            break;
-                                    //        case 2:
-                                    //            int lastrow = 1;
-                                    //            foreach (var item in obj.mediaBase64)
-                                    //            {
-                                    //                string photoName = SaveImage(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-                                    //                if (photoName != "")
-                                    //                {
-
-                                    //                    // mediaList.Add(@$"https://pullu.az/media/{photoName}");
-                                    //                    if (lastrow == obj.mediaBase64.Count())
-                                    //                    {
-                                    //                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate)";
-                                    //                    }
-                                    //                    else
-                                    //                    {
-                                    //                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate),";
-                                    //                    }
-                                    //                }
-                                    //                lastrow++;
-
-                                    //            }
-                                    //            break;
-
-
-                                    //    }
-
-                                    //}
-                                    //if (mediaList.Count > 0)
-                                    //{
-
-                                    //    //int lastrow = 1;
-                                    //    foreach (var media in mediaList)
-                                    //    {
-
-                                    //        if (lastrow == mediaList.Count())
-                                    //        {
-                                    //            mediaInsertQuery += $"({obj.aMediaTypeID},'{media}',{lastId},@cDate)";
-                                    //        }
-                                    //        else
-                                    //        {
-                                    //            mediaInsertQuery += $"({obj.aMediaTypeID},'{media}',{lastId},@cDate),";
-                                    //        }
-
-                                    //        lastrow++;
-
-                                    //    }
-                                    //}
-
-
-                                    using (MySqlCommand com = new MySqlCommand($"insert into media (mediaTpId,httpUrl,announcementId,cdate) values {mediaInsertQuery}", connection))
-                                    {
-                                        com.Parameters.AddWithValue("@cDate", now);
-                                        com.ExecuteNonQuery();
                                         com.Dispose();
+                                    }
+                                    using (MySqlCommand com = new MySqlCommand("select * from announcement_tariff where trfID=@trfID", connection))
+                                    {
+                                        com.Parameters.AddWithValue("@trfID", obj.aTrfID);
+
+                                        using (MySqlDataReader reader = com.ExecuteReader())
+                                        {
+                                            if (reader.HasRows)
+                                            {
+                                                while (reader.Read())
+                                                {
+                                                    aTrfPrice = Convert.ToDouble(reader["price"]);
+
+                                                }
+                                            }
+                                        }
+
+
+                                        com.Dispose();
+                                    }
+                                    if (uBalance > aTrfPrice && uBalance > 0 && aTrfPrice > 0)
+                                    {
+
+
+                                 
+                                            int affectedRows = 0;
+
+
+                                            using (MySqlCommand com = new MySqlCommand("update users_balance set balanceValue = @balance where balanceID=@balanceID", connection))
+                                            {
+                                                com.Parameters.AddWithValue("@balance", uBalance - aTrfPrice);
+                                                com.Parameters.AddWithValue("@balanceID", balanceID);
+                                                affectedRows = com.ExecuteNonQuery();
+
+                                                com.Dispose();
+                                            }
+
+
+
+
+
+                                    using (MySqlCommand com = new MySqlCommand("INSERT INTO announcement (userID,name,description,price,atypeid,ispaid,isactive,mediatpid,trfid,categoryId,countryid,cityid,genderid,rangeid,professionId,cdate)" +
+                                " Values (@userID,@name,@description,@price,@aTypeId,@isPaid,0,@mediaTpId,@trfId,@categoryId" +
+                                ",@countryId,@cityId,@genderId,@rangeId,@professionID,@cDate)", connection))
+                                    {
+
+
+                                        com.Parameters.AddWithValue("@userID", userID1);
+                                        com.Parameters.AddWithValue("@name", obj.aTitle);
+                                        com.Parameters.AddWithValue("@description", obj.aDescription);
+                                        com.Parameters.AddWithValue("@isPaid", obj.isPaid);
+                                        com.Parameters.AddWithValue("@price", obj.aPrice);
+                                        com.Parameters.AddWithValue("@aTypeId", obj.aTypeID);
+                                        com.Parameters.AddWithValue("@mediaTpId", obj.aMediaTypeID);
+                                        com.Parameters.AddWithValue("@trfId", obj.aTrfID);
+                                        com.Parameters.AddWithValue("@categoryId", obj.aCategoryID);
+                                        com.Parameters.AddWithValue("@countryID", obj.aCountryId);
+                                        com.Parameters.AddWithValue("@cityId", obj.aCityId);
+                                        com.Parameters.AddWithValue("@genderId", obj.aGenderID);
+                                        com.Parameters.AddWithValue("@rangeId", obj.aAgeRangeID);
+                                        com.Parameters.AddWithValue("@professionID", obj.aProfessionID);
+                                        com.Parameters.AddWithValue("@cDate", now);
+
+                                        com.ExecuteNonQuery();
+
+                                        lastId = com.LastInsertedId;
+                                        com.Dispose();
+                                    }
+                                    // string photoName = SaveImage(obj.files[0], sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+
+                                    if (lastId > 0)
+                                    {
+
+                                        switch (obj.aMediaTypeID)
+                                        {
+                                            case 1:
+                                                // mediaList.Add(obj.mediaBase64[0]);
+
+                                                mediaInsertQuery = $"({obj.aMediaTypeID},'{obj.aBackgroundUrl}',{lastId},@cDate)";
+
+
+
+                                                break;
+                                            case 2:
+                                                if (obj.files != null)
+                                                {
+                                                    int lastrow = 1;
+                                                    foreach (var item in obj.files)
+                                                    {
+                                                        string photoName = SaveFile(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                                                        if (photoName != "")
+                                                        {
+
+                                                            // mediaList.Add(@$"https://pullu.az/media/{photoName}");
+                                                            if (lastrow == obj.files.Count())
+                                                            {
+                                                                mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate)";
+                                                            }
+                                                            else
+                                                            {
+                                                                mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate),";
+                                                            }
+                                                        }
+                                                        lastrow++;
+
+                                                    }
+                                                }
+                                                break;
+                                            case 3:
+                                                if (obj.files != null)
+                                                {
+                                                    int lastrow = 1;
+                                                    foreach (var item in obj.files)
+                                                    {
+                                                        string videoName = SaveFile(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                                                        if (videoName != "")
+                                                        {
+
+                                                            // mediaList.Add(@$"https://pullu.az/media/{photoName}");
+                                                            if (lastrow == obj.files.Count())
+                                                            {
+                                                                mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{videoName}',{lastId},@cDate)";
+                                                            }
+                                                            else
+                                                            {
+                                                                mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{videoName}',{lastId},@cDate),";
+                                                            }
+                                                        }
+                                                        lastrow++;
+
+                                                    }
+                                                }
+                                                break;
+
+
+
+                                        }
+
+
+
+                                        //if (obj.mediaBase64 != null)
+                                        //{
+                                        //    switch (obj.aMediaTypeID)
+                                        //    {
+                                        //        case 1:
+                                        //            // mediaList.Add(obj.mediaBase64[0]);
+                                        //            mediaInsertQuery = $"({obj.aMediaTypeID},'{obj.mediaBase64[0]}',{lastId},@cDate)";
+
+                                        //            break;
+                                        //        case 2:
+                                        //            int lastrow = 1;
+                                        //            foreach (var item in obj.mediaBase64)
+                                        //            {
+                                        //                string photoName = SaveImage(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                                        //                if (photoName != "")
+                                        //                {
+
+                                        //                    // mediaList.Add(@$"https://pullu.az/media/{photoName}");
+                                        //                    if (lastrow == obj.mediaBase64.Count())
+                                        //                    {
+                                        //                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate)";
+                                        //                    }
+                                        //                    else
+                                        //                    {
+                                        //                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate),";
+                                        //                    }
+                                        //                }
+                                        //                lastrow++;
+
+                                        //            }
+                                        //            break;
+
+
+                                        //    }
+
+                                        //}
+                                        //if (mediaList.Count > 0)
+                                        //{
+
+                                        //    //int lastrow = 1;
+                                        //    foreach (var media in mediaList)
+                                        //    {
+
+                                        //        if (lastrow == mediaList.Count())
+                                        //        {
+                                        //            mediaInsertQuery += $"({obj.aMediaTypeID},'{media}',{lastId},@cDate)";
+                                        //        }
+                                        //        else
+                                        //        {
+                                        //            mediaInsertQuery += $"({obj.aMediaTypeID},'{media}',{lastId},@cDate),";
+                                        //        }
+
+                                        //        lastrow++;
+
+                                        //    }
+                                        //}
+
+
+                                        using (MySqlCommand com = new MySqlCommand($"insert into media (mediaTpId,httpUrl,announcementId,cdate) values {mediaInsertQuery}", connection))
+                                        {
+                                            com.Parameters.AddWithValue("@cDate", now);
+                                            com.ExecuteNonQuery();
+                                            com.Dispose();
+
+                                        }
+                                        //ishlemelidi indi indi 2 ci inserti elemiyecey. onunniye oldugunu arashdirmalisan. yoxsa acib buraxmisanki error verir axi. ele shey olmur error verirse arashdir aradan qald;r
+                                        // vermir eerror
+                                        //vermirse ishleda))
+                                        //inesrteli elemir
+                                        //bax gor niye elemir. serverde error verir lokalda yox?
+                                        //serverde insert elemir
+                                        //localda eliir
+                                        //serverde umumiyyetce mysqle insert elemir ya konkret dbye?
+                                        //pnu bilmirem amma bu db ya
+                                        //ona gore ola biler ki serverin qiraga cixishi baglidi. administratora demek lazimdi
+                                        //acixdi qiraga cixishi
+                                        //yoxlamisan?
+                                        //remote qoshula bilirsen servere?
+                                        //elbette
+                                        //qoshul
+                                        //bax
+                                     
+                                        string email = select.getUserMail(userID1);
+
+                                        communication.sendMailAsync($"Reklamınız moderatora yoxlama üçün göndərildi", email);
+                                        communication.sendNotificationAsync("Reklamınız moderatora yoxlama üçün göndərildi", "Yaxın zamanda təsdiq olunacaq", userID1);
+                                        status.requestToken = security.requestTokenGenerator(obj.userToken, userID1);
+                                        status.response = 1; // Все ок
+                                    }
+                                    else
+                                    {
+                                        status.response = 2;
 
                                     }
-                                    //ishlemelidi indi indi 2 ci inserti elemiyecey. onunniye oldugunu arashdirmalisan. yoxsa acib buraxmisanki error verir axi. ele shey olmur error verirse arashdir aradan qald;r
-                                    // vermir eerror
-                                    //vermirse ishleda))
-                                    //inesrteli elemir
-                                    //bax gor niye elemir. serverde error verir lokalda yox?
-                                    //serverde insert elemir
-                                    //localda eliir
-                                    //serverde umumiyyetce mysqle insert elemir ya konkret dbye?
-                                    //pnu bilmirem amma bu db ya
-                                    //ona gore ola biler ki serverin qiraga cixishi baglidi. administratora demek lazimdi
-                                    //acixdi qiraga cixishi
-                                    //yoxlamisan?
-                                    //remote qoshula bilirsen servere?
-                                    //elbette
-                                    //qoshul
-                                    //bax
-
-                                    communication.sendMailAsync($"Reklamınız moderatora yoxlama üçün göndərildi", obj.mail);
-                                    communication.sendNotificationAsync("Reklamınız moderatora yoxlama üçün göndərildi", "Yaxın zamanda təsdiq olunacaq", userID);
-
-                                    statusCode.response = 0; // Все ок
-                                }
-                                else
-                                {
-                                    statusCode.response = 1;
 
                                 }
+                                    else
+                                    {
+                                        writePermission = false;
+                                        status.response = 3;
+                                        status.responseString = "Not enough money";
+                                    }
+                                }
 
-                                //connection.Close();
-                                //return statusCode;
+                            
+
+                                connection.Close();
+
                             }
 
-                            connection.Close();
-
-                        }
 
 
+                       
+                        //http://127.0.0.1:44301/api/androidmobileapp/user/signUp?mail=asadzade99@gmail.com&username=asa&name=asa&surname=asa&pass=1&phone=1&bdate=1987-08-23&gender=Ki%C5%9Fi&country=Az%C9%99rbaycan&city=Bak%C4%B1&profession=Texnologiya%20sektoru
 
-                    }
-                    catch (Exception ex)
-                    {
-
-
-                        statusCode.response = 2;//Ошибка сервера
-                                                // return statusCode;
-                        statusCode.responseString = ex.Message.ToString();
-                    }
-                    //http://127.0.0.1:44301/api/androidmobileapp/user/signUp?mail=asadzade99@gmail.com&username=asa&name=asa&surname=asa&pass=1&phone=1&bdate=1987-08-23&gender=Ki%C5%9Fi&country=Az%C9%99rbaycan&city=Bak%C4%B1&profession=Texnologiya%20sektoru
-
+                   
                 }
                 else
                 {
 
-                    statusCode.response = 3;//Юзер несуществует
-                                            //return statusCode;
-                }
+                    status.response = 4;
+                        //status.responseString = "params problem";
+                        //  return statusCode;
+                    }
             }
             else
             {
-
-                statusCode.response = 1;
-                //  return statusCode;
+                status.response = 5;
+                status.responseString = "access danied";
             }
-
-            return statusCode;
+            }
+            catch (Exception ex)
+            {
+                status.response = 4;//Ошибка сервера
+                                    // return statusCode;
+                status.responseString = ex.Message.ToString();
+            }
+            return status;
         }
 
-        public Status deleteAd(string mail,string pass,int aID)
+        public Status deleteAd(string userToken,string requestToken,long aID)
         {
-            Status statusCode = new Status();
-
-            if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass) && aID>0)
+            Status status = new Status();
+            try
             {
-                
-                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+                Security security = new Security(Configuration, _hostingEnvironment);
+            int userID1 = security.selectUserToken(userToken);
+            int userID2 = security.selectRequestToken(requestToken);
 
-                long userID = select.getUserID(mail, pass);
-                if (userID > 0) // Проверка существования юзера
+              if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(requestToken) && aID > 0)
                 {
-                    try
+                    if (userID1 == userID2 && userID1 > 0 && userID2 > 0)
                     {
+
+                        DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+
+
+
                         using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                         {
-                            List<String> mediaList = new List<string>();
+                            List<string> mediaList = new List<string>();
                             DateTime now = DateTime.Now;
                             connection.Open();
                             using (MySqlCommand com = new MySqlCommand("update announcement set isActive=2 where announcementID=@aID and userID=@uID", connection))
                             {
-                                com.Parameters.AddWithValue("@uID", userID);
+                                com.Parameters.AddWithValue("@uID", userID1);
                                 com.Parameters.AddWithValue("@aID", aID);
                                 com.ExecuteNonQuery();
-
+                                status.requestToken = security.requestTokenGenerator(userToken, userID1);
+                                status.response = 1;
                                 com.Dispose();
                             }
 
@@ -1636,50 +1737,52 @@ namespace PulluBackEnd.Model.App
                         }
 
 
-
                     }
-                    catch (Exception ex)
-                    {
 
-
-                        statusCode.response = 2;//Ошибка сервера
-                                                // return statusCode;
-                        statusCode.responseString = ex.Message.ToString();
-                    }
                     //http://127.0.0.1:44301/api/androidmobileapp/user/signUp?mail=asadzade99@gmail.com&username=asa&name=asa&surname=asa&pass=1&phone=1&bdate=1987-08-23&gender=Ki%C5%9Fi&country=Az%C9%99rbaycan&city=Bak%C4%B1&profession=Texnologiya%20sektoru
 
-                }
+                    else
+                    {
+                        status.response = 2;
+                        status.responseString = "access danied";
+                    }
+                    }
                 else
                 {
 
-                    statusCode.response = 3;//Юзер несуществует
-                                            //return statusCode;
-                    statusCode.responseString = "use not found";
+                    status.response = 3;
+                    status.responseString = "parameter problem";
+                    //  return statusCode;
                 }
             }
-            else
+           
+            
+            catch (Exception ex)
             {
 
-                statusCode.response = 1;
-                statusCode.responseString = "parameter problem";
-                //  return statusCode;
+
+                status.response = 3;//Ошибка сервера
+                                        // return statusCode;
+                status.responseString = ex.Message.ToString();
             }
-
-            return statusCode;
+            return status;
         }
-        public Status uPass(string mail, string pass, string newPass)
+        public Status uPass(string userToken, string requestToken, string newPass)
         {
-            Status statusCode = new Status();
+            Status status = new Status();
 
-            if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass) && !string.IsNullOrEmpty(newPass))
-            {
-
-                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-
-                long userID = select.getUserID(mail, pass);
-                if (userID > 0) // Проверка существования юзера
-                {
                     try
+                    {
+
+                if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(requestToken) && !string.IsNullOrEmpty(newPass))
+                {
+
+                    DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+                    Security security = new Security(Configuration, _hostingEnvironment);
+                    int userID1 = security.selectUserToken(userToken);
+                    int userID2 = security.selectRequestToken(requestToken);
+                   
+                    if (userID1 == userID2 && userID1 > 0 && userID2 > 0)
                     {
                         using (MySqlConnection connection = new MySqlConnection(ConnectionString))
                         {
@@ -1688,11 +1791,12 @@ namespace PulluBackEnd.Model.App
                             connection.Open();
                             using (MySqlCommand com = new MySqlCommand("update user set passwd=SHA2(@newPass,512) where userID=@uID", connection))
                             {
-                                com.Parameters.AddWithValue("@uID", userID);
+                                com.Parameters.AddWithValue("@uID", userID1);
                                 com.Parameters.AddWithValue("@newPass", newPass);
                                 com.ExecuteNonQuery();
-                                statusCode.response = 0;
-                                statusCode.responseString = "Pass Changed";
+                                status.requestToken = security.requestTokenGenerator(userToken, userID1);
+                                status.response = 1;
+                                status.responseString = "Pass Changed";
                                 com.Dispose();
                             }
 
@@ -1701,40 +1805,40 @@ namespace PulluBackEnd.Model.App
                             connection.Close();
 
                         }
-
-
-
                     }
-                    catch (Exception ex)
+                else
                     {
 
-
-                        statusCode.response = 2;//Ошибка сервера
-                                                // return statusCode;
-                        statusCode.responseString = ex.Message.ToString();
+                        status.response = 2;//Юзер несуществует
+                                                //return statusCode;
+                        status.responseString = "access danied";
                     }
-                    //http://127.0.0.1:44301/api/androidmobileapp/user/signUp?mail=asadzade99@gmail.com&username=asa&name=asa&surname=asa&pass=1&phone=1&bdate=1987-08-23&gender=Ki%C5%9Fi&country=Az%C9%99rbaycan&city=Bak%C4%B1&profession=Texnologiya%20sektoru
-
                 }
                 else
                 {
 
-                    statusCode.response = 3;//Юзер несуществует
-                                            //return statusCode;
-                    statusCode.responseString = "user not found";
+                    status.response = 3;
+                    status.responseString = "parameter problem";
+                    //  return statusCode;
                 }
-            }
-            else
-            {
 
-                statusCode.response = 1;
-                statusCode.responseString = "parameter problem";
-                //  return statusCode;
-            }
 
-            return statusCode;
+            }
+                    catch (Exception ex)
+                    {
+
+
+                        status.response = 3;//Ошибка сервера
+                                                // return statusCode;
+                        status.responseString = ex.Message.ToString();
+                    }
+                    //http://127.0.0.1:44301/api/androidmobileapp/user/signUp?mail=asadzade99@gmail.com&username=asa&name=asa&surname=asa&pass=1&phone=1&bdate=1987-08-23&gender=Ki%C5%9Fi&country=Az%C9%99rbaycan&city=Bak%C4%B1&profession=Texnologiya%20sektoru
+
+               
+
+            return status;
         }
-        public void addView(int advertID, long userID)
+        public void addView(long advertID, long userID)
         {
             DateTime now = DateTime.Now;
 
@@ -1838,57 +1942,83 @@ namespace PulluBackEnd.Model.App
 
 
 
-        public Status EarnMoney(int adverID, string mail, string pass)
+        public Status EarnMoney(int adverID, string userToken, string requestToken)
 
         {
-            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            long userID = select.getUserID(mail, pass);
 
-            Status status = AddDailyView(adverID, userID);
 
-            using (MySqlConnection connection = new MySqlConnection(ConnectionString)) {
+            Status status = new Status();
 
-                try
+            try
+            {
+                DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+                Security security = new Security(Configuration, _hostingEnvironment);
+                int userID1 = security.selectUserToken(userToken);
+                int userID2 = security.selectRequestToken(requestToken);
+
+                if (userID1 == userID2 && userID1 > 0 && userID2 > 0)
                 {
-                    if (status.response == 0)
-                    {
+                    status = AddDailyView(adverID, userID1);
 
-                        DateTime now = DateTime.Now;
-                        connection.Open();
 
-                        using (MySqlCommand com = new MySqlCommand("update users_balance set earningValue = earningValue + (select  price from earnings_tariff where earningstpid = (select atypeID from announcement where announcementId=@advertID) ), udate=now() where userID=@userID", connection)) {
 
-                            com.Parameters.AddWithValue("@advertID", adverID);
-                            com.Parameters.AddWithValue("@userID", userID);
-                            com.Parameters.AddWithValue("@dateTimeNow", now);
-                            //com.ExecuteNonQuery();
+                    using (MySqlConnection connection = new MySqlConnection(ConnectionString)) {
 
-                            int updated = com.ExecuteNonQuery();
-                            //update users_balance set earningValue = earningValue + (select  price from earnings_tariff where earningstpid = (select atypeID from announcement where announcementId=@advertID) ), udate=now() where userId=@userID and udate<DATE_FORMAT(now(), '%Y-%m-%d')
 
-                            connection.Close();
+                        if (status.response == 0)
+                        {
 
-                            status.response = 0;
-                            status.responseString = "View added and balance increased";
+                            DateTime now = DateTime.Now;
+                            connection.Open();
+
+                            using (MySqlCommand com = new MySqlCommand("update users_balance set earningValue = earningValue + (select  price from earnings_tariff where earningstpid = (select atypeID from announcement where announcementId=@advertID) ), udate=now() where userID=@userID", connection)) {
+
+                                com.Parameters.AddWithValue("@advertID", adverID);
+                                com.Parameters.AddWithValue("@userID", userID1);
+                                com.Parameters.AddWithValue("@dateTimeNow", now);
+                                //com.ExecuteNonQuery();
+
+                                int updated = com.ExecuteNonQuery();
+                                //update users_balance set earningValue = earningValue + (select  price from earnings_tariff where earningstpid = (select atypeID from announcement where announcementId=@advertID) ), udate=now() where userId=@userID and udate<DATE_FORMAT(now(), '%Y-%m-%d')
+
+                                connection.Close();
+                                status.requestToken = security.requestTokenGenerator(userToken, userID1);
+                                status.response = 1;
+                                status.responseString = "View added and balance increased";
+
+
+                            }
+
 
 
                         }
-
-                     
+                        else
+                        {
+                            status.response = 2;
+                            status.responseString = "limit";
+                        }
+                        connection.Close();
 
                     }
-
                 }
-                catch (Exception ex)
+                else
                 {
-                    
-
-                    status.response = 1;
-                    status.responseString = $"Exception reason {ex.Message}";
-                    
+                    status.response = 3;//Юзер несуществует
+                                        //return statusCode;
+                    status.responseString = "access danied";
                 }
-                connection.Close();
+                
             }
+            catch (Exception ex)
+            {
+
+
+                status.response = 4;
+                status.responseString = $"Exception reason {ex.Message}";
+
+            }
+                
+            
 
 
             return status;

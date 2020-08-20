@@ -21,6 +21,7 @@ using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.OpenSsl;
 using RSACriptoGen;
+using System.Reflection;
 
 namespace PulluBackEnd.Controllers
 {
@@ -33,7 +34,7 @@ namespace PulluBackEnd.Controllers
     {
 
         Communication communication;
-        Security security = new Security();
+        Security security;
         private readonly IWebHostEnvironment _hostingEnvironment;
         public IConfiguration Configuration;
         public androidmobileappController(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
@@ -42,6 +43,7 @@ namespace PulluBackEnd.Controllers
 
             _hostingEnvironment = hostingEnvironment;
             communication = new Communication(Configuration, _hostingEnvironment);
+            security = new Security(Configuration, _hostingEnvironment);
         }
         [HttpGet]
         [Route("testIP")]
@@ -55,17 +57,17 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("user/login")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<User>> log_in(int phone, string pass)
+        public ActionResult<ResponseStruct<SignInStruct>> Login(long phone, string pass)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"phone = {phone}\npass ->{security.sha256(pass)}", "log_in(string mail, string pass)", ipAddress.ToString());
+            communication.log($"phone = {phone}\n pass ->{pass}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
 
 
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            return select.logIn(phone, pass);
+            return select.LogIn(phone, pass);
 
 
 
@@ -73,36 +75,36 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("user/get/finance")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<FinanceStruct>> getFinance(string mail = "", string pass = "")
+        public ActionResult<ResponseStruct<FinanceStruct>> getFinance(string userToken = "", string requestToken = "")
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"mail -> {mail} \n pass ->{security.sha256(pass)}", "getFinance(string mail, string pass)", ipAddress.ToString());
+            communication.log($"userToken = {userToken}\requestToken ->{requestToken}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
 
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            return select.getFinance(mail, pass);
+            return select.getFinance(userToken, requestToken);
 
 
 
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("user/get/ads")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<ResponseStruct<Advertisement>> getAds(string mail = null, string pass = null, int pageNo = 1, int isPaid = 0, int catID = 0)
+        public ActionResult<ResponseStruct<Advertisement>> getAds(string userToken = null, string requestToken = null, int pageNo = 1, int isPaid = 0, int catID = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
             string userData = "";
-            if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
+            if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(requestToken))
             {
-                userData = $"mail = { mail}\npass = { security.sha256(pass)}";
+                userData = $"mail = { userToken}\npass = {requestToken}";
             }
 
-            communication.log($"{userData}\ncatID = {catID}\npageNo = {pageNo}\nisPaid = {isPaid}", "getAds(string mail=null, string pass=null,int pageNo=1, int isPaid=0, int catID=0)", ipAddress.ToString());
+            communication.log($"{userData}\ncatID = {catID}\npageNo = {pageNo}\nisPaid = {isPaid}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            return Ok(select.Advertisements(mail, pass, pageNo, isPaid, catID));
+            return Ok(select.Advertisements(userToken, requestToken, pageNo, isPaid, catID));
 
 
         }
@@ -136,7 +138,7 @@ namespace PulluBackEnd.Controllers
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"", "getCountries()", ipAddress.ToString());
+            communication.log($"", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             List<Country> countries = new List<Country>();
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             countries = select.getCountries();
@@ -146,14 +148,14 @@ namespace PulluBackEnd.Controllers
         [HttpGet]
         [Route("get/cities")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<City>> getCities(int countryId)
+        public ActionResult<List<City>> getCities(long countryId)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"countryID -> {countryId}", "getCities(int countryId)", ipAddress.ToString());
+            communication.log($"countryID -> {countryId}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             List<City> cities = new List<City>();
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            cities = select.getCities(countryId);
+            cities = select.GetCities(countryId);
 
             return cities;
         }
@@ -164,7 +166,7 @@ namespace PulluBackEnd.Controllers
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"", "getInterests()", ipAddress.ToString());
+            communication.log($"", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             return select.getInterests();
@@ -177,7 +179,7 @@ namespace PulluBackEnd.Controllers
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"", "getProfessions()", ipAddress.ToString());
+            communication.log($"", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             List<Profession> professions = new List<Profession>();
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             professions = select.getProfessions();
@@ -192,24 +194,23 @@ namespace PulluBackEnd.Controllers
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log(@$"mail = {newUser.mail}\n
-                                name = {newUser.name}\n
-                                surname = {newUser.surname}\n
-                                pass = {security.sha256(newUser.pass)}\n
-                              phone = {newUser.phone}
-                                bDate = {newUser.bDate}\n
-                                gender = {newUser.gender}\n
-                                country = {newUser.country}\n
-                                city = {newUser.city}\n
-                                interestIds = {newUser.interestIds}\n
-otp = {newUser.otp}
-", "signUp(string mail, string name, string surname, string pass, string phone, string bDate, string gender, string country, string city, string profession)", ipAddress.ToString());
+            communication.log(@$"mail = {newUser.mail}
+name = {newUser.name}
+surname = {newUser.surname}
+pass = {security.sha256(newUser.pass)}
+phone = {newUser.phone}
+bDate = {newUser.bDate}
+gender = {newUser.gender}
+country = {newUser.country}
+city = {newUser.city}\n
+interestIds = {newUser.interestIds}
+otp = {newUser.otp}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
 
 
 
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-            return insert.signUp(newUser);
+            return insert.SignUp(newUser);
 
 
 
@@ -226,7 +227,7 @@ otp = {newUser.otp}
 
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log(Newtonsoft.Json.JsonConvert.SerializeObject(uProfile).ToString(), "uProfile(UpdateProfileStruct uProfile)", ipAddress.ToString());
+            communication.log(Newtonsoft.Json.JsonConvert.SerializeObject(uProfile).ToString(), MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
 
 
@@ -241,11 +242,11 @@ otp = {newUser.otp}
         [HttpGet]
         [Route("user/about")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<Advertisement>> about(int advertID)
+        public ActionResult<List<Advertisement>> about(long advertID)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"adverID -> {advertID}", "about(int advertID)", ipAddress.ToString());
+            communication.log($"adverID -> {advertID}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
@@ -258,19 +259,19 @@ otp = {newUser.otp}
 
         }
         [HttpPost]
-        [Route("earnMoney")]
+        [Route("user/earnMoney")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<Status> earnMoney(int advertID, string mail, string pass)
+        public ActionResult<Status> earnMoney(int advertID, string userToken, string requestToken)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"adverID -> {advertID}\nmail -> {mail}\npass ->{security.sha256(pass)}", "earnMoney(int advertID, string mail, string pass)", ipAddress.ToString());
+            communication.log($"userToken -> {userToken}\requestToken -> {requestToken}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             Status status;
 
 
 
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-            status = insert.EarnMoney(advertID, mail, pass);
+            status = insert.EarnMoney(advertID, userToken, requestToken);
             return Ok(status);
 
 
@@ -285,7 +286,7 @@ otp = {newUser.otp}
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"code -> {security.sha256(code.ToString())}", "verify(int code)", ipAddress.ToString());
+            communication.log($"code -> {security.sha256(code.ToString())}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             string html;
             try
             {
@@ -323,11 +324,11 @@ otp = {newUser.otp}
         [HttpGet]
         [Route("accounts/activate/user")]
         [EnableCors("AllowOrigin")]
-        public Status activateUser(int code)
+        public Status ActivateUser(int code)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"code -> {security.sha256(code.ToString())}", "activateUser(int code)", ipAddress.ToString());
+            communication.log($"code -> {security.sha256(code.ToString())}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
 
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
@@ -336,58 +337,41 @@ otp = {newUser.otp}
 
 
         }
-        [HttpGet]
+        [HttpPost]
         [Route("user/get/statistics")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<Statistics> getStatistics(string mail, string pass)
+        public ActionResult<ResponseStruct<Statistics>> GetStatistics(string userToken, string requestToken)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"mail:{mail}\npass:{security.sha256(pass)}", "getStatistics(string mail, string pass)", ipAddress.ToString());
-            Statistics statistics = new Statistics();
-            try
-            {
-
-                if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
-                {
+            communication.log($"userToken = {userToken}\requestToken ->{requestToken}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+          
+           
                     DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-                    statistics = select.getStatistics(mail, pass);
-                    return statistics;
-                }
-
-                return statistics;
-
-
-            }
-            catch
-            {
-                return statistics;
-
-            }
+                    return select.GetStatistics(userToken, requestToken);
+               
 
 
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [Route("user/get/profile")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<ProfileStruct>> profile(string mail, string pass)
+        public ActionResult<ResponseStruct<ProfileStruct>> Profile(string userToken, string requestToken)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"mail -> {mail}\n pass -> {security.sha256(pass)}", "profile(string mail, string pass)", ipAddress.ToString());
-            List<ProfileStruct> profile = new List<ProfileStruct>();
+            communication.log($"userToken -> {userToken}\n requestToken -> {requestToken}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+           
 
 
-            if (!string.IsNullOrEmpty(mail) && !string.IsNullOrEmpty(pass))
-            {
+           
                 DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-                profile = select.profile(mail, pass);
-                return profile;
-            }
+               
+            
 
-            return profile;
+            return select.Profile(userToken, requestToken);
 
 
 
@@ -398,11 +382,11 @@ otp = {newUser.otp}
         [HttpGet]
         [Route("get/age/range")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<AgeRangeStruct>> ageRange()
+        public ActionResult<List<AgeRangeStruct>> AgeRange()
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"", "ageRange()", ipAddress.ToString());
+            communication.log($"", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             List<AgeRangeStruct> ageRangeList = new List<AgeRangeStruct>();
             try
             {
@@ -429,30 +413,22 @@ otp = {newUser.otp}
         [HttpGet]
         [Route("get/aType")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<TypeStruct>> aType()
+        public ActionResult<List<TypeStruct>> AType()
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"", "aType()", ipAddress.ToString());
-            List<TypeStruct> aTypeList = new List<TypeStruct>();
-            try
-            {
+            communication.log($"", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+          
+           
 
 
                 DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-                aTypeList = select.aType();
-                return aTypeList;
+              
+                return select.AType();
 
 
 
-            }
-            catch
-            {
 
-
-                return aTypeList;
-
-            }
 
 
         }
@@ -460,30 +436,20 @@ otp = {newUser.otp}
         [HttpGet]
         [Route("get/aCategory")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<CategoryStruct>> aCategory()
+        public ActionResult<List<CategoryStruct>> ACategory()
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"", "aCategory()", ipAddress.ToString());
-            List<CategoryStruct> aCatList = new List<CategoryStruct>();
-            try
-            {
-
+            communication.log($"", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+         
 
                 DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-                aCatList = select.aCategory();
-                return aCatList;
+            return select.ACategory();
+               
 
 
 
-            }
-            catch
-            {
-
-
-                return aCatList;
-
-            }
+          
 
 
         }
@@ -491,30 +457,19 @@ otp = {newUser.otp}
         [HttpGet]
         [Route("get/aTariff")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<List<TariffStruct>> aTariff()
+        public ActionResult<List<TariffStruct>> ATariff()
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"", "aTariff()", ipAddress.ToString());
-            List<TariffStruct> aTariffList = new List<TariffStruct>();
-            try
-            {
-
+            communication.log($"", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+          
 
                 DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-                aTariffList = select.aTariff();
-                return aTariffList;
+            return select.aTariff();
+               
 
 
 
-            }
-            catch
-            {
-
-
-                return aTariffList;
-
-            }
 
 
         }
@@ -527,53 +482,29 @@ otp = {newUser.otp}
         [HttpPost]
         [Route("user/advertisements/add")]
         [EnableCors("AllowOrigin")]
-        public Status newAdvertisement([FromForm] NewAdvertisementStruct obj)
+        public Status NewAdvertisement([FromForm] NewAdvertisementStruct obj)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log(Newtonsoft.Json.JsonConvert.SerializeObject(obj).ToString(), "newAdvertisement([FromForm] NewAdvertisementStruct obj)", ipAddress.ToString());
+            communication.log(Newtonsoft.Json.JsonConvert.SerializeObject(obj).ToString(), MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
             // return 
-            Status status = new Status();
-            status = insert.addNewAdvert(obj);
+          
+            return insert.addNewAdvert(obj);
 
-            return status;
-
-        }
-        [HttpGet]
-        [Route("accounts/password/reset/send/mail")]
-        [EnableCors("AllowOrigin")]
-        public Status sendMail(string mail)
-        {
-            var ipAddress = HttpContext.Connection.RemoteIpAddress;
-
-            communication.log($"mail -> {mail}", "sendMail(string mail)", ipAddress.ToString());
-            Status status = new Status();
-            if (!string.IsNullOrEmpty(mail))
-            {
-
-
-                DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-                status = insert.sendResetMail(mail);
-                // return 
-
-                // status = insert.newAdvertisement(obj);
-
-                return status;
-            }
-
-            status.response = 3; // пусто
-            return status;
+            
 
         }
+        
+        //Yeni girish sistemi uсun yaradilmish servis
         [HttpPost]
         [Route("accounts/send/sms")]
         [EnableCors("AllowOrigin")]
-        public Status sendSMS(long phone = 0)
+        public Status SendSMS(long phone = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log(@$"phone -> {phone}", "sendSms(int phone)", ipAddress.ToString());
+            communication.log(@$"phone -> {phone}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
 
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
@@ -583,98 +514,119 @@ otp = {newUser.otp}
             return insert.sendSms(phone);
 
         }
+       
 
+        //Qeydiyyat otp yoxlamasi
+        //OLD accounts/verify/otp
         [HttpPost]
-        [Route("accounts/send/reset/sms")]
+        [Route("registration/verify/otp")]
         [EnableCors("AllowOrigin")]
-        public Status sendResetSMS(int phone = 0)
+        public Status VerifyOtp(long phone = 0, int otp = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log(@$"phone -> {phone}", "sendResetSMS(int phone)", ipAddress.ToString());
-
-
-            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-
-
-
-            return insert.sendResetSMS(phone);
-
-        }
-
-
-        [HttpPost]
-        [Route("accounts/verify/otp")]
-        [EnableCors("AllowOrigin")]
-        public Status verifyOtp(int mobile = 0, int code = 0)
-        {
-            var ipAddress = HttpContext.Connection.RemoteIpAddress;
-
-            communication.log(@$"mobile = {mobile}\nOTP = {code}", "verifyOtp(int code)", ipAddress.ToString());
+            communication.log($"phone = {phone}\nOTP = {otp}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
 
 
 
-            return select.verifyOtp(mobile, code);
+            return select.verifyOtp(phone, otp);
 
         }
 
-
+        //OLD accounts/verify/mobile
         [HttpPost]
-        [Route("accounts/verify/mobile")]
+        [Route("accounts/update/phone")]
         [EnableCors("AllowOrigin")]
-        public Status verifyMobile(string mail = "", string pass = "", int newPhone = 0)
+        public Status UpdateUserPhone(string userToken = "", string requestToken = "", long newPhone = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log(@$"mail -> {mail}\npass -> {security.sha256(pass)}\nnewPhone -> {newPhone}", "verifyMobile(string mail,string pass,int newPhone)", ipAddress.ToString());
+            communication.log($"userToken = {userToken}\nrequestToken = {requestToken}\nnewPhone -> {newPhone}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
 
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
 
 
 
-            return insert.verifyMobile(mail, pass, newPhone);
+            return insert.UpdateUserPhone(userToken, requestToken, newPhone);
 
         }
         [HttpPost]
-        [Route("accounts/update/phone")]
+        [Route("accounts/verify/newPhone")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<Status> uPhone(string mail = "", string pass = "", int phone = 0, int code = 0)
+        public ActionResult<Status> VerifyUserNewPhone(string userToken = "", string requestToken = "", int phone = 0, int otp = 0)
         {
             //boshluq var -> Kimse kodu bilse api ni calishdirib istediyi nomre yaza biler movcud olamayan bele
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"phone -> {phone}\ncode -> {security.sha256(code.ToString())}", "uPhone(int phone,int code)", ipAddress.ToString());
+            communication.log($"userToken -> {userToken}\nrequestToken = {requestToken}\nphone = {phone}\ncode = {otp.ToString()}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
 
 
-            return insert.uPhone(mail, pass, phone, code);
+            return insert.VerifyUserNewPhone(userToken, requestToken, phone, otp);
 
 
 
         }
-
-
-
-
-
-        [HttpGet]
-        [Route("accounts/password/reset/confirm")]
+        [HttpPost]
+        [Route("password/reset/send/mail")]
         [EnableCors("AllowOrigin")]
-        public Status confirmCode(string code, string login)
+        public Status SendMail(string mail)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"code -> {code}\n login-> {login}", "confirmCode(string code, string login)", ipAddress.ToString());
+            communication.log($"mail -> {mail}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+            return insert.sendResetMail(mail);
+            // return 
+
+            // status = insert.newAdvertisement(obj);
+
+
+
+
+
+        }
+        //Shifreni unutdum sms ile
+        [HttpPost]
+        [Route("password/reset/send/sms")]
+        [EnableCors("AllowOrigin")]
+        public Status SendResetSMS(long phone = 0)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log($"phone = {phone}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+
+
+
+            return insert.SendResetSMS(phone);
+
+        }
+
+        //OLD accounts/password/reset/confirm
+
+        [HttpPost]
+        [Route("password/reset/verify/mail/otp")]
+        [EnableCors("AllowOrigin")]
+        public Status ConfirmCode(string otp, long phone)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log($"code -> {otp}\n phone-> {phone}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             Status status;
 
 
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            status = select.checkUserToken(code, login);
+            status = select.VerifySmsOtp(otp, phone);
 
             return status;
 
@@ -682,25 +634,61 @@ otp = {newUser.otp}
 
 
         }
-
-
-        [HttpGet]
-        [Route("accounts/password/reset/newpass")]
+        [HttpPost]
+        [Route("password/reset/verify/sms/otp")]
         [EnableCors("AllowOrigin")]
-        public Status changePass(string newPass, string login, string code)
+        public Status ConfirmCode(string otp, string mail)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"newPass -> {security.sha256(newPass)}\n login -> {login}\n code -> {security.sha256(code.ToString())} ", "changePass(string newPass, string mail, string code)", ipAddress.ToString());
-
+            communication.log($"code -> {otp}\n mail-> {mail}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             Status status;
 
 
 
-            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-            status = insert.resetPassword(newPass, login, code);
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+            status = select.VerifyMailOtp(otp, mail);
 
             return status;
+
+
+
+
+        }
+        //OLD accounts/password/reset/newpass
+        [HttpPost]
+        [Route("password/reset/bySMS/set")]
+        [EnableCors("AllowOrigin")]
+        public Status ChangePassBySms(string newPass, long phone, string otp)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log($"newPass = {security.sha256(newPass)}\nphone -> {phone}\ncode -> {otp.ToString()} ", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+            return insert.ResetPasswordBySms(newPass, phone, otp);
+
+            
+
+
+
+
+        }
+
+        //OLD accounts/password/reset/newpass
+        [HttpPost]
+        [Route("password/reset/byMail/set")]
+        [EnableCors("AllowOrigin")]
+        public Status ChangePassByMail(string newPass, string mail, string otp)
+        {
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+
+            communication.log($"newPass = {security.sha256(newPass)}\nmail -> {mail}\ncode -> {otp.ToString()} ", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+
+            DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
+            return insert.ResetPasswordByMail(newPass, mail, otp);
+
+
 
 
 
@@ -710,19 +698,18 @@ otp = {newUser.otp}
         [HttpGet]
         [Route("get/backgrounds")]
         [EnableCors("AllowOrigin")]
-        public List<BackgroundImageStruct> getBackgrounds(string code, string mail)
+        public List<BackgroundImageStruct> GetBackgrounds()
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"mail -> {mail}\n code -> {code} ", "getBackgrounds(string code, string mai)", ipAddress.ToString());
-            List<BackgroundImageStruct> backgroundList;
-
+            communication.log($"", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+           
 
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            backgroundList = select.getBackgrounds();
+            return select.getBackgrounds();
 
-            return backgroundList;
+           
 
 
 
@@ -730,33 +717,33 @@ otp = {newUser.otp}
         }
 
 
-        [HttpGet]
+        [HttpPost]
         [Route("user/get/views")]
         [EnableCors("AllowOrigin")]
-        public ResponseStruct<Advertisement> getViews(string mail, string pass)
+        public ResponseStruct<Advertisement> GetViews(string userToken, string requestToken)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"mail -> {mail}\n pass -> {security.sha256(pass)} ", "getViews(string mail, string pass)", ipAddress.ToString());
+            communication.log($"userToken -> {userToken}\n requestToken -> {requestToken} ", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            return select.getMyViews(mail, pass);
+            return select.getMyViews(userToken, requestToken);
 
         }
-        [HttpGet]
+        [HttpPost]
         [Route("user/get/my/ads")]
         [EnableCors("AllowOrigin")]
-        public ResponseStruct<Advertisement> getMyAds(string mail, string pass)
+        public ResponseStruct<Advertisement> GetMyAds(string userToken, string requestToken)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"mail -> {mail}\n pass -> {security.sha256(pass)} ", "getMyAds(string mail, string pass)", ipAddress.ToString());
-            List<Advertisement> advertisement;
+            communication.log($"userToken -> {userToken}\n requestToken -> {requestToken} ", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+         
 
 
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            return select.getMyAds(mail, pass);
+            return select.getMyAds(userToken, requestToken);
 
 
 
@@ -764,20 +751,20 @@ otp = {newUser.otp}
 
 
         }
-        [HttpGet]
+        [HttpPost]
         [Route("user/get/my/ads/viewers")]
         [EnableCors("AllowOrigin")]
-        public ResponseStruct<ViewerStruct> getMyAdViewers(long phone, string pass, int aID)
+        public ResponseStruct<ViewerStruct> GetMyAdViewers(string userToken, string requestToken, int aID)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"phone = {phone}\n pass = {security.sha256(pass)} ", "getMyAdViewers(int phone, string pass)", ipAddress.ToString());
-            List<Advertisement> advertisement;
+            communication.log($"userToken = {userToken}\n requestToken = {requestToken} ", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+           
 
 
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            return select.getMyAdViewers(phone, pass, aID);
+            return select.GetMyAdViewers(userToken, requestToken, aID);
 
 
 
@@ -799,7 +786,7 @@ otp = {newUser.otp}
 
                 var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-                communication.log($"title -> {title} \n body -> {body} \n userID -> {userID} ", "firebase(string text, long userID)", ipAddress.ToString());
+                communication.log($"title -> {title} \n body -> {body} \n userID -> {userID} ", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
                 communication.sendPushNotificationAsync(title, body, userID);
                 communication.sendNotificationAsync(title, body, userID);
 
@@ -823,16 +810,16 @@ otp = {newUser.otp}
         [HttpPost]
         [Route("user/update/ad")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<Status> uAd(string mail = "", string pass = "", int aID = 0, string aName = "", string aDescription = "", int aPrice = 0)
+        public ActionResult<Status> uAd(string userToken = "", string requestToken = "", int aID = 0, string aName = "", string aDescription = "", int aPrice = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"mail -> {mail} \n pass -> {security.sha256(pass)} \n aID -> {aID} \n aName -> {aName} \n aDescription -> {aDescription} \n aPrice -> {aPrice}", "uAd(string mail = '', string pass = '',int aID=0,string aName='',string aDescription='',int aPrice=0)", ipAddress.ToString());
+            communication.log($"userToken -> {userToken} \n requestToken -> {requestToken} \n aID -> {aID} \n aName -> {aName} \n aDescription -> {aDescription} \n aPrice -> {aPrice}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
 
 
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-            return insert.uAd(mail, pass, aID, aName, aDescription, aPrice);
+            return insert.uAd(userToken, requestToken, aID, aName, aDescription, aPrice);
 
 
 
@@ -840,33 +827,33 @@ otp = {newUser.otp}
         [HttpPost]
         [Route("user/delete/ad")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<Status> deleteAd(string mail = "", string pass = "", int aID = 0)
+        public ActionResult<Status> deleteAd(string userToken = "", string requestToken = "", int aID = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"mail -> {mail} \n pass -> {security.sha256(pass)} \n aID -> {aID} ", "deleteAd(string mail = '', string pass = '',int aID=0)", ipAddress.ToString());
+            communication.log($"userToken -> {userToken} \n requestToken -> {requestToken} \n aID -> {aID} ", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
 
 
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-            return insert.deleteAd(mail, pass, aID);
+            return insert.deleteAd(userToken, requestToken, aID);
 
 
 
         }
         [HttpPost]
-        [Route("user/update/pass")]
+        [Route("accounts/update/pass")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<Status> uPass(string mail = "", string pass = "", string newPass = "")
+        public ActionResult<Status> uPass(string userToken = "", string requestToken = "", string newPass = "")
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"mail = {mail} \n pass = {security.sha256(pass)} \n newPass = {newPass}", "uPass(string mail = '', string pass = '', string newPass = '')", ipAddress.ToString());
+            communication.log($"userToken = {userToken} \n requestToken = {requestToken} \n newPass = {newPass}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
 
 
             DbInsert insert = new DbInsert(Configuration, _hostingEnvironment);
-            return insert.uPass(mail, pass, newPass);
+            return insert.uPass(userToken, requestToken, newPass);
 
 
 
