@@ -2,9 +2,9 @@
   <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Model/Database/App/DbInsert.cs">
     <Files>
-      <File FileName="Model/Database/App/DbInsert.cs" Line="503" Column="1" IsPinned="True" />
-      <File FileName="Model/Database/App/DbSelect.cs" Line="1355" Column="36" IsPinned="True" />
-      <File FileName="Controllers/App/androidmobileappController.cs" Line="554" Column="36" />
+      <File FileName="Model/Database/App/DbInsert.cs" Line="491" Column="34" IsPinned="True" />
+      <File FileName="Model/Database/App/DbSelect.cs" IsPinned="True" />
+      <File FileName="Controllers/App/androidmobileappController.cs" />
       <File FileName="Model/App/server/User.cs" />
       <File FileName="Model/App/server/ResponseStruct.cs" />
       <File FileName="Model/App/server/FinanceStruct.cs" />
