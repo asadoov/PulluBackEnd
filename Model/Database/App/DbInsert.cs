@@ -1458,199 +1458,7 @@ namespace PulluBackEnd.Model.App
 
 
 
-                                    using (MySqlCommand com = new MySqlCommand("INSERT INTO announcement (userID,name,description,price,atypeid,ispaid,isactive,mediatpid,trfid,categoryId,countryid,cityid,genderid,rangeid,professionId,cdate)" +
-                                " Values (@userID,@name,@description,@price,@aTypeId,@isPaid,0,@mediaTpId,@trfId,@categoryId" +
-                                ",@countryId,@cityId,@genderId,@rangeId,@professionID,@cDate)", connection))
-                                    {
-
-
-                                        com.Parameters.AddWithValue("@userID", userID1);
-                                        com.Parameters.AddWithValue("@name", obj.aTitle);
-                                        com.Parameters.AddWithValue("@description", obj.aDescription);
-                                        com.Parameters.AddWithValue("@isPaid", obj.isPaid);
-                                        com.Parameters.AddWithValue("@price", obj.aPrice);
-                                        com.Parameters.AddWithValue("@aTypeId", obj.aTypeID);
-                                        com.Parameters.AddWithValue("@mediaTpId", obj.aMediaTypeID);
-                                        com.Parameters.AddWithValue("@trfId", obj.aTrfID);
-                                        com.Parameters.AddWithValue("@categoryId", obj.aCategoryID);
-                                        com.Parameters.AddWithValue("@countryID", obj.aCountryId);
-                                        com.Parameters.AddWithValue("@cityId", obj.aCityId);
-                                        com.Parameters.AddWithValue("@genderId", obj.aGenderID);
-                                        com.Parameters.AddWithValue("@rangeId", obj.aAgeRangeID);
-                                        com.Parameters.AddWithValue("@professionID", obj.aProfessionID);
-                                        com.Parameters.AddWithValue("@cDate", now);
-
-                                        com.ExecuteNonQuery();
-
-                                        lastId = com.LastInsertedId;
-                                        com.Dispose();
-                                    }
-                                    // string photoName = SaveImage(obj.files[0], sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-
-                                    if (lastId > 0)
-                                    {
-
-                                        switch (obj.aMediaTypeID)
-                                        {
-                                            case 1:
-                                                // mediaList.Add(obj.mediaBase64[0]);
-
-                                                mediaInsertQuery = $"({obj.aMediaTypeID},'{obj.aBackgroundUrl}',{lastId},@cDate)";
-
-
-
-                                                break;
-                                            case 2:
-                                                if (obj.files != null)
-                                                {
-                                                    int lastrow = 1;
-                                                    foreach (var item in obj.files)
-                                                    {
-                                                        string photoName = SaveFile(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-                                                        if (photoName != "")
-                                                        {
-
-                                                            // mediaList.Add(@$"https://pullu.az/media/{photoName}");
-                                                            if (lastrow == obj.files.Count())
-                                                            {
-                                                                mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate)";
-                                                            }
-                                                            else
-                                                            {
-                                                                mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate),";
-                                                            }
-                                                        }
-                                                        lastrow++;
-
-                                                    }
-                                                }
-                                                break;
-                                            case 3:
-                                                if (obj.files != null)
-                                                {
-                                                    int lastrow = 1;
-                                                    foreach (var item in obj.files)
-                                                    {
-                                                        string videoName = SaveFile(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-                                                        if (videoName != "")
-                                                        {
-
-                                                            // mediaList.Add(@$"https://pullu.az/media/{photoName}");
-                                                            if (lastrow == obj.files.Count())
-                                                            {
-                                                                mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{videoName}',{lastId},@cDate)";
-                                                            }
-                                                            else
-                                                            {
-                                                                mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{videoName}',{lastId},@cDate),";
-                                                            }
-                                                        }
-                                                        lastrow++;
-
-                                                    }
-                                                }
-                                                break;
-
-
-
-                                        }
-
-
-
-                                        //if (obj.mediaBase64 != null)
-                                        //{
-                                        //    switch (obj.aMediaTypeID)
-                                        //    {
-                                        //        case 1:
-                                        //            // mediaList.Add(obj.mediaBase64[0]);
-                                        //            mediaInsertQuery = $"({obj.aMediaTypeID},'{obj.mediaBase64[0]}',{lastId},@cDate)";
-
-                                        //            break;
-                                        //        case 2:
-                                        //            int lastrow = 1;
-                                        //            foreach (var item in obj.mediaBase64)
-                                        //            {
-                                        //                string photoName = SaveImage(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-                                        //                if (photoName != "")
-                                        //                {
-
-                                        //                    // mediaList.Add(@$"https://pullu.az/media/{photoName}");
-                                        //                    if (lastrow == obj.mediaBase64.Count())
-                                        //                    {
-                                        //                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate)";
-                                        //                    }
-                                        //                    else
-                                        //                    {
-                                        //                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate),";
-                                        //                    }
-                                        //                }
-                                        //                lastrow++;
-
-                                        //            }
-                                        //            break;
-
-
-                                        //    }
-
-                                        //}
-                                        //if (mediaList.Count > 0)
-                                        //{
-
-                                        //    //int lastrow = 1;
-                                        //    foreach (var media in mediaList)
-                                        //    {
-
-                                        //        if (lastrow == mediaList.Count())
-                                        //        {
-                                        //            mediaInsertQuery += $"({obj.aMediaTypeID},'{media}',{lastId},@cDate)";
-                                        //        }
-                                        //        else
-                                        //        {
-                                        //            mediaInsertQuery += $"({obj.aMediaTypeID},'{media}',{lastId},@cDate),";
-                                        //        }
-
-                                        //        lastrow++;
-
-                                        //    }
-                                        //}
-
-
-                                        using (MySqlCommand com = new MySqlCommand($"insert into media (mediaTpId,httpUrl,announcementId,cdate) values {mediaInsertQuery}", connection))
-                                        {
-                                            com.Parameters.AddWithValue("@cDate", now);
-                                            com.ExecuteNonQuery();
-                                            com.Dispose();
-
-                                        }
-                                        //ishlemelidi indi indi 2 ci inserti elemiyecey. onunniye oldugunu arashdirmalisan. yoxsa acib buraxmisanki error verir axi. ele shey olmur error verirse arashdir aradan qald;r
-                                        // vermir eerror
-                                        //vermirse ishleda))
-                                        //inesrteli elemir
-                                        //bax gor niye elemir. serverde error verir lokalda yox?
-                                        //serverde insert elemir
-                                        //localda eliir
-                                        //serverde umumiyyetce mysqle insert elemir ya konkret dbye?
-                                        //pnu bilmirem amma bu db ya
-                                        //ona gore ola biler ki serverin qiraga cixishi baglidi. administratora demek lazimdi
-                                        //acixdi qiraga cixishi
-                                        //yoxlamisan?
-                                        //remote qoshula bilirsen servere?
-                                        //elbette
-                                        //qoshul
-                                        //bax
-                                     
-                                        string email = select.getUserMail(userID1);
-
-                                        communication.sendMailAsync($"Reklamınız moderatora yoxlama üçün göndərildi", email);
-                                        communication.sendNotificationAsync("Reklamınız moderatora yoxlama üçün göndərildi", "Yaxın zamanda təsdiq olunacaq", userID1);
-                                        status.requestToken = security.requestTokenGenerator(obj.userToken, userID1);
-                                        status.response = 1; // Все ок
-                                    }
-                                    else
-                                    {
-                                        status.response = 2;
-
-                                    }
+                                  
 
                                 }
                                     else
@@ -1660,10 +1468,206 @@ namespace PulluBackEnd.Model.App
                                         status.responseString = "Not enough money";
                                     }
                                 }
+                            if (writePermission)
+                            {
+                                using (MySqlCommand com = new MySqlCommand("INSERT INTO announcement (userID,name,description,price,atypeid,ispaid,isactive,mediatpid,trfid,categoryId,countryid,cityid,genderid,rangeid,professionId,cdate)" +
+                             " Values (@userID,@name,@description,@price,@aTypeId,@isPaid,0,@mediaTpId,@trfId,@categoryId" +
+                             ",@countryId,@cityId,@genderId,@rangeId,@professionID,@cDate)", connection))
+                                {
 
-                            
 
-                                connection.Close();
+                                    com.Parameters.AddWithValue("@userID", userID1);
+                                    com.Parameters.AddWithValue("@name", obj.aTitle);
+                                    com.Parameters.AddWithValue("@description", obj.aDescription);
+                                    com.Parameters.AddWithValue("@isPaid", obj.isPaid);
+                                    com.Parameters.AddWithValue("@price", obj.aPrice);
+                                    com.Parameters.AddWithValue("@aTypeId", obj.aTypeID);
+                                    com.Parameters.AddWithValue("@mediaTpId", obj.aMediaTypeID);
+                                    com.Parameters.AddWithValue("@trfId", obj.aTrfID);
+                                    com.Parameters.AddWithValue("@categoryId", obj.aCategoryID);
+                                    com.Parameters.AddWithValue("@countryID", obj.aCountryId);
+                                    com.Parameters.AddWithValue("@cityId", obj.aCityId);
+                                    com.Parameters.AddWithValue("@genderId", obj.aGenderID);
+                                    com.Parameters.AddWithValue("@rangeId", obj.aAgeRangeID);
+                                    com.Parameters.AddWithValue("@professionID", obj.aProfessionID);
+                                    com.Parameters.AddWithValue("@cDate", now);
+
+                                    com.ExecuteNonQuery();
+
+                                    lastId = com.LastInsertedId;
+                                    com.Dispose();
+                                }
+                                // string photoName = SaveImage(obj.files[0], sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+
+                                if (lastId > 0)
+                                {
+
+                                    switch (obj.aMediaTypeID)
+                                    {
+                                        case 1:
+                                            // mediaList.Add(obj.mediaBase64[0]);
+
+                                            mediaInsertQuery = $"({obj.aMediaTypeID},'{obj.aBackgroundUrl}',{lastId},@cDate)";
+
+
+
+                                            break;
+                                        case 2:
+                                            if (obj.files != null)
+                                            {
+                                                int lastrow = 1;
+                                                foreach (var item in obj.files)
+                                                {
+                                                    string photoName = SaveFile(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                                                    if (photoName != "")
+                                                    {
+
+                                                        // mediaList.Add(@$"https://pullu.az/media/{photoName}");
+                                                        if (lastrow == obj.files.Count())
+                                                        {
+                                                            mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate)";
+                                                        }
+                                                        else
+                                                        {
+                                                            mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate),";
+                                                        }
+                                                    }
+                                                    lastrow++;
+
+                                                }
+                                            }
+                                            break;
+                                        case 3:
+                                            if (obj.files != null)
+                                            {
+                                                int lastrow = 1;
+                                                foreach (var item in obj.files)
+                                                {
+                                                    string videoName = SaveFile(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                                                    if (videoName != "")
+                                                    {
+
+                                                        // mediaList.Add(@$"https://pullu.az/media/{photoName}");
+                                                        if (lastrow == obj.files.Count())
+                                                        {
+                                                            mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{videoName}',{lastId},@cDate)";
+                                                        }
+                                                        else
+                                                        {
+                                                            mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{videoName}',{lastId},@cDate),";
+                                                        }
+                                                    }
+                                                    lastrow++;
+
+                                                }
+                                            }
+                                            break;
+
+
+
+                                    }
+
+
+
+                                    //if (obj.mediaBase64 != null)
+                                    //{
+                                    //    switch (obj.aMediaTypeID)
+                                    //    {
+                                    //        case 1:
+                                    //            // mediaList.Add(obj.mediaBase64[0]);
+                                    //            mediaInsertQuery = $"({obj.aMediaTypeID},'{obj.mediaBase64[0]}',{lastId},@cDate)";
+
+                                    //            break;
+                                    //        case 2:
+                                    //            int lastrow = 1;
+                                    //            foreach (var item in obj.mediaBase64)
+                                    //            {
+                                    //                string photoName = SaveImage(item, sha256(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                                    //                if (photoName != "")
+                                    //                {
+
+                                    //                    // mediaList.Add(@$"https://pullu.az/media/{photoName}");
+                                    //                    if (lastrow == obj.mediaBase64.Count())
+                                    //                    {
+                                    //                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate)";
+                                    //                    }
+                                    //                    else
+                                    //                    {
+                                    //                        mediaInsertQuery += $"({obj.aMediaTypeID},'{mediaPathUrl}{photoName}',{lastId},@cDate),";
+                                    //                    }
+                                    //                }
+                                    //                lastrow++;
+
+                                    //            }
+                                    //            break;
+
+
+                                    //    }
+
+                                    //}
+                                    //if (mediaList.Count > 0)
+                                    //{
+
+                                    //    //int lastrow = 1;
+                                    //    foreach (var media in mediaList)
+                                    //    {
+
+                                    //        if (lastrow == mediaList.Count())
+                                    //        {
+                                    //            mediaInsertQuery += $"({obj.aMediaTypeID},'{media}',{lastId},@cDate)";
+                                    //        }
+                                    //        else
+                                    //        {
+                                    //            mediaInsertQuery += $"({obj.aMediaTypeID},'{media}',{lastId},@cDate),";
+                                    //        }
+
+                                    //        lastrow++;
+
+                                    //    }
+                                    //}
+
+
+                                    using (MySqlCommand com = new MySqlCommand($"insert into media (mediaTpId,httpUrl,announcementId,cdate) values {mediaInsertQuery}", connection))
+                                    {
+                                        com.Parameters.AddWithValue("@cDate", now);
+                                        com.ExecuteNonQuery();
+                                        com.Dispose();
+
+                                    }
+                                    //ishlemelidi indi indi 2 ci inserti elemiyecey. onunniye oldugunu arashdirmalisan. yoxsa acib buraxmisanki error verir axi. ele shey olmur error verirse arashdir aradan qald;r
+                                    // vermir eerror
+                                    //vermirse ishleda))
+                                    //inesrteli elemir
+                                    //bax gor niye elemir. serverde error verir lokalda yox?
+                                    //serverde insert elemir
+                                    //localda eliir
+                                    //serverde umumiyyetce mysqle insert elemir ya konkret dbye?
+                                    //pnu bilmirem amma bu db ya
+                                    //ona gore ola biler ki serverin qiraga cixishi baglidi. administratora demek lazimdi
+                                    //acixdi qiraga cixishi
+                                    //yoxlamisan?
+                                    //remote qoshula bilirsen servere?
+                                    //elbette
+                                    //qoshul
+                                    //bax
+
+                                    string email = select.getUserMail(userID1);
+
+                                    communication.sendMailAsync($"Reklamınız moderatora yoxlama üçün göndərildi", email);
+                                    communication.sendNotificationAsync("Reklamınız moderatora yoxlama üçün göndərildi", "Yaxın zamanda təsdiq olunacaq", userID1);
+                                    status.requestToken = security.requestTokenGenerator(obj.userToken, userID1);
+                                    status.response = 1; // Все ок
+
+                                }
+                                else
+                                {
+                                    status.response = 2;
+
+                                }
+                            }
+                           
+
+                            connection.Close();
 
                             }
 
@@ -1690,7 +1694,7 @@ namespace PulluBackEnd.Model.App
             }
             catch (Exception ex)
             {
-                status.response = 4;//Ошибка сервера
+                status.response = 2;//Ошибка сервера
                                     // return statusCode;
                 status.responseString = ex.Message.ToString();
             }
@@ -1750,7 +1754,7 @@ namespace PulluBackEnd.Model.App
                 else
                 {
 
-                    status.response = 3;
+                    status.response = 2;
                     status.responseString = "parameter problem";
                     //  return statusCode;
                 }

@@ -1,9 +1,9 @@
 ﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|">
   <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Database/App/DbSelect.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Database/App/DbInsert.cs">
     <Files>
-      <File FileName="Model/Database/App/DbInsert.cs" Line="503" Column="1" IsPinned="True" />
-      <File FileName="Model/Database/App/DbSelect.cs" Line="1672" Column="42" IsPinned="True" />
+      <File FileName="Model/Database/App/DbInsert.cs" Line="491" Column="34" IsPinned="True" />
+      <File FileName="Model/Database/App/DbSelect.cs" IsPinned="True" />
       <File FileName="Controllers/App/androidmobileappController.cs" />
       <File FileName="Model/App/server/User.cs" />
       <File FileName="Model/App/server/ResponseStruct.cs" />
@@ -16,7 +16,6 @@
       <File FileName="Model/App/server/Status.cs" />
       <File FileName="Model/App/client/NewAdvertisementStruct.cs" />
       <File FileName="Model/App/client/UpdateProfileStruct.cs" />
-      <File FileName="Model/App/server/ProfileStruct.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -36,7 +35,7 @@
                 <Node name="Database" expanded="True">
                   <Node name="Admin" expanded="True" />
                   <Node name="App" expanded="True">
-                    <Node name="DbSelect.cs" selected="True" />
+                    <Node name="DbInsert.cs" selected="True" />
                   </Node>
                   <Node name="Payment" expanded="True">
                     <Node name="Database" expanded="True" />
