@@ -1,10 +1,10 @@
 ﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|">
   <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Database/App/DbInsert.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Controllers/App/androidmobileappController.cs">
     <Files>
-      <File FileName="Model/Database/App/DbInsert.cs" Line="491" Column="34" IsPinned="True" />
+      <File FileName="Model/Database/App/DbInsert.cs" Line="503" Column="1" IsPinned="True" />
       <File FileName="Model/Database/App/DbSelect.cs" IsPinned="True" />
-      <File FileName="Controllers/App/androidmobileappController.cs" />
+      <File FileName="Controllers/App/androidmobileappController.cs" Line="638" Column="25" />
       <File FileName="Model/App/server/User.cs" />
       <File FileName="Model/App/server/ResponseStruct.cs" />
       <File FileName="Model/App/server/FinanceStruct.cs" />
@@ -16,15 +16,20 @@
       <File FileName="Model/App/server/Status.cs" />
       <File FileName="Model/App/client/NewAdvertisementStruct.cs" />
       <File FileName="Model/App/client/UpdateProfileStruct.cs" />
+      <File FileName="Model/App/server/ProfileStruct.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="PulluBackEnd" expanded="True">
             <Node name="PulluBackEnd" expanded="True">
-              <Node name="Dependencies" expanded="True" />
+              <Node name="Dependencies" expanded="True">
+                <Node name="AssemblyDependencies" expanded="True" />
+              </Node>
               <Node name="Controllers" expanded="True">
-                <Node name="App" expanded="True" />
+                <Node name="App" expanded="True">
+                  <Node name="androidmobileappController.cs" selected="True" />
+                </Node>
               </Node>
               <Node name="Model" expanded="True">
                 <Node name="App" expanded="True">
@@ -34,9 +39,7 @@
                 <Node name="CommonScripts" expanded="True" />
                 <Node name="Database" expanded="True">
                   <Node name="Admin" expanded="True" />
-                  <Node name="App" expanded="True">
-                    <Node name="DbInsert.cs" selected="True" />
-                  </Node>
+                  <Node name="App" expanded="True" />
                   <Node name="Payment" expanded="True">
                     <Node name="Database" expanded="True" />
                   </Node>
@@ -52,7 +55,9 @@
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/usr/local/share/dotnet/sdk/3.1.401/Sdks/Microsoft.NET.Sdk/targets/Microsoft.PackageDependencyResolution.targets" line="241" column="5" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />
 </Properties>
