@@ -1647,6 +1647,35 @@ FROM pullu_db.announcement_view a where announcementId = @aID and userid > 0;
                                     profile.cityID = reader["cityID"] == DBNull.Value ? 0 : Convert.ToInt32(reader["cityID"]); 
                                     profile.gender = reader["gender"] == DBNull.Value ? "" : reader["gender"].ToString(); 
                                     profile.cDate = reader["cdate"] == DBNull.Value ? DateTime.Now : Convert.ToDateTime(reader["cdate"]);
+                                    int genderID = reader["genderID"] == DBNull.Value ? 1 : Convert.ToInt32(reader["genderID"]);
+                                    string defaultUserPhoto = "";
+                                    switch (genderID)
+                                    {
+                                        case 1:
+                                            defaultUserPhoto = "http://master.pullu.az/public/assets/images/users/userboy.png";
+                                            break;
+                                        case 2:
+                                            defaultUserPhoto = "http://master.pullu.az/public/assets/images/users/usergirl.png";
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    if (reader["photo"] != DBNull.Value)
+                                    {
+                                        if (!string.IsNullOrEmpty(reader["photo"].ToString()))
+                                        {
+                                            profile.photoURL = reader["photo"].ToString();
+                                        }
+                                        else
+                                        {
+                                            profile.photoURL = defaultUserPhoto;
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        profile.photoURL = defaultUserPhoto;
+                                    }
 
                                     response.data.Add(profile);
                                 }

@@ -20,6 +20,7 @@ namespace PulluBackEnd.Model.App.server
         public string profession { get; set; }
         public int professionID { get; set; }
         public DateTime cDate { get; set; }
-        
+        public string photoURL { get; set; }
+
     }
 }

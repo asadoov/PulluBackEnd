@@ -14,7 +14,7 @@
         "outputPath": "/Users/rufat/Documents/GitHub/PulluBackEnd/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/Users/rufat/.config/NuGet/NuGet.Config"
+          "/Users/rufat/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.0"

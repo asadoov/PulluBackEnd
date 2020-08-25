@@ -614,7 +614,7 @@ otp = {newUser.otp}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
         //OLD accounts/password/reset/confirm
 
         [HttpPost]
-        [Route("password/reset/verify/mail/otp")]
+        [Route("password/reset/verify/sms/otp")]
         [EnableCors("AllowOrigin")]
         public Status ConfirmCode(string otp, long phone)
         {
@@ -635,7 +635,7 @@ otp = {newUser.otp}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
         }
         [HttpPost]
-        [Route("password/reset/verify/sms/otp")]
+        [Route("password/reset/verify/mail/otp")]
         [EnableCors("AllowOrigin")]
         public Status ConfirmCode(string otp, string mail)
         {
