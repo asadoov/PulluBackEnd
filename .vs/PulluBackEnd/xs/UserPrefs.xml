@@ -1,25 +1,22 @@
-﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|PulluBackEnd">
+﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|">
   <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Database/App/DbSelect.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Database/App/DbInsert.cs">
     <Files>
-      <File FileName="Model/Database/App/DbInsert.cs" Line="363" Column="23" IsPinned="True" />
-      <File FileName="Model/Database/App/DbSelect.cs" Line="291" Column="29" />
-      <File FileName="Controllers/App/androidmobileappController.cs" Line="614" Column="37" />
+      <File FileName="Model/Database/App/DbInsert.cs" Line="1665" Column="66" IsPinned="True" />
+      <File FileName="Model/Database/App/DbSelect.cs" IsPinned="True" />
+      <File FileName="Controllers/App/androidmobileappController.cs" Line="493" Column="31" />
       <File FileName="Model/App/server/User.cs" />
       <File FileName="Model/App/server/ResponseStruct.cs" />
       <File FileName="Model/App/server/FinanceStruct.cs" />
-      <File FileName="Model/Database/Admin/DbInsert.cs" Line="413" Column="73" />
+      <File FileName="Model/Database/Admin/DbInsert.cs" />
       <File FileName="Model/CommonScripts/Communication.cs" />
       <File FileName="Model/App/server/SignInStruct.cs" />
       <File FileName="Model/CommonScripts/Security.cs" />
       <File FileName="Model/App/client/NewUserStruct.cs" />
-      <File FileName="Model/App/server/Status.cs" />
+      <File FileName="Model/App/server/Status.cs" Line="10" Column="1" />
       <File FileName="Model/App/client/NewAdvertisementStruct.cs" />
       <File FileName="Model/App/client/UpdateProfileStruct.cs" />
       <File FileName="Model/App/server/ProfileStruct.cs" />
-      <File FileName="Model/App/client/NewUser.cs" />
-      <File FileName="Model/App/server/BackgroundImageStruct.cs" />
-      <File FileName="Model/App/server/Advertisement.cs" Line="26" Column="44" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -28,7 +25,6 @@
             <Node name="PulluBackEnd" expanded="True" selected="True">
               <Node name="Dependencies" expanded="True">
                 <Node name="AssemblyDependencies" expanded="True" />
-                <Node name="PackageDependencies" expanded="True" />
               </Node>
               <Node name="Controllers" expanded="True">
                 <Node name="App" expanded="True" />
@@ -59,7 +55,6 @@
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/usr/local/share/dotnet/sdk/3.1.401/Sdks/Microsoft.NET.Sdk/targets/Microsoft.PackageDependencyResolution.targets" line="241" column="5" />
-      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Model/Database/App/DbSelect.cs" relfile="Model/Database/App/DbSelect.cs" line="1195" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />

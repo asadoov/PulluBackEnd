@@ -1468,6 +1468,11 @@ namespace PulluBackEnd.Model.App
                                         status.responseString = "Not enough money";
                                     }
                                 }
+                            else
+                            {
+                                status.response = 7;
+                                status.responseString = "Tariff and paid error";
+                            }
                             if (writePermission)
                             {
                                 using (MySqlCommand com = new MySqlCommand("INSERT INTO announcement (userID,name,description,price,atypeid,ispaid,isactive,mediatpid,trfid,categoryId,countryid,cityid,genderid,rangeid,professionId,cdate)" +
@@ -1657,6 +1662,7 @@ namespace PulluBackEnd.Model.App
                                     communication.sendNotificationAsync("Reklamınız moderatora yoxlama üçün göndərildi", "Yaxın zamanda təsdiq olunacaq", userID1);
                                     status.requestToken = security.requestTokenGenerator(obj.userToken, userID1);
                                     status.response = 1; // Все ок
+                                    status.responseString = "ok";
 
                                 }
                                 else
@@ -1665,7 +1671,11 @@ namespace PulluBackEnd.Model.App
 
                                 }
                             }
-                           
+                            else
+                            {
+                                status.response = 6;//write permission
+                                status.responseString = "write permission error";
+                            }
 
                             connection.Close();
 
