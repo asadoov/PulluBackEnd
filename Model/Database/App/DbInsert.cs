@@ -1489,7 +1489,7 @@ namespace PulluBackEnd.Model.App
                                     com.Parameters.AddWithValue("@cityId", obj.aCityId);
                                     com.Parameters.AddWithValue("@genderId", obj.aGenderID);
                                     com.Parameters.AddWithValue("@rangeId", obj.aAgeRangeID);
-                                    com.Parameters.AddWithValue("@professionID", obj.aProfessionID);
+                                    //com.Parameters.AddWithValue("@professionID", obj.aProfessionID);
                                     com.Parameters.AddWithValue("@cDate", now);
 
                                     com.ExecuteNonQuery();

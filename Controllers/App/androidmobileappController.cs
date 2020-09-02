@@ -104,10 +104,21 @@ namespace PulluBackEnd.Controllers
 
             communication.log($"{userData}\ncatID = {catID}\npageNo = {pageNo}\nisPaid = {isPaid}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            return Ok(select.Advertisements(userToken, requestToken, pageNo, isPaid, catID));
+            return Ok(select.GetAdvertisements(userToken, requestToken, pageNo, isPaid, catID));
 
 
         }
+        //[HttpGet]
+        //[Route("check")]
+        //[EnableCors("AllowOrigin")]
+        //public ActionResult<string> check()
+        //{
+           
+        //    DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+        //    return Ok(select.GetThumnailImage("a","bbbbb"));
+
+
+        //}
 
 
         [HttpPost]

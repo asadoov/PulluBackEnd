@@ -23,7 +23,7 @@ namespace PulluBackEnd.Model.App.client
         public int aCityId { get; set; }
         public int aGenderID { get; set; }
         public int aAgeRangeID { get; set; }
-        public int aProfessionID { get; set; }
+        public List<int> aInterestIds { get; set; }
         public string aBackgroundUrl { get; set; }
         public List<IFormFile> files { get; set; }
        // public List<string> mediaBase64 { get; set; }

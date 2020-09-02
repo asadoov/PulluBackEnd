@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -11,6 +13,7 @@ using PulluBackEnd.Model.App;
 using PulluBackEnd.Model.App.client;
 using PulluBackEnd.Model.App.server;
 using PulluBackEnd.Model.CommonScripts;
+
 
 namespace PulluBackEnd.Model.Database.App
 {
@@ -234,9 +237,64 @@ namespace PulluBackEnd.Model.Database.App
 
         }
 
+       public string GetThumnailImage(string inputName,string inputExtention,string outputName)
+{
+
+            string result = "";
+            try
+            {
+                if (!string.IsNullOrEmpty(inputName) && !string.IsNullOrEmpty(outputName))
+                {
+                    result = $"https://pullu.az/thumbnails/{outputName}.png";
+
+                    string rootPath = $"{_hostingEnvironment.ContentRootPath}/wwwroot/";
+                if (!File.Exists($"{rootPath}thumbnails/{inputName}.png"))
+                {
+                    string subPath = "thumbnails"; // your code goes here
+
+                    bool exists = Directory.Exists($"{rootPath}{subPath}");
+
+                    if (!exists)
+                    {
+                        Directory.CreateDirectory($"{rootPath}{subPath}");
+                    }
+
+                   
+
+                        string ffmpegPath = $"{_hostingEnvironment.ContentRootPath}/wwwroot/ffmpeg";
 
 
-        public ResponseStruct<Advertisement> Advertisements(string userToken, string requestToken,int pageNo, int isPaid, int categoryID)
+                        System.Diagnostics.ProcessStartInfo procStartInfo =
+                   new System.Diagnostics.ProcessStartInfo($"{ffmpegPath}", $" -i {rootPath}media/{inputName}{inputExtention} -ss 00:00:01.000 -vframes 1 {rootPath}thumbnails/{outputName}.png");
+
+                        // The following commands are needed to redirect the standard output.
+                        // This means that it will be redirected to the Process.StandardOutput StreamReader.
+                        procStartInfo.RedirectStandardOutput = true;
+                        procStartInfo.UseShellExecute = false;
+                        // Do not create the black window.
+                        procStartInfo.CreateNoWindow = true;
+
+                        System.Diagnostics.Process proc = new System.Diagnostics.Process();
+                        proc.StartInfo = procStartInfo;
+                        proc.Start();
+
+                        //  Process.Start($"{ffmpegPath}", $" -ss 00:00:01.0 -t 240 -sameq -i '{output}/media/d6dd2fb6df5cfc15f0fb4807a01adfef467710b91dda64626a47391a56a4d8a4.mov' '{output}' ");
+                        // result = proc.StandardOutput.ReadToEnd();
+
+
+                    }
+                   
+                }
+            }
+            catch (Exception ex)
+            {
+                result = "";
+                Console.WriteLine(ex.Message);
+            }
+            return result;
+        }
+
+        public ResponseStruct<Advertisement> GetAdvertisements(string userToken, string requestToken,int pageNo, int isPaid, int categoryID)
 
         {
 
@@ -333,6 +391,19 @@ namespace PulluBackEnd.Model.Database.App
                                                 ads.cDate = DateTime.Parse(reader["cdate"].ToString());
                                                 ads.photoUrl = new List<string>();
                                                 ads.photoUrl.Add(reader["photoUrl"].ToString());
+                                            switch (ads.aTypeId) {
+                                                case 1:
+                                                    ads.thumbnail = reader["photoUrl"].ToString();
+                                                    break;
+                                                case 2:
+                                                    ads.thumbnail = reader["photoUrl"].ToString();
+                                                    break;
+                                                case 3:
+                                                    ads.thumbnail = GetThumnailImage(Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()), Path.GetExtension(reader["photoUrl"].ToString()), Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()));
+                                                    break;
+
+                                            }
+                                          
 
 
 
@@ -393,9 +464,22 @@ namespace PulluBackEnd.Model.Database.App
                                                     ads.photoUrl = new List<string>();
                                                     ads.photoUrl.Add(reader["photoUrl"].ToString());
 
+                                                switch (ads.aTypeId)
+                                                {
+                                                    case 1:
+                                                        ads.thumbnail = reader["photoUrl"].ToString();
+                                                        break;
+                                                    case 2:
+                                                        ads.thumbnail = reader["photoUrl"].ToString();
+                                                        break;
+                                                    case 3:
+                                                        ads.thumbnail = GetThumnailImage(Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()), Path.GetExtension(reader["photoUrl"].ToString()), Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()));
+                                                        break;
+
+                                                }
 
 
-                                                    adResponse.data.Add(ads);
+                                                adResponse.data.Add(ads);
                                                 }
 
                                             }
@@ -510,6 +594,19 @@ namespace PulluBackEnd.Model.Database.App
                                             // ads.cDate = DateTime.Parse(reader["cdate"].ToString());
                                             ads.photoUrl = new List<string>();
                                             ads.photoUrl.Add(reader["photoUrl"].ToString());
+                                            switch (ads.aTypeId)
+                                            {
+                                                case 1:
+                                                    ads.thumbnail = reader["photoUrl"].ToString();
+                                                    break;
+                                                case 2:
+                                                    ads.thumbnail = reader["photoUrl"].ToString();
+                                                    break;
+                                                case 3:
+                                                    ads.thumbnail = GetThumnailImage(Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()), Path.GetExtension(reader["photoUrl"].ToString()), Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()));
+                                                    break;
+
+                                            }
                                             myAds.data.Add(ads);
 
                                         }
@@ -624,6 +721,19 @@ namespace PulluBackEnd.Model.Database.App
                                             // ads.cDate = DateTime.Parse(reader["cdate"].ToString());
                                             ads.photoUrl = new List<string>();
                                             ads.photoUrl.Add(reader["photoUrl"].ToString());
+                                            switch (ads.aTypeId)
+                                            {
+                                                case 1:
+                                                    ads.thumbnail = reader["photoUrl"].ToString();
+                                                    break;
+                                                case 2:
+                                                    ads.thumbnail = reader["photoUrl"].ToString();
+                                                    break;
+                                                case 3:
+                                                    ads.thumbnail = GetThumnailImage(Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()), Path.GetExtension(reader["photoUrl"].ToString()), Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()));
+                                                    break;
+
+                                            }
                                             myAds.data.Add(ads);
 
                                         }
@@ -1095,10 +1205,10 @@ FROM pullu_db.announcement_view a where announcementId = @aID and userid > 0;
 
                    
 
-                    MySqlCommand com = new MySqlCommand("select name from user where  mobile = @login and otp=SHA2(@otp,512)", connection);
+                    MySqlCommand com = new MySqlCommand("select name from user where  mobile = @phone and otp=SHA2(@otp,512)", connection);
 
 
-                    com.Parameters.AddWithValue("@login", phone);
+                    com.Parameters.AddWithValue("@phone", phone);
                     
                     com.Parameters.AddWithValue("@otp", code);
 

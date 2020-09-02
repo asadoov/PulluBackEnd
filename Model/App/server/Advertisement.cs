@@ -23,6 +23,7 @@ namespace PulluBackEnd.Model.App.server
         public string catName { get; set; }
         public DateTime cDate { get; set; }
         public List<string> photoUrl { get; set; }
+        public string thumbnail { get; set; }
         public int views { get; set; }
         public int tariffViewCount { get; set; }
     }
