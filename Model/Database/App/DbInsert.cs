@@ -1475,9 +1475,9 @@ namespace PulluBackEnd.Model.App
                             }
                             if (writePermission)
                             {
-                                using (MySqlCommand com = new MySqlCommand("INSERT INTO announcement (userID,name,description,price,atypeid,ispaid,isactive,mediatpid,trfid,categoryId,countryid,cityid,genderid,rangeid,professionId,cdate)" +
+                                using (MySqlCommand com = new MySqlCommand("INSERT INTO announcement (userID,name,description,price,atypeid,ispaid,isactive,mediatpid,trfid,categoryId,countryid,cityid,genderid,rangeid,cdate)" +
                              " Values (@userID,@name,@description,@price,@aTypeId,@isPaid,0,@mediaTpId,@trfId,@categoryId" +
-                             ",@countryId,@cityId,@genderId,@rangeId,@professionID,@cDate)", connection))
+                             ",@countryId,@cityId,@genderId,@rangeId,@cDate)", connection))
                                 {
 
 
