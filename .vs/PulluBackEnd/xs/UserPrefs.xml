@@ -1,10 +1,10 @@
 ﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|Default">
   <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Model/App/client/NewAdvertisementStruct.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Controllers/App/androidmobileappController.cs">
     <Files>
-      <File FileName="Model/Database/App/DbInsert.cs" Line="1372" Column="1" IsPinned="True" />
+      <File FileName="Model/Database/App/DbInsert.cs" Line="1367" Column="23" IsPinned="True" />
       <File FileName="Model/Database/App/DbSelect.cs" IsPinned="True" />
-      <File FileName="Controllers/App/androidmobileappController.cs" Line="496" Column="58" />
+      <File FileName="Controllers/App/androidmobileappController.cs" Line="504" Column="32" />
       <File FileName="Model/App/server/User.cs" />
       <File FileName="Model/App/server/ResponseStruct.cs" />
       <File FileName="Model/App/server/FinanceStruct.cs" />
@@ -12,13 +12,13 @@
       <File FileName="Model/CommonScripts/Communication.cs" />
       <File FileName="Model/App/server/SignInStruct.cs" />
       <File FileName="Model/CommonScripts/Security.cs" />
-      <File FileName="Model/App/client/NewUserStruct.cs" Line="1" Column="1" />
+      <File FileName="Model/App/client/NewUserStruct.cs" />
       <File FileName="Model/App/server/Status.cs" />
-      <File FileName="Model/App/client/NewAdvertisementStruct.cs" Line="10" Column="18" />
+      <File FileName="Model/App/client/NewAdvertisementStruct.cs" />
       <File FileName="Model/App/client/UpdateProfileStruct.cs" />
       <File FileName="Model/App/server/ProfileStruct.cs" />
-      <File FileName="Properties/launchSettings.json" Line="25" Column="30" />
-      <File FileName="Model/App/client/NewUser.cs" Line="1" Column="1" />
+      <File FileName="Properties/launchSettings.json" />
+      <File FileName="Model/App/client/NewUser.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -26,13 +26,13 @@
           <Node name="PulluBackEnd" expanded="True">
             <Node name="PulluBackEnd" expanded="True">
               <Node name="Controllers" expanded="True">
-                <Node name="App" expanded="True" />
+                <Node name="App" expanded="True">
+                  <Node name="androidmobileappController.cs" selected="True" />
+                </Node>
               </Node>
               <Node name="Model" expanded="True">
                 <Node name="App" expanded="True">
-                  <Node name="client" expanded="True">
-                    <Node name="NewAdvertisementStruct.cs" selected="True" />
-                  </Node>
+                  <Node name="client" expanded="True" />
                 </Node>
                 <Node name="Database" expanded="True">
                   <Node name="App" expanded="True" />
@@ -51,9 +51,7 @@
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/usr/local/share/dotnet/sdk/3.1.401/Sdks/Microsoft.NET.Sdk/targets/Microsoft.PackageDependencyResolution.targets" line="241" column="5" />
-      <Breakpoint file="/Users/rufat/Desktop/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="1391" column="1" />
-      <Breakpoint file="/Users/rufat/Desktop/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="1370" column="1" />
-      <Breakpoint file="/Users/rufat/Desktop/PulluBackEnd/Controllers/App/androidmobileappController.cs" relfile="Controllers/App/androidmobileappController.cs" line="497" column="1" />
+      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Controllers/App/androidmobileappController.cs" relfile="Controllers/App/androidmobileappController.cs" line="497" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />

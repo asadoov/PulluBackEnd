@@ -653,7 +653,7 @@ namespace PulluBackEnd.Model.App
                 {
                     connection.Open();
 
-                    MySqlCommand com = new MySqlCommand("update user set passwd=SHA2(@newPassword,512),otp=null where otp=SHA2(@otp,512) and mobile = @phone)", connection);
+                    MySqlCommand com = new MySqlCommand("update user set passwd=SHA2(@newPassword,512),otp=null where otp=SHA2(@otp,512) and mobile = @phone", connection);
                     com.Parameters.AddWithValue("@otp", code);
                     com.Parameters.AddWithValue("@newPassword", newPassword);
                     com.Parameters.AddWithValue("@phone", phone);
@@ -661,12 +661,12 @@ namespace PulluBackEnd.Model.App
                     int exist = com.ExecuteNonQuery();
                     if (exist > 0)
                     {
-                        status.response = 0;
+                        status.response = 1;
 
                     }
                     else
                     {
-                        status.response = 1;//password not changed
+                        status.response = 2;//password not changed
                     }
                     connection.Close();
                     return status;
