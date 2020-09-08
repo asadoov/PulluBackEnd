@@ -111,12 +111,14 @@ namespace PulluBackEnd.Model.Database.App
                                     }
                                     //  connection.Close();
 
-
+                                    Security security = new Security(Configuration, _hostingEnvironment);
+                                    response.status = 1;
+                                    response.data[0].userToken = security.userTokenGenerator(response.data[0].ID);
+                                    response.requestToken = security.requestTokenGenerator(response.data[0].userToken, response.data[0].ID);
                                 }
-                                Security security = new Security(Configuration,_hostingEnvironment);
-                                response.status = 1;
-                                response.data[0].userToken = security.userTokenGenerator(response.data[0].ID);
-                                response.requestToken = security.requestTokenGenerator(response.data[0].userToken, response.data[0].ID); 
+                                else {
+                                    response.status = 2;
+                                }
                                
                             }
 

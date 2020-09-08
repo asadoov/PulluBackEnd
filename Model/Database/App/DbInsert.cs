@@ -688,8 +688,7 @@ namespace PulluBackEnd.Model.App
 
         {
             Status statusCode = new Status();
-            if (!string.IsNullOrEmpty(newUser.mail) &&
-               !string.IsNullOrEmpty(newUser.name) &&
+            if (!string.IsNullOrEmpty(newUser.name) &&
                !string.IsNullOrEmpty(newUser.surname) &&
                !string.IsNullOrEmpty(newUser.pass) &&
               newUser.phone > 0 &&
