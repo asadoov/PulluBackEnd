@@ -1,15 +1,15 @@
 ﻿<Properties StartupConfiguration="{CA7EF4F0-D6B3-431A-A088-666A9E0C17FE}|Default">
   <MonoDevelop.Ide.ItemProperties.PulluBackEnd PreferredExecutionTarget="/Applications/Safari.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Model/Database/App/DbSelect.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Controllers/App/androidmobileappController.cs">
     <Files>
-      <File FileName="Model/Database/App/DbInsert.cs" Line="691" Column="17" IsPinned="True" />
-      <File FileName="Model/Database/App/DbSelect.cs" Line="32" Column="75" IsPinned="True" />
+      <File FileName="Model/Database/App/DbInsert.cs" Line="1050" Column="60" IsPinned="True" />
       <File FileName="Controllers/App/androidmobileappController.cs" Line="70" Column="30" />
+      <File FileName="Model/Database/App/DbSelect.cs" Line="305" Column="31" />
       <File FileName="Model/App/server/User.cs" />
       <File FileName="Model/App/server/ResponseStruct.cs" />
       <File FileName="Model/App/server/FinanceStruct.cs" />
       <File FileName="Model/Database/Admin/DbInsert.cs" />
-      <File FileName="Model/CommonScripts/Communication.cs" />
+      <File FileName="Model/CommonScripts/Communication.cs" Line="172" Column="35" />
       <File FileName="Model/App/server/SignInStruct.cs" />
       <File FileName="Model/CommonScripts/Security.cs" />
       <File FileName="Model/App/client/NewUserStruct.cs" />
@@ -32,6 +32,7 @@
                 <Node name="App" expanded="True">
                   <Node name="client" expanded="True" />
                 </Node>
+                <Node name="CommonScripts" expanded="True" />
                 <Node name="Database" expanded="True">
                   <Node name="App" expanded="True" />
                 </Node>
@@ -49,9 +50,10 @@
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/usr/local/share/dotnet/sdk/3.1.401/Sdks/Microsoft.NET.Sdk/targets/Microsoft.PackageDependencyResolution.targets" line="241" column="5" />
-      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Controllers/App/androidmobileappController.cs" relfile="Controllers/App/androidmobileappController.cs" line="497" column="1" />
-      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Controllers/App/androidmobileappController.cs" relfile="Controllers/App/androidmobileappController.cs" line="679" column="1" />
+      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Controllers/App/androidmobileappController.cs" relfile="Controllers/App/androidmobileappController.cs" line="515" column="1" />
+      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Controllers/App/androidmobileappController.cs" relfile="Controllers/App/androidmobileappController.cs" line="697" column="1" />
       <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Model/Database/App/DbInsert.cs" relfile="Model/Database/App/DbInsert.cs" line="394" column="1" />
+      <Breakpoint file="/Users/rufat/Documents/GitHub/PulluBackEnd/Model/Database/App/DbSelect.cs" relfile="Model/Database/App/DbSelect.cs" line="148" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MultiItemStartupConfigurations />

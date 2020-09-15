@@ -57,17 +57,17 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("user/login")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<ResponseStruct<SignInStruct>> Login(long phone, string pass)
+        public ActionResult<ResponseStruct<SignInStruct>> Login(long phone, string pass,int platformID = 2)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
 
-            communication.log($"phone = {phone}\n pass ->{pass}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+            communication.log($"phone = {phone}\n pass ->{pass} \n platformID ->{platformID}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
 
 
 
 
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            return select.LogIn(phone, pass);
+            return select.LogIn(phone, pass,platformID);
 
 
 
@@ -96,13 +96,13 @@ namespace PulluBackEnd.Controllers
         public ActionResult<ResponseStruct<Advertisement>> getAds(string userToken = null, string requestToken = null, int pageNo = 1, int isPaid = 0, int catID = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
-            string userData = "";
+            string tokens = "";
             if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(requestToken))
             {
-                userData = $"mail = { userToken}\npass = {requestToken}";
+                tokens = $"userToken = { userToken}\requestToken = {requestToken}";
             }
 
-            communication.log($"{userData}\ncatID = {catID}\npageNo = {pageNo}\nisPaid = {isPaid}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+            communication.log($"{tokens}\ncatID = {catID}\npageNo = {pageNo}\nisPaid = {isPaid}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
             return Ok(select.GetAdvertisements(userToken, requestToken, pageNo, isPaid, catID));
 
@@ -113,14 +113,32 @@ namespace PulluBackEnd.Controllers
         //[EnableCors("AllowOrigin")]
         //public ActionResult<string> check()
         //{
-           
+
         //    DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
         //    return Ok(select.GetThumnailImage("a","bbbbb"));
 
 
         //}
 
+        [HttpPost]
+        [Route("user/search/ads")]
+        [EnableCors("AllowOrigin")]
+        public ActionResult<ResponseStruct<Advertisement>> SearchForAd(string userToken,string requestToken, string searchQuery,long pageNo=1,long catID=0, int isPaid = 3)
+        {
 
+            var ipAddress = HttpContext.Connection.RemoteIpAddress;
+            string userData = "";
+            if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(requestToken))
+            {
+                userData = $"userToken = { userToken}\requestToken = {requestToken}";
+            }
+
+            communication.log($"{userData}\npageNo = {pageNo}\nisPaid = {isPaid}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
+            return Ok(select.SearchForAds(userToken, requestToken, pageNo, isPaid,searchQuery, catID));
+
+
+        }
         [HttpPost]
         [Route("test")]
         [EnableCors("AllowOrigin")]

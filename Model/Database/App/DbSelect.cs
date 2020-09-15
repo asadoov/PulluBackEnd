@@ -29,7 +29,7 @@ namespace PulluBackEnd.Model.Database.App
             _hostingEnvironment = hostingEnvironment;
 
         }
-        public ResponseStruct<SignInStruct> LogIn(long phone, string pass)
+        public ResponseStruct<SignInStruct> LogIn(long phone, string pass, int platformID)
         {
             ResponseStruct<SignInStruct> response = new ResponseStruct<SignInStruct>();
             response.data = new List<SignInStruct>();
@@ -115,6 +115,7 @@ namespace PulluBackEnd.Model.Database.App
                                     response.status = 1;
                                     response.data[0].userToken = security.userTokenGenerator(response.data[0].ID);
                                     response.requestToken = security.requestTokenGenerator(response.data[0].userToken, response.data[0].ID);
+                                    InsertUserPlatform(response.data[0].ID, platformID);
                                 }
                                 else {
                                     response.status = 2;
@@ -127,6 +128,8 @@ namespace PulluBackEnd.Model.Database.App
 
 
                         }
+                      
+                       
                         connection.Dispose();
                         connection.Close();
                     }
@@ -155,6 +158,32 @@ namespace PulluBackEnd.Model.Database.App
 
 
         }
+        public async Task InsertUserPlatform(long userID,int platformID) {
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+
+                connection.Open();
+                DateTime now = DateTime.Now;
+                using (MySqlCommand com = new MySqlCommand(@"insert into user_platform_rel (userID, platformID, cdate) values(@userID,@platformID,@cdate)", connection))
+                {
+                    com.Parameters.AddWithValue("@userID", userID);
+                    com.Parameters.AddWithValue("@platformID", platformID);
+                    com.Parameters.AddWithValue("@cdate", now);
+
+
+                    com.ExecuteNonQuery();
+
+
+                    com.Dispose();
+
+
+                }
+                connection.Close();
+            }
+        }
+
+      
+
         public ResponseStruct<FinanceStruct> getFinance(string userToken, string requestToken)
         {
             ResponseStruct<FinanceStruct> response = new ResponseStruct<FinanceStruct>();
@@ -294,6 +323,272 @@ namespace PulluBackEnd.Model.Database.App
                 Console.WriteLine(ex.Message);
             }
             return result;
+        }
+        public ResponseStruct<Advertisement> SearchForAds(string userToken, string requestToken, long pageNo, int isPaid,string searchQuery, long categoryID)
+
+        {
+
+            ResponseStruct<Advertisement> adResponse = new ResponseStruct<Advertisement>();
+
+            try
+            {
+
+
+                long userID = 0;
+
+
+                if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(requestToken))
+                {
+                    ResponseStruct<FinanceStruct> response = new ResponseStruct<FinanceStruct>();
+                    Security security = new Security(Configuration, _hostingEnvironment);
+                    int userID1 = security.selectUserToken(userToken);
+                    int userID2 = security.selectRequestToken(requestToken);
+
+                    if (userID1 == userID2 && userID1 > 0 && userID2 > 0)
+                    {
+                        userID = userID1;
+                        adResponse.status = 1;
+                        adResponse.requestToken = security.requestTokenGenerator(userToken, userID1);
+                    }
+                    else
+                    {
+                        adResponse.status = 2;//not authorized
+                    }
+                }
+                else
+                {
+                    adResponse.status = 2;//not authorized
+                }
+
+                long recPerPage = 10;
+
+                // List<Advertisement> adsList = new List<Advertisement>();
+                adResponse.data = new List<Advertisement>();
+                if (isPaid >= 0 && pageNo > 0)
+                {
+                    if (!string.IsNullOrEmpty(searchQuery))
+                    {
+
+
+                        long offset = (pageNo - 1) * recPerPage;
+
+
+
+
+
+
+
+                        string categoryQuery = "";
+                        if (categoryID > 0)
+                        {
+                            categoryQuery = $"and categoryID={categoryID}";
+
+                        }
+
+
+
+
+
+                        switch (isPaid)
+                        {
+                            case 0:
+                                adResponse.data.AddRange(GetFreeAds(categoryQuery, offset, recPerPage, searchQuery));
+
+                                break;
+                            case 1:
+                                adResponse.data.AddRange(GetPaidAds(userID, categoryQuery, offset, recPerPage, searchQuery));
+
+                                break;
+                            default:
+                                adResponse.data.AddRange(GetPaidAds(userID, categoryQuery, offset, recPerPage, searchQuery));
+                                adResponse.data.AddRange(GetFreeAds(categoryQuery, offset, recPerPage, searchQuery));
+                                break;
+                        }
+
+
+                        // connection.Open();
+
+
+
+                    }
+                    else {
+                        adResponse.status = 3;//empty result
+                    }
+
+
+                }
+                else
+                {
+                    adResponse.status = 4;//error
+                }
+
+            }
+            catch (Exception ex)
+            {
+                adResponse.status = 4;//error
+                Console.WriteLine(ex.Message);
+
+            }
+
+
+            return adResponse;
+
+        }
+        public List<Advertisement> GetPaidAds(long userID,string categoryQuery,long offset,long recPerPage,string searchQuery="") {
+            List<Advertisement> freeAds = new List<Advertisement>();
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery = $"and name LIKE '%{searchQuery}%'";
+            }
+
+            string userQuery = "";
+            if (userID > 0)
+            {
+
+                userQuery = "and announcementID not in (select announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and cdate>= now() - INTERVAL 1 DAY)";
+
+            }
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+                using (MySqlCommand com = new MySqlCommand($@"select * ,(SELECT count FROM announcement_tariff where trfid=a.trfId)as trfViewCount,(select count(distinct userID) from announcement_view where announcementId=a.announcementId)as views,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,(select name from category where categoryId=a.categoryId ) as categoryName, 
+       (select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName 
+       from announcement a  where isPaid=1 and isActive=1 {searchQuery} {categoryQuery} {userQuery} order by cdate desc LIMIT {offset}, {recPerPage}", connection))
+                // OLD ALGO ->  $"(announcementId not in (select distinct announcementId from announcement_view where userId=@userID) or announcementID in (select distinct announcementId from announcement_view where announcementID=a.announcementID and userId=@userID and DATE_FORMAT(cdate, '%Y-%m-%d')<DATE_FORMAT(now(), '%Y-%m-%d')))  order by cdate desc", connection))
+                {
+
+                    com.Parameters.AddWithValue("@userID", userID);
+                    MySqlDataReader reader = com.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+
+                        while (reader.Read())
+                        {
+                            if (Convert.ToInt32(reader["views"]) <= (reader["trfViewCount"] == DBNull.Value ? 0 : Convert.ToInt32(reader["trfViewCount"])))
+                            {
+
+
+                                Advertisement ads = new Advertisement();
+                                ads.id = Convert.ToInt32(reader["announcementId"]);
+                                ads.name = reader["name"].ToString();
+                                ads.userID = Convert.ToInt32(reader["userId"]);
+                                ads.description = reader["description"].ToString();
+                                ads.price = reader["price"].ToString();
+                                ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
+                                ads.aTypeName = reader["aTypeName"].ToString();
+                                ads.isPaid = Convert.ToInt32(reader["isPaid"]);
+                                ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
+                                ads.catId = Convert.ToInt32(reader["categoryId"]);
+                                ads.catName = reader["categoryName"].ToString();
+                                ads.cDate = DateTime.Parse(reader["cdate"].ToString());
+                                ads.photoUrl = new List<string>();
+                                ads.photoUrl.Add(reader["photoUrl"].ToString());
+
+                                switch (ads.aTypeId)
+                                {
+                                    case 1:
+                                        ads.thumbnail = reader["photoUrl"].ToString();
+                                        break;
+                                    case 2:
+                                        ads.thumbnail = reader["photoUrl"].ToString();
+                                        break;
+                                    case 3:
+                                        ads.thumbnail = GetThumnailImage(Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()), Path.GetExtension(reader["photoUrl"].ToString()), Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()));
+                                        break;
+
+                                }
+
+
+                                freeAds.Add(ads);
+                            }
+
+                        }
+
+                    }
+                    com.Dispose();
+                }
+                connection.Close();
+            }
+            return freeAds;
+       
+        }
+
+        public List<Advertisement> GetFreeAds(string categoryQuery,long offset,long recPerPage,string searchQuery="") {
+            List<Advertisement> freeAds = new List<Advertisement>();
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery = $"and name LIKE '%{searchQuery}%'";
+            }
+            using (MySqlConnection connection = new MySqlConnection(ConnectionString))
+            {
+                connection.Open();
+
+                using (MySqlCommand com = new MySqlCommand($@"select *,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,(select name from category where categoryId=a.categoryId ) as categoryName,
+                   (select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName
+                   from announcement a where isActive=1 and isPaid=0 {searchQuery} {categoryQuery} order by cdate desc LIMIT {offset}, {recPerPage}", connection))
+                {
+
+
+
+
+                    MySqlDataReader reader = com.ExecuteReader();
+                    if (reader.HasRows)
+                    {
+
+
+                        while (reader.Read())
+                        {
+
+                            Advertisement ads = new Advertisement();
+                            ads.id = Convert.ToInt32(reader["announcementId"]);
+                            ads.name = reader["name"].ToString();
+                            ads.description = reader["description"].ToString();
+                            ads.price = reader["price"].ToString();
+                            ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
+                            ads.aTypeName = reader["aTypeName"].ToString();
+                            ads.isPaid = Convert.ToInt32(reader["isPaid"]);
+                            ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
+                            ads.catId = Convert.ToInt32(reader["categoryId"]);
+                            ads.catName = reader["categoryName"].ToString();
+                            ads.cDate = DateTime.Parse(reader["cdate"].ToString());
+                            ads.photoUrl = new List<string>();
+                            ads.photoUrl.Add(reader["photoUrl"].ToString());
+                            switch (ads.aTypeId)
+                            {
+                                case 1:
+                                    ads.thumbnail = reader["photoUrl"].ToString();
+                                    break;
+                                case 2:
+                                    ads.thumbnail = reader["photoUrl"].ToString();
+                                    break;
+                                case 3:
+                                    ads.thumbnail = GetThumnailImage(Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()), Path.GetExtension(reader["photoUrl"].ToString()), Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()));
+                                    break;
+
+                            }
+
+
+                            freeAds.Add(ads);
+
+                          
+
+
+                        }
+
+
+
+
+                    }
+                    //connection.Close();
+                    //Сортировка платных реклам по пользователю
+
+                    com.Dispose();
+                }
+                connection.Close();
+            }
+            return freeAds;
+
         }
 
         public ResponseStruct<Advertisement> GetAdvertisements(string userToken, string requestToken,int pageNo, int isPaid, int categoryID)
