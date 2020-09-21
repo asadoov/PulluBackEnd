@@ -785,6 +785,71 @@ namespace PulluBackEnd.Model.Database.App
                                         com.Dispose();
                                     }
                                     break;
+                            case 3:
+
+                                using (MySqlCommand com = new MySqlCommand("select *,(select httpUrl from media where announcementId=a.announcementId limit 1) as photoUrl,(select name from category where categoryId=a.categoryId ) as categoryName," +
+                            "(select name from announcement_type where aTypeId=a.aTypeId ) as aTypeName" +
+                            $" from announcement a where isActive=1 {categoryQuery} order by cdate desc LIMIT {offset}, {recPerPage}", connection))
+                                {
+
+
+
+
+                                    MySqlDataReader reader = com.ExecuteReader();
+                                    if (reader.HasRows)
+                                    {
+
+
+                                        while (reader.Read())
+                                        {
+
+                                            Advertisement ads = new Advertisement();
+                                            ads.id = Convert.ToInt32(reader["announcementId"]);
+                                            ads.name = reader["name"].ToString();
+                                            ads.description = reader["description"].ToString();
+                                            ads.price = reader["price"].ToString();
+                                            ads.aTypeId = Convert.ToInt32(reader["aTypeId"]);
+                                            ads.aTypeName = reader["aTypeName"].ToString();
+                                            ads.isPaid = Convert.ToInt32(reader["isPaid"]);
+                                            ads.mediaTpId = Convert.ToInt32(reader["mediaTpId"]);
+                                            ads.catId = Convert.ToInt32(reader["categoryId"]);
+                                            ads.catName = reader["categoryName"].ToString();
+                                            ads.cDate = DateTime.Parse(reader["cdate"].ToString());
+                                            ads.photoUrl = new List<string>();
+                                            ads.photoUrl.Add(reader["photoUrl"].ToString());
+                                            switch (ads.aTypeId)
+                                            {
+                                                case 1:
+                                                    ads.thumbnail = reader["photoUrl"].ToString();
+                                                    break;
+                                                case 2:
+                                                    ads.thumbnail = reader["photoUrl"].ToString();
+                                                    break;
+                                                case 3:
+                                                    ads.thumbnail = GetThumnailImage(Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()), Path.GetExtension(reader["photoUrl"].ToString()), Path.GetFileNameWithoutExtension(reader["photoUrl"].ToString()));
+                                                    break;
+
+                                            }
+
+
+
+
+                                            adResponse.data.Add(ads);
+
+
+                                        }
+
+
+
+
+                                    }
+                                    //connection.Close();
+                                    //Сортировка платных реклам по пользователю
+
+                                    com.Dispose();
+                                }
+
+                                break;
                             }
                            
 

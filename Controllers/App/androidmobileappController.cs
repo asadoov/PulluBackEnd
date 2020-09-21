@@ -93,7 +93,7 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("user/get/ads")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<ResponseStruct<Advertisement>> getAds(string userToken = null, string requestToken = null, int pageNo = 1, int isPaid = 0, int catID = 0)
+        public ActionResult<ResponseStruct<Advertisement>> getAds(string userToken = null, string requestToken = null, int pageNo = 1, int isPaid = 3, int catID = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
             string tokens = "";
