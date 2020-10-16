@@ -93,18 +93,26 @@ namespace PulluBackEnd.Controllers
         [HttpPost]
         [Route("user/get/ads")]
         [EnableCors("AllowOrigin")]
-        public ActionResult<ResponseStruct<Advertisement>> getAds(string userToken = null, string requestToken = null, int pageNo = 1, int isPaid = 3, int catID = 0)
+        public ActionResult<ResponseStruct<Advertisement>> getAds(string userToken = null, string requestToken = null, int pageNo = 1, int isPaid = 3, int catID = 0,string searchQuery = "",double minPrice = 0,double maxPrice = 0)
         {
             var ipAddress = HttpContext.Connection.RemoteIpAddress;
             string tokens = "";
             if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(requestToken))
             {
-                tokens = $"userToken = { userToken}\requestToken = {requestToken}";
+                tokens = $@"userToken = { userToken}
+requestToken = {requestToken}";
             }
 
-            communication.log($"{tokens}\ncatID = {catID}\npageNo = {pageNo}\nisPaid = {isPaid}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
+            communication.log($@"{tokens}
+catID = {catID}
+pageNo = {pageNo}
+isPaid = {isPaid}
+catID = {catID}
+searchQuery = {searchQuery}
+minPrice = {minPrice}
+maxPrice = {maxPrice}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
             DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            return Ok(select.GetAdvertisements(userToken, requestToken, pageNo, isPaid, catID));
+            return Ok(select.GetAdvertisements(userToken, requestToken, pageNo, isPaid, catID,minPrice,maxPrice, searchQuery));
 
 
         }
@@ -120,25 +128,7 @@ namespace PulluBackEnd.Controllers
 
         //}
 
-        [HttpPost]
-        [Route("user/search/ads")]
-        [EnableCors("AllowOrigin")]
-        public ActionResult<ResponseStruct<Advertisement>> SearchForAd(string userToken,string requestToken, string searchQuery,long pageNo=1,long catID=0, int isPaid = 3)
-        {
-
-            var ipAddress = HttpContext.Connection.RemoteIpAddress;
-            string userData = "";
-            if (!string.IsNullOrEmpty(userToken) && !string.IsNullOrEmpty(requestToken))
-            {
-                userData = $"userToken = { userToken}\requestToken = {requestToken}";
-            }
-
-            communication.log($"{userData}\npageNo = {pageNo}\nisPaid = {isPaid}", MethodBase.GetCurrentMethod().Name, ipAddress.ToString());
-            DbSelect select = new DbSelect(Configuration, _hostingEnvironment);
-            return Ok(select.SearchForAds(userToken, requestToken, pageNo, isPaid,searchQuery, catID));
-
-
-        }
+        
         [HttpPost]
         [Route("test")]
         [EnableCors("AllowOrigin")]
